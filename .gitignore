@@ -1,0 +1,5 @@
+PureForest_dataset
+lightning_logs
+.venv
+__pycache__
+.vscode
