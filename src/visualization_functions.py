@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
+from datetime import datetime
 from random import choice
+from pathlib import Path
 from PIL import Image
 import numpy as np
 
@@ -18,7 +20,7 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int=5):
 
         n_rows = n_of_images
         n_cols = 8
-        fig, axs = plt.subplots(n_rows, n_cols)
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(30,30))
 
         for i, ax_row in enumerate(axs):
 
@@ -35,17 +37,22 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int=5):
             img = np.array(Image.open(img_path))
             label = class_names[dataset["train"]["labels"][idx]]
 
-            fig.suptitle(f'Class name: {label}', fontsize=16)
+            fig.suptitle(f'Class name: {label}', fontsize=36)
             fig.tight_layout()
 
             for j, ax in enumerate(ax_row):
                 ax.imshow(img[...,channels[j]] if channels[j] else Image.fromarray(img).convert('RGB'))
                 if i == 0:
-                    ax.set_title(titles[j])
+                    ax.set_title(titles[j], fontsize=20)
                 ax.axis('off')
 
         plt.tight_layout()
-        plt.show()
+
+        # Saving image
+        path = Path.cwd() / "src" / "plots"
+        path.mkdir(exist_ok=True)
+
+        plt.savefig(path / f"{label}.png")
         plt.close()
 
 
@@ -67,4 +74,9 @@ def plot_metrics(train_metrics: dict, val_metrics: dict):
     axs[1].legend()
 
     plt.tight_layout()
-    plt.show()
+
+    # Saving image with timestamp to avoid overwriting
+    path = Path.cwd() / "src" / "plots"
+    path.mkdir(exist_ok=True)
+    plt.savefig(path / f"acc_loss_curves_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+    plt.close()

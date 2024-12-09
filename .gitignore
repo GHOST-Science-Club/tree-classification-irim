@@ -1,4 +1,4 @@
-PureForest_dataset
+src/data
 lightning_logs
 .venv
 __pycache__

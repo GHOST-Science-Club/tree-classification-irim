@@ -11,11 +11,11 @@ from visualization_functions import show_n_samples, plot_metrics
 from dataset_functions import download_data, load_dataset, clip_balanced_dataset
 
 
-def main(verbose: bool = False):
+def main():
 
     # Create a dedicated folder for the PureForest dataset to keep each tree species
     # organized, avoiding multiple directories in the main content folder.
-    dataset_folder = Path.cwd() / "PureForest_dataset"
+    dataset_folder = Path.cwd() / "src" / "data"
     dataset_folder.mkdir(exist_ok=True)
 
     species_folders = {
@@ -33,7 +33,7 @@ def main(verbose: bool = False):
 
     download_data(species_folders, main_subfolders, dataset_folder)
     dataset, label_map = load_dataset(dataset_folder)
-    show_n_samples(dataset, species_folders) if verbose else None
+    show_n_samples(dataset, species_folders)
     #clipped_dataset = clip_balanced_dataset(dataset)
 
 
@@ -75,7 +75,7 @@ def main(verbose: bool = False):
     train_metrics = CALLBACKS[0].train_metrics
     val_metrics = CALLBACKS[0].val_metrics
 
-    plot_metrics(train_metrics, val_metrics) if verbose else None
+    plot_metrics(train_metrics, val_metrics)
 
 
 if __name__ == "__main__":
