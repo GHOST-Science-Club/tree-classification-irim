@@ -1,9 +1,13 @@
-<!-- PROJECT SHIELDS -->
+<a id="readme-top"></a>
+
+<!-- PROJECT SHIELDS 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
+
+-->
 
 <!-- PROJECT LOGO -->
 <br />
@@ -54,9 +58,19 @@ The project is supported by the __Institute of Robotics and Machine Intelligence
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Built With
+**Dependencies:**
+- **[PyTorch](https://pytorch.org/):** For deep learning model implementation and processing (`torch`, `torchvision`).
+- **[PyTorch Lightning](https://www.pytorchlightning.ai/):** Simplifies training workflows (`pytorch-lightning`).
+- **[NumPy](https://numpy.org/):** Efficient numerical computing (`numpy`).
+- **[Matplotlib](https://matplotlib.org/):** Visualization library for plotting (`matplotlib`).
 
+**Datasets:**
+- **[PureForest](https://huggingface.co/datasets/IGNF/PureForest):** Aerial images for tree species classification.
 
-### Citation   
+## Getting Started
+...
+
+## Citation   
 ```
 @article{YourName,
   title={Your Title},
