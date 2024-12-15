@@ -9,7 +9,6 @@
 
 -->
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <img src="docs/pexels-markusspiske-1133380.jpeg" alt="Tree classification - Foto from Markus Spiske: https://www.pexels.com/de-de/foto/vogelperspektive-natur-wald-baume-113338/">
@@ -32,7 +31,6 @@
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -40,7 +38,6 @@
 </details>
 
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 GHOST x IRIM project aims to develop an AI algorithm that can recognize tree species from aerial photos and test it on photos of Polish forests. 
 
@@ -67,8 +64,69 @@ The project is supported by the __Institute of Robotics and Machine Intelligence
 **Datasets:**
 - **[PureForest](https://huggingface.co/datasets/IGNF/PureForest):** Aerial images for tree species classification.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Getting Started
 ...
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Usage
+...
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Determine the specifics of the contribution process -->
+## Contributing
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`):
+    - the name of the branch should identify the issue it addresses (e.g. issue number and/or some explanation).
+    - branch can also be created directly inside an issue: https://shorturl.at/3KkQP.
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`):
+    - commit messages should be created according to [the Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) framework.
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## License
+...
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## The Team
+We are a passionate group of students from Poznan University of Technology (PUT), ranging from first-year undergraduates to final-year graduate students.
+
+**Team Leader:**  
+Kacper Dobek ([email@example.com](mailto:email@example.com))
+
+**Team Members:**  
+- Adam Mazur ([email@example.com](mailto:email@example.com))  
+- Jakub Drzymała ([email@example.com](mailto:email@example.com))  
+- Jan Łuczka ([email@example.com](mailto:email@example.com))  
+- Jędrzej Warczyński ([email@example.com](mailto:email@example.com))  
+- Maria Szymańska ([email@example.com](mailto:email@example.com))  
+- Mateusz Konat ([email@example.com](mailto:email@example.com))  
+- Mateusz Lango ([email@example.com](mailto:email@example.com))  
+- Michał Redmer ([email@example.com](mailto:email@example.com))  
+- Piotrek ([email@example.com](mailto:email@example.com))  
+- Wiktor ([email@example.com](mailto:email@example.com))  
+- Zuzanna Drużyńska ([email@example.com](mailto:email@example.com))  
+- Łukasz Osiewicz ([email@example.com](mailto:email@example.com))
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Acknowledgments
+Special shout-out to:
+
+- [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Citation   
 ```
@@ -79,3 +137,5 @@ The project is supported by the __Institute of Robotics and Machine Intelligence
   year={Year}
 }
 ```   
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
