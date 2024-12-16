@@ -25,32 +25,39 @@
     <!-- What to write? What sections to add?
     <a href="https://github.com/GHOST-Science-Club/tree-classification-irim/tree/docu">View Demo</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a> -->
+    · 
+    <a href="https://github.com/GHOST-Science-Club/tree-classification-irim/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a> -->
   </p>
 </div>
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-  </ol>
-</details>
+## Table of Contents
+- [About the Project](#about-the-project)
+- [Builts With](#built-with)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Communication](#communication)
+- [The Team](#the-team)
+- [Ackonwledgemnets](#acknowledgments)
+- [Citation](#citation)
 
+## About the Project
+**GHOST x IRIM** is an initiative by the [GHOST](https://ghost.put.poznan.pl) student organization to develop and test an AI algorithm for identifying tree species from aerial photos, focusing on Polish forests.  
 
-## About The Project
-GHOST x IRIM project aims to develop an AI algorithm that can recognize tree species from aerial photos and test it on photos of Polish forests. 
+### Objectives:
+- Identify tree species sensitive to fires, storms, disease, and pests.
+- Promote diverse, resilient tree stands over vulnerable monocultures.
+- Enable cost-effective, large-scale forest health monitoring.
 
-The purpose of the project is to:
-- enable identification of species sensitive to fires, storms, disease, and pests
-- support policies promoting diverse, resilient tree stands over vulnerable monocultures
-- enable cost-efficient, large-scale monitoring for long-term forest health and sustainability
+### Long-Term Goals:
+- Present findings at major conferences ([MLinPL](https://mlinpl.org), [GHOST Day](https://ghostday.pl)).
+- Contribute to the open-source [Deepness](https://github.com/PUTvision/qgis-plugin-deepness) project.
 
-The long-term goals of the project are:
-- presentation of the findings on a major conference (e.g. [MLinPL](https://mlinpl.org), or [GHOST Day](https://ghostday.pl))
-- integration in the open-source project [Deepness](https://github.com/PUTvision/qgis-plugin-deepness)
+Supported by the **Institute of Robotics and Machine Intelligence (IRIM)** at **Poznań University of Technology (PUT)**.
 
-The project is supported by the __Institute of Robotics and Machine Intelligence__ at __Poznań University of Technology__ (PUT).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -76,7 +83,7 @@ The project is supported by the __Institute of Robotics and Machine Intelligence
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- Determine the specifics of the contribution process -->
+<!-- The specifics of the contribution process to be determined -->
 ## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
@@ -94,8 +101,13 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## License
-...
+## Communication
+
+- **[GHOST Website](https://ghost.put.poznan.pl):** Learn about the GHOST community, its sections (including GHOST x IRIM), and find contact links (e.g., Facebook, LinkedIn).  
+- **[IRIM Website](http://www.cie.put.poznan.pl/index-en.html):** Explore IRIM's work and find contact information for project supervisors.  
+- **GitHub Issues:** Report bugs, request features, install issues, RFCs, thoughts, etc.
+
+For participant contact details, see the [Team](#the-team) section.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -125,6 +137,11 @@ Kacper Dobek ([email@example.com](mailto:email@example.com))
 Special shout-out to:
 
 - [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## License
+[Apache-2.0](LICENSE)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
