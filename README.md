@@ -38,10 +38,10 @@
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 - [Communication](#communication)
 - [The Team](#the-team)
 - [Ackonwledgemnets](#acknowledgments)
+- [License](#license)
 - [Citation](#citation)
 
 ## About the Project
