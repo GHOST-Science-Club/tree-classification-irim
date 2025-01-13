@@ -118,15 +118,14 @@ We are a passionate group of students from Poznan University of Technology (PUT)
 Kacper Dobek ([email@example.com](mailto:email@example.com))
 
 **Team Members:**  
-- Adam Mazur ([email@example.com](mailto:email@example.com))  
-- Jakub Drzymała ([email@example.com](mailto:email@example.com))  
-- Jan Łuczka ([email@example.com](mailto:email@example.com))  
-- Jędrzej Warczyński ([email@example.com](mailto:email@example.com))  
-- Maria Szymańska ([email@example.com](mailto:email@example.com))  
-- Mateusz Konat ([email@example.com](mailto:email@example.com))   
-- Michał Redmer ([email@example.com](mailto:email@example.com))   
-- Wiktor ([email@example.com](mailto:email@example.com)) 
-- Łukasz Osiewicz ([email@example.com](mailto:email@example.com))
+- Adam Mazur
+- Jakub Drzymała
+- Jędrzej Warczyński
+- Maria Szymańska
+- Mateusz Konat
+- Michał Redmer
+- Wiktor Kamzela
+- Łukasz Osiewicz
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
