@@ -1,3 +1,4 @@
+import yaml
 import torch
 from pathlib import Path
 import kornia.augmentation as kaug
@@ -7,40 +8,35 @@ from pytorch_lightning import Trainer
 from model import ResNetClassifier
 from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
+from dataset_functions import download_data, load_dataset
 from visualization_functions import show_n_samples, plot_metrics
-from dataset_functions import download_data, load_dataset, clip_balanced_dataset
 
 
 def main():
 
+    # Load configuration file
+    with open("src/config.yaml", "r") as c:
+        CONFIG = yaml.safe_load(c)
+
     # Create a dedicated folder for the PureForest dataset to keep each tree species
     # organized, avoiding multiple directories in the main content folder.
-    dataset_folder = Path.cwd() / "src" / "data"
+    dataset_folder = Path.cwd() / CONFIG["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
 
-    species_folders = {
-        "Castanea_sativa": "data/imagery-Castanea_sativa.zip",
-        "Pinus_nigra": "data/imagery-Pinus_nigra.zip"
-    }
-
-    main_subfolders = {
-        "aerial_imagery": "imagery/",
-        "lidar": "lidar/"
-    }
+    species_folders = CONFIG["dataset"]["species_folders"]
+    main_subfolders = CONFIG["dataset"]["main_subfolders"]
 
 
     # =========================== DATA LOADING AND PREPROCESSING ================================== #
 
     download_data(species_folders, main_subfolders, dataset_folder)
-    dataset, label_map = load_dataset(dataset_folder)
+    dataset, label_map = load_dataset(dataset_folder, species_folders)
     show_n_samples(dataset, species_folders)
-    #clipped_dataset = clip_balanced_dataset(dataset)
-
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
-    BATCH_SIZE = 32
-    NUM_CLASSES = 2
-    LEARNING_RATE = 0.001
+    BATCH_SIZE = CONFIG["training"]["batch_size"]
+    NUM_CLASSES = CONFIG["training"]["num_classes"]
+    LEARNING_RATE = CONFIG["training"]["learning_rate"]
     TRANSFORMS = kaug.Resize(size=(224, 224))
 
     datamodule = ForestDataModule(
@@ -56,8 +52,8 @@ def main():
     )
 
     # ====================================== TRAINING ========================================== #
-    MAX_EPOCHS = 10
-    DEVICE = 'gpu' if torch.cuda.is_available() else 'cpu'
+    MAX_EPOCHS = CONFIG["training"]["max_epochs"]
+    DEVICE = CONFIG["device"] if torch.cuda.is_available() else "cpu"
     CALLBACKS = [PrintMetricsCallback()]
 
     trainer = Trainer(
@@ -72,10 +68,12 @@ def main():
     # ====================================== TESTING ========================================== #
     trainer.test(model, datamodule=datamodule)
 
-    train_metrics = CALLBACKS[0].train_metrics
-    val_metrics = CALLBACKS[0].val_metrics
-
-    plot_metrics(train_metrics, val_metrics)
+    # Callbacks' service
+    for callback in CALLBACKS:
+        if isinstance(callback, PrintMetricsCallback):
+            train_metrics = callback.train_metrics
+            val_metrics = callback.val_metrics
+            plot_metrics(train_metrics, val_metrics)
 
 
 if __name__ == "__main__":

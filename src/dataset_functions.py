@@ -55,19 +55,24 @@ def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: 
             print(f"Error: {filename} is not a valid zip file")
 
 
-def load_dataset(main_dir: dict, splits: list=["train", "val", "test"]):
+def load_dataset(main_dir: dict, species_folders: dict, splits: list=["train", "val", "test"]):
 
     dataset = {split: {"labels": [], "paths": []} for split in splits} # PLEASE KEEP "paths" KEY!!!!!
-    base_dirs = list(main_dir.glob("*"))
+    #base_dirs = list(main_dir.glob("*")) 
+    base_dirs = [species_folders[filename].\
+                 replace("data/imagery-", "").\
+                 replace(".zip", "") 
+                 for filename in species_folders]
 
     # Create label mapping
-    label_map = {base_dir.stem: idx for idx, base_dir in enumerate(base_dirs)}
+    #label_map = {base_dir.stem: idx for idx, base_dir in enumerate(base_dirs)}
+    label_map = {base_dir: idx for idx, base_dir in enumerate(base_dirs)}
 
     print("Label mapping:", label_map)
 
     # Load images and create labels
     for base_dir in base_dirs:
-        label = label_map[base_dir.stem]
+        label = label_map[base_dir]
 
         for split in splits:
             split_dir = main_dir / base_dir / split
