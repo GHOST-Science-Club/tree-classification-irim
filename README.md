@@ -1,13 +1,20 @@
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS 
+<!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![Unlicense License][license-shield]][license-url]
 
--->
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+[contributors-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+[forks-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/network/members
+[stars-shield]: https://img.shields.io/github/stars/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+[stars-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/stargazers
+[issues-shield]: https://img.shields.io/github/issues/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+[issues-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/issues
 
 <br />
 <a id="readme-top"></a>
