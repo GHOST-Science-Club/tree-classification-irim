@@ -36,7 +36,8 @@
 ## Table of Contents
 
 - [About the Project](#about-the-project)
-- [Builts With](#built-with)
+- [How to run 💡](#how-to-run)
+- [Built With](#built-with)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Contributing](#contributing)
@@ -49,6 +50,30 @@
 
 **GHOST x IRIM** is an initiative by the [GHOST](https://ghost.put.poznan.pl) student organization to develop and test
 an AI algorithm for identifying tree species from aerial photos, focusing on Polish forests.
+
+### How to run 💡
+
+For Linux/MacOS/Unix:
+```
+## Clone the repo and cd into it
+git clone git@github.com:GHOST-Science-Club/tree-classification-irim.git
+cd tree-classification-irim
+
+## Create python env
+python -m venv venv
+source venv/bin/activate
+pip install -r unix-requirements.txt
+python src/main.py
+```
+
+For Windows with CUDA and win32 lib:
+```
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python src/main.py
+```
+
 
 ### Objectives:
 
