@@ -1,9 +1,10 @@
 import yaml
 import torch
+import wandb
 from pathlib import Path
 import kornia.augmentation as kaug
 from pytorch_lightning import Trainer
-
+from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
 from dataset import ForestDataModule
@@ -13,7 +14,6 @@ from visualization_functions import show_n_samples, plot_metrics
 
 
 def main():
-
     # Load configuration file
     with open("src/config.yaml", "r") as c:
         CONFIG = yaml.safe_load(c)
@@ -25,7 +25,6 @@ def main():
 
     species_folders = CONFIG["dataset"]["species_folders"]
     main_subfolders = CONFIG["dataset"]["main_subfolders"]
-
 
     # =========================== DATA LOADING AND PREPROCESSING ================================== #
 
@@ -56,7 +55,16 @@ def main():
     DEVICE = CONFIG["device"] if torch.cuda.is_available() else "cpu"
     CALLBACKS = [PrintMetricsCallback()]
 
+    wandb.login()
+    run = wandb.init(project="ghost-irim")
+    WANDB_LOGGER = WandbLogger(
+        name='ghost-irim',
+        project='ghost-irim',
+        log_model=True
+    )
+
     trainer = Trainer(
+        logger=WANDB_LOGGER,
         max_epochs=MAX_EPOCHS,
         accelerator=DEVICE,
         devices=1,
@@ -74,6 +82,8 @@ def main():
             train_metrics = callback.train_metrics
             val_metrics = callback.val_metrics
             plot_metrics(train_metrics, val_metrics)
+
+    wandb.finish()
 
 
 if __name__ == "__main__":
