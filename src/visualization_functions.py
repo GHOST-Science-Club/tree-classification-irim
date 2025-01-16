@@ -15,7 +15,7 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int=5):
 
     for label in unique_classes:
 
-        alredy_displayed = [] # This object will contains alredy picked samples' indices
+        alredy_displayed = [] # This object contains already picked samples' indices
         indices = np.where(dataset['train']['labels'] == label)[0]
 
         n_rows = n_of_images

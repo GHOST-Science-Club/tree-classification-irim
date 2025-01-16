@@ -1,70 +1,74 @@
+import yaml
 import torch
+import wandb
 from pathlib import Path
 import kornia.augmentation as kaug
 from pytorch_lightning import Trainer
-
+from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
 from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
+from dataset_functions import download_data, load_dataset
 from visualization_functions import show_n_samples, plot_metrics
-from dataset_functions import download_data, load_dataset, clip_balanced_dataset
 
 
 def main():
+    # Load configuration file
+    with open("src/config.yaml", "r") as c:
+        config = yaml.safe_load(c)
 
     # Create a dedicated folder for the PureForest dataset to keep each tree species
     # organized, avoiding multiple directories in the main content folder.
-    dataset_folder = Path.cwd() / "src" / "data"
+    dataset_folder = Path.cwd() / config["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
 
-    species_folders = {
-        "Castanea_sativa": "data/imagery-Castanea_sativa.zip",
-        "Pinus_nigra": "data/imagery-Pinus_nigra.zip"
-    }
-
-    main_subfolders = {
-        "aerial_imagery": "imagery/",
-        "lidar": "lidar/"
-    }
-
+    species_folders = config["dataset"]["species_folders"]
+    main_subfolders = config["dataset"]["main_subfolders"]
 
     # =========================== DATA LOADING AND PREPROCESSING ================================== #
 
     download_data(species_folders, main_subfolders, dataset_folder)
-    dataset, label_map = load_dataset(dataset_folder)
+    dataset, label_map = load_dataset(dataset_folder, species_folders)
     show_n_samples(dataset, species_folders)
-    #clipped_dataset = clip_balanced_dataset(dataset)
-
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
-    BATCH_SIZE = 32
-    NUM_CLASSES = 2
-    LEARNING_RATE = 0.001
-    TRANSFORMS = kaug.Resize(size=(224, 224))
+    batch_size = config["training"]["batch_size"]
+    num_classes = config["training"]["num_classes"]
+    learning_rate = config["training"]["learning_rate"]
+    transforms = kaug.Resize(size=(224, 224))
 
     datamodule = ForestDataModule(
-        dataset['train'], dataset['val'], dataset['test'], batch_size=BATCH_SIZE
+        dataset['train'], dataset['val'], dataset['test'], batch_size=batch_size
     )
 
     print(datamodule)
 
     model = ResNetClassifier(
-        num_classes=NUM_CLASSES,
-        learning_rate=LEARNING_RATE,
-        transform=TRANSFORMS
+        num_classes=num_classes,
+        learning_rate=learning_rate,
+        transform=transforms
     )
 
     # ====================================== TRAINING ========================================== #
-    MAX_EPOCHS = 10
-    DEVICE = 'gpu' if torch.cuda.is_available() else 'cpu'
-    CALLBACKS = [PrintMetricsCallback()]
+    max_epochs = config["training"]["max_epochs"]
+    device = config["device"] if torch.cuda.is_available() else "cpu"
+    callbacks = [PrintMetricsCallback()]
+
+    wandb.login()
+    wandb.init(project="ghost-irim")
+    wandb_logger = WandbLogger(
+        name='ghost-irim',
+        project='ghost-irim',
+        log_model=True
+    )
 
     trainer = Trainer(
-        max_epochs=MAX_EPOCHS,
-        accelerator=DEVICE,
+        logger=wandb_logger,
+        max_epochs=max_epochs,
+        accelerator=device,
         devices=1,
-        callbacks=CALLBACKS
+        callbacks=callbacks
     )
 
     trainer.fit(model, datamodule)
@@ -72,10 +76,14 @@ def main():
     # ====================================== TESTING ========================================== #
     trainer.test(model, datamodule=datamodule)
 
-    train_metrics = CALLBACKS[0].train_metrics
-    val_metrics = CALLBACKS[0].val_metrics
+    # Callbacks' service
+    for callback in callbacks:
+        if isinstance(callback, PrintMetricsCallback):
+            train_metrics = callback.train_metrics
+            val_metrics = callback.val_metrics
+            plot_metrics(train_metrics, val_metrics)
 
-    plot_metrics(train_metrics, val_metrics)
+    wandb.finish()
 
 
 if __name__ == "__main__":
