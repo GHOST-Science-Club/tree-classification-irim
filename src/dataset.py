@@ -1,4 +1,3 @@
-import torch
 import numpy as np
 from PIL import Image
 import pytorch_lightning as pl
@@ -53,6 +52,9 @@ class ForestDataset(Dataset):
 class ForestDataModule(pl.LightningDataModule):
     def __init__(self, train_data, val_data, test_data, batch_size=32):
         super().__init__()
+        self.test_dataset = None
+        self.train_dataset = None
+        self.val_dataset = None
         self.train_data = train_data
         self.val_data = val_data
         self.test_data = test_data

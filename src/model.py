@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 import pytorch_lightning as pl
-from transforms import Transforms
 from torchmetrics import Accuracy
 import torchvision.models as models
 
@@ -12,10 +11,9 @@ class ResNetClassifier(pl.LightningModule):
         super(ResNetClassifier, self).__init__()
         self.save_hyperparameters()
 
-        # Load data augmentation
         self.transform = transform
+        self.learning_rate = learning_rate
 
-        # Load a pre-trained ResNet18 and modify the final layer
         self.model = models.resnet18(pretrained=True)
 
         # Freeze pre-trained layers

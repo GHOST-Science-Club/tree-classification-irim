@@ -1,7 +1,6 @@
-import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-from src.dataset_functions import download_data, load_dataset
+from unittest.mock import patch
+from src.dataset_functions import download_data
+
 
 def test_download_data(tmp_path):
     # Mock input

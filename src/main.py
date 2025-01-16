@@ -16,15 +16,15 @@ from visualization_functions import show_n_samples, plot_metrics
 def main():
     # Load configuration file
     with open("src/config.yaml", "r") as c:
-        CONFIG = yaml.safe_load(c)
+        config = yaml.safe_load(c)
 
     # Create a dedicated folder for the PureForest dataset to keep each tree species
     # organized, avoiding multiple directories in the main content folder.
-    dataset_folder = Path.cwd() / CONFIG["dataset"]["folder"]
+    dataset_folder = Path.cwd() / config["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
 
-    species_folders = CONFIG["dataset"]["species_folders"]
-    main_subfolders = CONFIG["dataset"]["main_subfolders"]
+    species_folders = config["dataset"]["species_folders"]
+    main_subfolders = config["dataset"]["main_subfolders"]
 
     # =========================== DATA LOADING AND PREPROCESSING ================================== #
 
@@ -33,42 +33,42 @@ def main():
     show_n_samples(dataset, species_folders)
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
-    BATCH_SIZE = CONFIG["training"]["batch_size"]
-    NUM_CLASSES = CONFIG["training"]["num_classes"]
-    LEARNING_RATE = CONFIG["training"]["learning_rate"]
-    TRANSFORMS = kaug.Resize(size=(224, 224))
+    batch_size = config["training"]["batch_size"]
+    num_classes = config["training"]["num_classes"]
+    learning_rate = config["training"]["learning_rate"]
+    transforms = kaug.Resize(size=(224, 224))
 
     datamodule = ForestDataModule(
-        dataset['train'], dataset['val'], dataset['test'], batch_size=BATCH_SIZE
+        dataset['train'], dataset['val'], dataset['test'], batch_size=batch_size
     )
 
     print(datamodule)
 
     model = ResNetClassifier(
-        num_classes=NUM_CLASSES,
-        learning_rate=LEARNING_RATE,
-        transform=TRANSFORMS
+        num_classes=num_classes,
+        learning_rate=learning_rate,
+        transform=transforms
     )
 
     # ====================================== TRAINING ========================================== #
-    MAX_EPOCHS = CONFIG["training"]["max_epochs"]
-    DEVICE = CONFIG["device"] if torch.cuda.is_available() else "cpu"
-    CALLBACKS = [PrintMetricsCallback()]
+    max_epochs = config["training"]["max_epochs"]
+    device = config["device"] if torch.cuda.is_available() else "cpu"
+    callbacks = [PrintMetricsCallback()]
 
     wandb.login()
-    run = wandb.init(project="ghost-irim")
-    WANDB_LOGGER = WandbLogger(
+    wandb.init(project="ghost-irim")
+    wandb_logger = WandbLogger(
         name='ghost-irim',
         project='ghost-irim',
         log_model=True
     )
 
     trainer = Trainer(
-        logger=WANDB_LOGGER,
-        max_epochs=MAX_EPOCHS,
-        accelerator=DEVICE,
+        logger=wandb_logger,
+        max_epochs=max_epochs,
+        accelerator=device,
         devices=1,
-        callbacks=CALLBACKS
+        callbacks=callbacks
     )
 
     trainer.fit(model, datamodule)
@@ -77,7 +77,7 @@ def main():
     trainer.test(model, datamodule=datamodule)
 
     # Callbacks' service
-    for callback in CALLBACKS:
+    for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
             train_metrics = callback.train_metrics
             val_metrics = callback.val_metrics

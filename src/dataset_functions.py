@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 from huggingface_hub import hf_hub_download
 
+
 def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: Path):
     """
     Function downloads specified data from HF (PureForest dataset)
@@ -49,23 +50,24 @@ def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: 
                 for extracted_file in list(extracted_files)[:5]:
                     print(f"- {extracted_file.stem}")
                 if len(list(extracted_files)) > 5:
-                    print(f"... and {len(extracted_files) - 5} more files")
+                    print(f"... and {len(list(extracted_files)) - 5} more files")
 
         except zipfile.BadZipFile:
             print(f"Error: {filename} is not a valid zip file")
 
 
-def load_dataset(main_dir: dict, species_folders: dict, splits: list=["train", "val", "test"]):
-
-    dataset = {split: {"labels": [], "paths": []} for split in splits} # PLEASE KEEP "paths" KEY!!!!!
-    #base_dirs = list(main_dir.glob("*")) 
-    base_dirs = [species_folders[filename].\
-                 replace("data/imagery-", "").\
-                 replace(".zip", "") 
+def load_dataset(main_dir: dict, species_folders: dict, splits=None):
+    if splits is None:
+        splits = ["train", "val", "test"]
+    dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
+    # base_dirs = list(main_dir.glob("*"))
+    base_dirs = [species_folders[filename]. \
+                     replace("data/imagery-", ""). \
+                     replace(".zip", "")
                  for filename in species_folders]
 
     # Create label mapping
-    #label_map = {base_dir.stem: idx for idx, base_dir in enumerate(base_dirs)}
+    # label_map = {base_dir.stem: idx for idx, base_dir in enumerate(base_dirs)}
     label_map = {base_dir: idx for idx, base_dir in enumerate(base_dirs)}
 
     print("Label mapping:", label_map)
@@ -76,7 +78,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits: list=["train", "
 
         for split in splits:
             split_dir = main_dir / base_dir / split
-            #split_dir = base_dir
+            # split_dir = base_dir
             if not split_dir.exists():
                 print(f"Warning: {split_dir} does not exist")
                 continue
@@ -94,13 +96,12 @@ def load_dataset(main_dir: dict, species_folders: dict, splits: list=["train", "
 
     # Convert lists to numpy arrays
     for split in splits:
-        dataset[split]["labels"] = np.array(dataset[split]["labels"])
+        dataset[split]["labels"] = list(np.array(dataset[split]["labels"]))
 
     return dataset, label_map
 
 
 def clip_balanced_dataset(dataset: dict):
-
     clipped_dataset = {}
     for split in dataset.keys():
         if len(dataset[split]["paths"]) == 0:
@@ -134,4 +135,3 @@ def clip_balanced_dataset(dataset: dict):
         }
 
     return clipped_dataset
-
