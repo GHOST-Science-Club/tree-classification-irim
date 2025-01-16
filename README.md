@@ -7,13 +7,21 @@
 [![Issues][issues-shield]][issues-url]
 
 <!-- MARKDOWN LINKS & IMAGES -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+
 [contributors-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/graphs/contributors
+
 [forks-shield]: https://img.shields.io/github/forks/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+
 [forks-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/network/members
+
 [stars-shield]: https://img.shields.io/github/stars/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+
 [stars-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/stargazers
+
 [issues-shield]: https://img.shields.io/github/issues/GHOST-Science-Club/tree-classification-irim.svg?style=for-the-badge
+
 [issues-url]: https://github.com/GHOST-Science-Club/tree-classification-irim/issues
 
 <br />
@@ -43,14 +51,12 @@
 ## Table of Contents
 
 - [About the Project](#about-the-project)
-- [How to run 💡](#how-to-run)
+- [How to run](#how-to-run)
 - [Built With](#built-with)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
 - [Contributing](#contributing)
 - [Communication](#communication)
 - [The Team](#the-team)
-- [Ackonwledgemnets](#acknowledgments)
+- [Acknowledgements](#acknowledgments)
 - [License](#license)
 
 ## About the Project
@@ -58,29 +64,34 @@
 **GHOST x IRIM** is an initiative by the [GHOST](https://ghost.put.poznan.pl) student organization to develop and test
 an AI algorithm for identifying tree species from aerial photos, focusing on Polish forests.
 
-### How to run 💡
+### How to run
 
-For Linux/MacOS/Unix:
+Clone the repo and cd into:
+
 ```
-## Clone the repo and cd into it
 git clone git@github.com:GHOST-Science-Club/tree-classification-irim.git
 cd tree-classification-irim
+```
 
-## Create python env
+For Linux/MacOS/Unix:
+
+```
 python -m venv venv
 source venv/bin/activate
 pip install -r unix-requirements.txt
 python src/main.py
 ```
 
+For CUDA PyTorch installation, please refer to this link: https://pytorch.org/get-started/locally/ and select your
+platform and CUDA.
 For Windows with CUDA and win32 lib:
+
 ```
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python src/main.py
 ```
-
 
 ### Objectives:
 
@@ -110,18 +121,6 @@ Supported by the **Institute of Robotics and Machine Intelligence (IRIM)** at **
 **Datasets:**
 
 - **[PureForest](https://huggingface.co/datasets/IGNF/PureForest):** Aerial images for tree species classification.
-
-<p style="text-align: right;">(<a href="#readme-top">back to top</a>)</p>
-
-## Getting Started
-
-...
-
-<p style="text-align: right;">(<a href="#readme-top">back to top</a>)</p>
-
-## Usage
-
-...
 
 <p style="text-align: right;">(<a href="#readme-top">back to top</a>)</p>
 
