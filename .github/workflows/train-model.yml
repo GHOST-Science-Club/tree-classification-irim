@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: Repository
 
     steps:
       - name: Checkout repository
@@ -25,6 +26,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r unix-requirements.txt
+
+      - name: Set WANDB API key
+        run: |
+          echo "WANDB_API_KEY=${{ secrets.WANDB_API_KEY }}" >> $GITHUB_ENV
+
 
       - name: Run Python script
         run: python src/main.py
