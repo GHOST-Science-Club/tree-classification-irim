@@ -37,6 +37,7 @@ def main():
     num_classes = config["training"]["num_classes"]
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
+    freeze = config["training"]["freeze"]
 
     datamodule = ForestDataModule(
         dataset['train'], dataset['val'], dataset['test'], batch_size=batch_size
@@ -47,7 +48,8 @@ def main():
     model = ResNetClassifier(
         num_classes=num_classes,
         learning_rate=learning_rate,
-        transform=transforms
+        transform=transforms,
+        freeze=freeze
     )
 
     # ====================================== TRAINING ========================================== #
