@@ -17,7 +17,8 @@ class PrintMetricsCallback(Callback):
     def on_validation_epoch_end(self, trainer, pl_module):
         val_loss = trainer.callback_metrics['val_loss'].item()
         val_acc = trainer.callback_metrics['val_acc'].item()
-        print(f"Epoch: {trainer.current_epoch}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}", end=' || ')
+        print(f"Epoch: {trainer.current_epoch}, "
+              f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}", end=' || ')
 
         self.val_metrics['loss'].append(val_loss)
         self.val_metrics['acc'].append(val_acc)

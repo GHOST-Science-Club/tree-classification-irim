@@ -5,7 +5,6 @@ from torchmetrics import Accuracy
 import torchvision.models as models
 
 
-
 class ResNetClassifier(pl.LightningModule):
     def __init__(self, num_classes=2, learning_rate=1e-3, transform=None, freeze=False):
         super(ResNetClassifier, self).__init__()
@@ -52,7 +51,7 @@ class ResNetClassifier(pl.LightningModule):
         self.log("train_loss", loss, on_epoch=True, prog_bar=True)
         self.log("train_acc", acc, prog_bar=True)
         current_lr = self.trainer.optimizers[0].param_groups[0]['lr']
-        self.log('learning_rate', current_lr, prog_bar=True) # log learning rate for testing purposes
+        self.log('learning_rate', current_lr, prog_bar=True)  # log learning rate for testing purposes
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -85,7 +84,7 @@ class ResNetClassifier(pl.LightningModule):
         optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate)
 
         # Decay LR by a factor of 0.1 every 1 epoch
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1) # TODO: tune parameters
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
 
         return {
             'optimizer': optimizer,

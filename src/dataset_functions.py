@@ -61,9 +61,9 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
         splits = ["train", "val", "test"]
     dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
     # base_dirs = list(main_dir.glob("*"))
-    base_dirs = [species_folders[filename]. \
-                     replace("data/imagery-", ""). \
-                     replace(".zip", "")
+    base_dirs = [species_folders[filename].
+                 replace("data/imagery-", "").
+                 replace(".zip", "")
                  for filename in species_folders]
 
     # Create label mapping

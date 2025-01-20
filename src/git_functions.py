@@ -1,10 +1,9 @@
 import os
+import random
 import string
 import subprocess
-from random import random
 
 
-# Function to fetch the current git branch name
 def get_git_branch():
     github_ref = os.getenv('GITHUB_REF')
     if github_ref and github_ref.startswith('refs/heads/'):

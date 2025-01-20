@@ -32,15 +32,17 @@ class ForestDataset(Dataset):
         with Image.open(image_path) as img:
             # Convert to numpy array
             image = np.array(img)
-            image = image[:,:,1:] # Removing "near-infered" channel
+            image = image[:, :, 1:]  # Removing "near-inferred" channel
 
         # Convert numpy array to a PIL Image if needed
-        #if isinstance(image, np.ndarray):
+        # if isinstance(image, np.ndarray):
         #    image = Image.fromarray(image)
 
         # Convert image to RGB if it has an alpha channel
-        #if image.mode == "RGBA":
-            #image = image.convert("RGB") # We found out that PIL conversion to RGB keeps the "near-infered" channel which was not desired
+        # if image.mode == "RGBA":
+        # We found out that PIL conversion to RGB
+        # keeps the "near-inferred" channel which was not desired
+        # image = image.convert("RGB")
 
         # Apply transformations
         if self.transform:
@@ -62,13 +64,16 @@ class ForestDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         self.train_dataset = ForestDataset(
-            image_paths=self.train_data["paths"], labels=self.train_data["labels"], transform=Preprocess()
+            image_paths=self.train_data["paths"],
+            labels=self.train_data["labels"], transform=Preprocess()
         )
         self.val_dataset = ForestDataset(
-            image_paths=self.val_data["paths"], labels=self.val_data["labels"], transform=Preprocess()
+            image_paths=self.val_data["paths"],
+            labels=self.val_data["labels"], transform=Preprocess()
         )
         self.test_dataset = ForestDataset(
-            image_paths=self.test_data["paths"], labels=self.test_data["labels"], transform=Preprocess()
+            image_paths=self.test_data["paths"],
+            labels=self.test_data["labels"], transform=Preprocess()
         )
 
     def train_dataloader(self):

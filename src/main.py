@@ -10,7 +10,7 @@ from model import ResNetClassifier
 from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
-from src.git_functions import get_git_branch, generate_short_hash
+from git_functions import get_git_branch, generate_short_hash
 from visualization_functions import show_n_samples, plot_metrics
 
 
