@@ -93,6 +93,16 @@ pip install -r requirements.txt
 python src/main.py
 ```
 
+If you are a project maintainer you should have received Wandb api key.
+To send logs from local builds to wandb use:
+
+```
+pip install wandb
+wandb login
+```
+
+Provide your API key when prompted.
+
 ### Objectives:
 
 - Identify tree species sensitive to fires, storms, disease, and pests.
