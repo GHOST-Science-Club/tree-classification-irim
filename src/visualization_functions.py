@@ -88,7 +88,8 @@ def plot_metrics(train_metrics: dict, val_metrics: dict):
     plt.close()
 
 
-def get_confusion_matrix(model_output, targets, filepath, class_names=None, title="Confusion Matrix", show=False):
+def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_names=None,
+                         title="Confusion Matrix", show=False):
     """
     Generates a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix) for the given model output and targets and saves it in filepath.
 
@@ -98,8 +99,8 @@ def get_confusion_matrix(model_output, targets, filepath, class_names=None, titl
         The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
-    filepath : str
-        If not None, the plot will be saved to this filepath.
+    filepath : str, default=Path.cwd() / "src" / "plots"
+        If not None, the plot will be saved to this filepath. By default, it will save the plot in src/plots folder.
     class_names : list of str, optional
         List of class names corresponding to the classes. If provided, the length should match the number of classes in model_output.
     title : str, optional, default="Confusion Matrix"
@@ -120,9 +121,9 @@ def get_confusion_matrix(model_output, targets, filepath, class_names=None, titl
 
     Examples
     --------
-    >>> output = torch.randn((50, 10), dtype=torch.float32)
-    >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
-    >>> get_confusion_matrix(output, targets, "plot.png", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], show=True)
+    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
+    # >>> get_confusion_matrix(output, targets, "plot.png", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], show=True)
     """
 
     assert model_output.shape[0] == targets.shape[0]
@@ -170,8 +171,8 @@ def get_confusion_matrix(model_output, targets, filepath, class_names=None, titl
         plt.close()
 
 
-def get_roc_auc_curve(model_output, targets, filepath, class_of_interest=None, class_names=None, title="ROC Curves",
-                      show=False):
+def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
+                      class_names=None, title="ROC Curves", show=False):
     """
     Generates [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc)
     curves for a multi-class classification task and saves them to filepath.
@@ -187,10 +188,10 @@ def get_roc_auc_curve(model_output, targets, filepath, class_of_interest=None, c
         The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
-    filepath : str
-        If not None, the plot will be saved to this filepath.
+    filepath : str, default=Path.cwd() / "src" / "plots"
+        If not None, the plot will be saved to this filepath. By default, it will save the plot in src/plots folder.
     class_of_interest : str, optional
-        If class_of_interest is not None then only one plot gets generated for the given class of interest. Otherwise it plots ROC AUC curves
+        If class_of_interest is not None then only one plot gets generated for the given class of interest. Otherwise, it plots ROC AUC curves
         for every class in one figure. If provided, the class_names parameter must not be None.
     class_names : list of str, optional
         List of class names corresponding to the classes. If provided, the length should match the number of classes in model_output.
@@ -210,19 +211,19 @@ def get_roc_auc_curve(model_output, targets, filepath, class_of_interest=None, c
     AssertionError
         If class_names is provided and its length does not match the number of classes in model_output.
     AssertionError
-        If class_of_interest is provided and but class_names is None.
+        If class_of_interest is provided and class_names is None.
 
     Examples
     --------
     Without providing the class_of_interest:
-    >>> output = torch.randn((50, 10), dtype=torch.float32)
-    >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
-    >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
+    # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
 
     With class_of_interest:
-    >>> output = torch.randn((50, 10), dtype=torch.float32)
-    >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
-    >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
+    # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
 
     assert class_of_interest is None or class_names is not None, "If class_of_interest is provided class_names must not be None"
@@ -304,15 +305,15 @@ def get_roc_auc_curve(model_output, targets, filepath, class_of_interest=None, c
         plt.close()
 
 
-def get_precision_recall_curve(model_output, targets, filepath, class_of_interest=None, class_names=None,
-                               title="Precision Recall Curves", show=False):
+def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
+                               class_names=None, title="Precision Recall Curves", show=False):
     """
     Generates [precision recall](https://medium.com/@douglaspsteen/precision-recall-curves-d32e5b290248)
     curves for a multi-class classification task and saves them to filepath.
 
     It uses the [OvR](https://towardsdatascience.com/multiclass-classification-evaluation-with-roc-curves-and-roc-auc-294fd4617e3a)
     (One versus Rest) approach - it compares each class against all the others at the same time.
-    For every class it treats the model's ouputs as outputs to a binary classification task. One class is considered as our "positive" class
+    For every class it treats the model's outputs as outputs to a binary classification task. One class is considered as our "positive" class
     while all other classes are considered as one "negative" class.
 
     Parameters
@@ -321,10 +322,10 @@ def get_precision_recall_curve(model_output, targets, filepath, class_of_interes
         The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
-    filepath : str
-        If not None, the plot will be saved to this filepath.
+    filepath : str, default=Path.cwd() / "src" / "plots"
+        If not None, the plot will be saved to this filepath. By default, it will save the plot in src/plots folder.
     class_of_interest : str, optional
-        If class_of_interest is not None then only one plot gets generated for the given class of interest. Otherwise it plots precision
+        If class_of_interest is not None then only one plot gets generated for the given class of interest. Otherwise, it plots precision
         recall curves for every class in one figure. If provided, the class_names parameter must not be None.
     class_names : list of str, optional
         List of class names corresponding to the classes. If provided, the length should match the number of classes in model_output.
@@ -344,19 +345,19 @@ def get_precision_recall_curve(model_output, targets, filepath, class_of_interes
     AssertionError
         If class_names is provided and its length does not match the number of classes in model_output.
     AssertionError
-        If class_of_interest is provided and but class_names is None.
+        If class_of_interest is provided and class_names is None.
 
     Examples
     --------
     Without providing the class_of_interest:
-    >>> output = torch.randn((50, 10), dtype=torch.float32)
-    >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
-    >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
+    # >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
 
     With class_of_interest:
-    >>> output = torch.randn((50, 10), dtype=torch.float32)
-    >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
-    >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
+    # >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
 
     assert class_of_interest is None or class_names is not None, "If class_of_interest is provided class_names must not be None"
