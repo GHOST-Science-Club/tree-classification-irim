@@ -28,5 +28,6 @@ training:
   num_classes: 18
   learning_rate: 0.001
   max_epochs: 1
+  freeze: true
 
 device: "gpu"

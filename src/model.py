@@ -7,7 +7,7 @@ import torchvision.models as models
 
 
 class ResNetClassifier(pl.LightningModule):
-    def __init__(self, num_classes=2, learning_rate=1e-3, transform=None):
+    def __init__(self, num_classes=2, learning_rate=1e-3, transform=None, freeze=False):
         super(ResNetClassifier, self).__init__()
         self.save_hyperparameters()
 
@@ -17,8 +17,9 @@ class ResNetClassifier(pl.LightningModule):
         self.model = models.resnet18(pretrained=True)
 
         # Freeze pre-trained layers
-        for param in self.model.parameters():
-            param.requires_grad = False
+        if freeze:
+            for param in self.model.parameters():
+                param.requires_grad = False
 
         in_features = self.model.fc.in_features
         self.model.fc = nn.Linear(in_features, num_classes)
