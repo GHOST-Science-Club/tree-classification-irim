@@ -10,6 +10,7 @@ from model import ResNetClassifier
 from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
+from git_functions import get_git_branch, generate_short_hash
 from visualization_functions import show_n_samples, plot_metrics
 
 
@@ -57,10 +58,14 @@ def main():
     device = config["device"] if torch.cuda.is_available() else "cpu"
     callbacks = [PrintMetricsCallback()]
 
+    branch_name = get_git_branch()
+    short_hash = generate_short_hash()
+    run_name = f'{branch_name}-{short_hash}'
+
     wandb.login()
-    wandb.init(project="ghost-irim")
+    wandb.init(project="ghost-irim", name=run_name)
     wandb_logger = WandbLogger(
-        name='ghost-irim',
+        name=run_name,
         project='ghost-irim',
         log_model=True
     )
