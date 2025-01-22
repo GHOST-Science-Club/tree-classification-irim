@@ -5,9 +5,9 @@ import subprocess
 
 
 def get_git_branch():
-    github_ref = os.getenv('GITHUB_REF')
-    if github_ref and github_ref.startswith('refs/heads/'):
-        return github_ref.replace('refs/heads/', '')
+    github_ref_name = os.getenv('GITHUB_HEAD_REF')
+    if github_ref_name:
+        return github_ref_name
 
     try:
         branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode()
