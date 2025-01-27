@@ -1,12 +1,7 @@
-name: Train Model, push log to Wandb
+name: CPU - Train Model, push logs to Wandb
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build:
