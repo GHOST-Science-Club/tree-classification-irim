@@ -1,0 +1,42 @@
+name: CronJob
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cpu:
+    runs-on: ubuntu-22.04
+    environment: Repository
+
+    steps:
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install lightning-sdk
+          pip list
+        shell: bash
+
+      - name: Command
+        run: |
+          python -c "from lightning_sdk import Studio, Machine; \
+                      import os; \
+                      user = os.environ.get('LIGHTNING_AI_USERNAME'); \
+                      studio = Studio('gpu-job', teamspace='Vision-model', user=user); \
+                      studio.start(Machine.T4); \
+                      result = studio.run('python main.py'); \
+                      print(result); \
+                      studio.stop();"
+        env:
+          LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
+          LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
+          LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
