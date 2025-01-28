@@ -1,3 +1,5 @@
+import os
+
 import yaml
 import torch
 import wandb
@@ -62,7 +64,8 @@ def main():
     short_hash = generate_short_hash()
     run_name = f'{branch_name}-{short_hash}'
 
-    wandb.login()
+    wandb_api_key = os.environ.get('WANDB_API_KEY')
+    wandb.login(key=wandb_api_key)
     wandb.init(project="ghost-irim", name=run_name)
     wandb_logger = WandbLogger(
         name=run_name,
