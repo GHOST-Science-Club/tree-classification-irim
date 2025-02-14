@@ -76,8 +76,8 @@ cd tree-classification-irim
 For Linux/MacOS/Unix:
 
 ```
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r unix-requirements.txt
 python src/main.py
 ```
@@ -87,8 +87,8 @@ platform and CUDA.
 For Windows with CUDA and win32 lib:
 
 ```
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python src/main.py
 ```

@@ -30,6 +30,11 @@ class ResNetClassifier(pl.LightningModule):
         else:
             self.accuracy = Accuracy(task="multiclass", num_classes=num_classes)
 
+        # Container for predictions
+        self.predictions = None
+        # Container for targets
+        self.targets = None
+
     def forward(self, x):
         return self.model(x)
 
@@ -77,6 +82,14 @@ class ResNetClassifier(pl.LightningModule):
         acc = self.accuracy(predicted_classes, labels)
         self.log("test_loss", loss, on_epoch=True, prog_bar=True)
         self.log("test_acc", acc, prog_bar=True)
+
+        # Save predictions and targets for later use
+        if self.predictions is None:
+            self.predictions = predicted_classes
+            self.targets = labels
+        else:
+            self.predictions = torch.cat((self.predictions, predicted_classes), dim=0)
+            self.targets = torch.cat((self.targets, labels), dim=0)
 
         return loss
 

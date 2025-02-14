@@ -1,5 +1,8 @@
 src/data
+src/plots
 lightning_logs
 .venv
 __pycache__
 .vscode
+ghost-irim
+wandb

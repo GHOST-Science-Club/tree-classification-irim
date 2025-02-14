@@ -11,7 +11,10 @@ from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
-from visualization_functions import show_n_samples, plot_metrics
+from visualization_functions import (show_n_samples, plot_metrics, 
+                                     get_confusion_matrix,
+                                     get_precision_recall_curve, 
+                                     get_roc_auc_curve)
 
 
 def main():
@@ -35,7 +38,7 @@ def main():
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
     batch_size = config["training"]["batch_size"]
-    num_classes = config["training"]["num_classes"]
+    num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
@@ -89,6 +92,20 @@ def main():
             train_metrics = callback.train_metrics
             val_metrics = callback.val_metrics
             plot_metrics(train_metrics, val_metrics)
+            wandb.log({'Accuracy and Loss Curves': wandb.Image('src/plots/acc_loss_curves.png')})
+
+    # Logging plots
+    preds = model.predictions
+    targets = model.targets
+
+    get_confusion_matrix(preds, targets, class_names=list(label_map.keys()))
+    get_roc_auc_curve(preds, targets, class_names=list(label_map.keys()))
+    get_precision_recall_curve(preds, targets, class_names=list(label_map.keys()))
+
+    filenames = ['confusion_matrix.png', 'precision_recall_curve.png', 'roc_auc_curve.png']
+    titles = ['Confusion Matrix', 'Precision-Recall Curve', 'ROC AUC Curve']
+    for filename, title in zip(filenames, titles):
+        wandb.log({title: wandb.Image(f'src/plots/{filename}')})
 
     wandb.finish()
 
