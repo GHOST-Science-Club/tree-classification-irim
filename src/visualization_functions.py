@@ -1,5 +1,4 @@
 import math
-from datetime import datetime
 from pathlib import Path
 from random import choice
 
@@ -65,26 +64,26 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int = 5):
 def plot_metrics(train_metrics: dict, val_metrics: dict):
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
-    axs[0].plot(train_metrics["loss"], label="Train accuracy")
-    axs[0].plot(val_metrics["loss"], label="Val accuracy")
+
+    axs[0].plot(train_metrics["loss"], label="Train loss")
+    axs[0].plot(val_metrics["loss"][:-1], label="Val loss")
     axs[0].set_xlabel("Epochs")
     axs[0].set_ylabel("Loss")
     axs[0].set_title("Losses")
     axs[0].legend()
 
     axs[1].plot(train_metrics["acc"], label="Train accuracy")
-    axs[1].plot(val_metrics["acc"], label="Val accuracy")
+    axs[1].plot(val_metrics["acc"][:-1], label="Val accuracy")
     axs[1].set_xlabel("Epochs")
-    axs[1].set_ylabel("Loss")
-    axs[1].set_title("Losses")
+    axs[1].set_ylabel("Accuracy")
+    axs[1].set_title("Accuracy")
     axs[1].legend()
 
     plt.tight_layout()
 
-    # Saving image with timestamp to avoid overwriting
     path = Path.cwd() / "src" / "plots"
     path.mkdir(exist_ok=True)
-    plt.savefig(path / f"acc_loss_curves_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+    plt.savefig(path / f"acc_loss_curves.png")
     plt.close()
 
 
@@ -96,7 +95,7 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
     Parameters
     ----------
     model_output : torch.Tensor
-        The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
+        The output predictions from the model, expected to be of shape (N,) where N is the batch size.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
     filepath : str, default=Path.cwd() / "src" / "plots"
@@ -121,19 +120,15 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
 
     Examples
     --------
-    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> output = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_confusion_matrix(output, targets, "plot.png", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], show=True)
     """
 
     assert model_output.shape[0] == targets.shape[0]
     assert len(targets.shape) == 1
-    assert len(model_output.shape) == 2
 
-    if class_names is not None:
-        assert len(class_names) == model_output.shape[1]
-
-    matrix = confusion_matrix(targets, torch.argmax(model_output, dim=1))
+    matrix = confusion_matrix(targets, model_output)
 
     fig, ax = plt.subplots(figsize=(10, 8))
     cax = ax.matshow(matrix, cmap=plt.cm.Blues)
@@ -162,8 +157,10 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
 
     ax.xaxis.set_ticks_position('top')
 
+    fig.tight_layout()
+
     if filepath is not None:
-        plt.savefig(filepath)
+        plt.savefig(filepath / "confusion_matrix.png")
 
     if show:
         plt.show()
@@ -185,7 +182,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     Parameters
     ----------
     model_output : torch.Tensor
-        The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
+         The output predictions from the model, expected to be of shape (N,) where N is the batch size. Each value corresponds to the predicted class.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
     filepath : str, default=Path.cwd() / "src" / "plots"
@@ -216,80 +213,69 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     Examples
     --------
     Without providing the class_of_interest:
-    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> output = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
 
     With class_of_interest:
-    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> output = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
 
-    assert class_of_interest is None or class_names is not None, "If class_of_interest is provided class_names must not be None"
-    assert model_output.shape[0] == targets.shape[0]
-    assert len(targets.shape) == 1
-    assert len(model_output.shape) == 2
+    assert model_output.shape == targets.shape, "model_output and targets must have the same shape."
+    assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
+    assert len(targets.shape) == 1, "targets must be a 1D tensor."
 
-    if class_names is not None:
-        assert len(class_names) == model_output.shape[1]
+    unique_classes = torch.arange(len(class_names))
+    num_classes = len(unique_classes)
 
-    num_classes = model_output.shape[1]
+    if class_of_interest is not None:
+        assert class_names is not None, "If class_of_interest is specified, class_names must not be None."
+        assert class_of_interest in class_names, "class_of_interest must be in class_names."
 
+    # One-vs-Rest approach
     if class_of_interest is None:
         n_of_rows = math.ceil(num_classes ** 0.5)
         n_of_cols = math.ceil(num_classes / n_of_rows)
 
         fig, ax = plt.subplots(n_of_rows, n_of_cols, figsize=(3 * n_of_cols, 3 * n_of_rows))
+        ax = ax.flatten()
 
-        for class_num in range(num_classes):
-            row_num = class_num // n_of_cols
-            col_num = class_num % n_of_cols
-
-            fpr, tpr, thresholds = roc_curve(F.one_hot(targets)[:, class_num], model_output[:, class_num])
-
+        for idx, class_num in enumerate(unique_classes):
+            fpr, tpr, _ = roc_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
             roc_auc = auc(fpr, tpr)
 
-            ax[row_num, col_num].plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
-
-            ax[row_num, col_num].legend(loc="lower right")
+            ax[idx].plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
 
             if class_names is not None:
-                subplot_title = class_names[class_num]
+                subplot_title = class_names[idx]
             else:
                 subplot_title = f"Class {class_num}"
-            ax[row_num, col_num].set_title(subplot_title)
 
-            ax[row_num, col_num].set_ylabel('True Positive Rate')
-            ax[row_num, col_num].set_xlabel('False Positive Rate')
+            ax[idx].set_title(subplot_title)
+            ax[idx].set_ylabel('True Positive Rate')
+            ax[idx].set_xlabel('False Positive Rate')
+            ax[idx].legend(loc="lower right")
 
         # Hide unused subplots
-        for i in range(num_classes, n_of_rows * n_of_cols):
-            row_num = i // n_of_cols
-            col_num = i % n_of_cols
-            fig.delaxes(ax[row_num, col_num])
-    else:
-        fig, ax = plt.subplots(figsize=(5, 5))
+        for i in range(num_classes, len(ax)):
+            fig.delaxes(ax[i])
 
+    else:
         class_num = class_names.index(class_of_interest)
 
-        fpr, tpr, thresholds = roc_curve(F.one_hot(targets)[:, class_num], model_output[:, class_num])
+        fig, ax = plt.subplots(figsize=(5, 5))
 
+        fpr, tpr, _ = roc_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
         roc_auc = auc(fpr, tpr)
 
         ax.plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
 
-        ax.legend(loc="lower right")
-
-        if class_names is not None:
-            subplot_title = class_names[class_num]
-        else:
-            subplot_title = f"Class {class_num}"
-
-        ax.set_title(subplot_title)
-
+        ax.set_title(class_of_interest)
         ax.set_ylabel('True Positive Rate')
         ax.set_xlabel('False Positive Rate')
+        ax.legend(loc="lower right")
 
     if title is not None:
         fig.suptitle(title, fontsize=16)
@@ -297,7 +283,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     fig.tight_layout()
 
     if filepath is not None:
-        plt.savefig(filepath)
+        plt.savefig(filepath / "roc_auc_curve.png")
 
     if show:
         plt.show()
@@ -319,7 +305,7 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     Parameters
     ----------
     model_output : torch.Tensor
-        The output predictions from the model, expected to be of shape (N, C) where N is the batch size and C is the number of classes.
+        The output predictions from the model, expected to be of shape (N,) where N is the batch size. Each value corresponds to the predicted class.
     targets : torch.Tensor
         The ground truth labels, expected to be of shape (N,).
     filepath : str, default=Path.cwd() / "src" / "plots"
@@ -350,72 +336,66 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     Examples
     --------
     Without providing the class_of_interest:
-    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> output = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
 
     With class_of_interest:
-    # >>> output = torch.randn((50, 10), dtype=torch.float32)
+    # >>> output = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_precision_recall_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
 
-    assert class_of_interest is None or class_names is not None, "If class_of_interest is provided class_names must not be None"
-    assert model_output.shape[0] == targets.shape[0]
-    assert len(targets.shape) == 1
-    assert len(model_output.shape) == 2
+    assert model_output.shape == targets.shape, "model_output and targets must have the same shape."
+    assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
+    assert len(targets.shape) == 1, "targets must be a 1D tensor."
+
+    unique_classes = torch.unique(targets).tolist()
+    num_classes = len(unique_classes)
 
     if class_names is not None:
-        assert len(class_names) == model_output.shape[1]
+        assert len(class_names) == num_classes, "Length of class_names must match the number of unique classes in targets."
 
-    num_classes = model_output.shape[1]
+    if class_of_interest is not None:
+        assert class_names is not None, "If class_of_interest is specified, class_names must not be None."
+        assert class_of_interest in class_names, "class_of_interest must be in class_names."
 
+    # One-vs-Rest approach
     if class_of_interest is None:
         n_of_rows = math.ceil(num_classes ** 0.5)
         n_of_cols = math.ceil(num_classes / n_of_rows)
 
         fig, ax = plt.subplots(n_of_rows, n_of_cols, figsize=(3 * n_of_cols, 3 * n_of_rows))
+        ax = ax.flatten()
 
-        for class_num in range(num_classes):
-            row_num = class_num // n_of_cols
-            col_num = class_num % n_of_cols
+        for idx, class_num in enumerate(unique_classes):
+            precision, recall, _ = precision_recall_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
 
-            precision, recall, thresholds = precision_recall_curve(F.one_hot(targets)[:, class_num],
-                                                                   model_output[:, class_num])
-
-            ax[row_num, col_num].plot(recall, precision)
+            ax[idx].plot(recall, precision)
 
             if class_names is not None:
-                subplot_title = class_names[class_num]
+                subplot_title = class_names[idx]
             else:
                 subplot_title = f"Class {class_num}"
-            ax[row_num, col_num].set_title(subplot_title)
 
-            ax[row_num, col_num].set_ylabel('Precision')
-            ax[row_num, col_num].set_xlabel('Recall')
+            ax[idx].set_title(subplot_title)
+            ax[idx].set_ylabel('Precision')
+            ax[idx].set_xlabel('Recall')
 
         # Hide unused subplots
-        for i in range(num_classes, n_of_rows * n_of_cols):
-            row_num = i // n_of_cols
-            col_num = i % n_of_cols
-            fig.delaxes(ax[row_num, col_num])
-    else:
-        fig, ax = plt.subplots(figsize=(5, 5))
+        for i in range(num_classes, len(ax)):
+            fig.delaxes(ax[i])
 
+    else:
         class_num = class_names.index(class_of_interest)
 
-        precision, recall, thresholds = precision_recall_curve(F.one_hot(targets)[:, class_num],
-                                                               model_output[:, class_num])
+        fig, ax = plt.subplots(figsize=(5, 5))
+
+        precision, recall, _ = precision_recall_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
 
         ax.plot(recall, precision)
 
-        if class_names is not None:
-            subplot_title = class_names[class_num]
-        else:
-            subplot_title = f"Class {class_num}"
-
-        ax.set_title(subplot_title)
-
+        ax.set_title(class_of_interest)
         ax.set_ylabel('Precision')
         ax.set_xlabel('Recall')
 
@@ -425,7 +405,8 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     fig.tight_layout()
 
     if filepath is not None:
-        plt.savefig(filepath)
+        filepath.mkdir(parents=True, exist_ok=True)
+        plt.savefig(filepath / "precision_recall_curve.png")
 
     if show:
         plt.show()
