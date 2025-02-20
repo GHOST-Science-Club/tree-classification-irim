@@ -32,22 +32,20 @@ jobs:
           from lightning_sdk import Studio, Machine
           
           user = os.environ.get("LIGHTNING_AI_USERNAME")
-          branch = os.environ.get("GITHUB_HEAD_REF", "main").replace("/", "-")
+          branch = os.environ.get("GITHUB_HEAD_REF", "main")
+          print(f"This is branch: {branch}")
+          branch_mod = branch.replace("/", "-")
+          print(f"This is branch_mod: {branch_mod}")
           branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+          print(f"This is branch studio name: {branch_studio_name}")
           
           studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
           studio.start(Machine.T4)
           
           try:
-              result = studio.run("rm -rf tree-classification-irim")
+              studio.run("rm -rf tree-classification-irim")
+              result = studio.run(f"git clone --branch {branch} --single-branch https://github.com/GHOST-Science-Club/tree-classification-irim.git")
               print(result)
-          
-              result = studio.run("git clone https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-              print(result)
-          
-              result = studio.run(f"cd tree-classification-irim && git checkout {branch}")
-              print(result)
-          
               studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
               studio.run("cd tree-classification-irim && python ./src/main.py")
           finally:
