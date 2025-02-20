@@ -28,19 +28,31 @@ jobs:
 
       - name: Start lightning.ai studio and train model there
         run: |
-          python -c "from lightning_sdk import Studio, Machine; \
-                      import os; \
-                      user = os.environ.get('LIGHTNING_AI_USERNAME'); \
-                      branch_studio_name = os.environ.get('GITHUB_HEAD_REF'); \
-                      studio = Studio(name=branch_studio_name, teamspace='Vision-model', user=user); \
-                      studio.start(Machine.T4); \
-                      result = studio.run('rm -rf tree-classification-irim'); \
-                      result = studio.run('git clone https://github.com/GHOST-Science-Club/tree-classification-irim.git'); \
-                      result = studio.run('cd tree-classification-irim && git checkout $GITHUB_HEAD_REF'); \
-                      studio.run('pip install -r ./tree-classification-irim/unix-requirements.txt'); \
-                      studio.run('cd tree-classification-irim && python ./src/main.py'); \
-                      studio.stop(); \
-                      studio.delete();"
+          python -c 'import os, re
+          from lightning_sdk import Studio, Machine
+          
+          user = os.environ.get("LIGHTNING_AI_USERNAME")
+          branch = os.environ.get("GITHUB_HEAD_REF", "main").replace("/", "-")
+          branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+          
+          studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
+          studio.start(Machine.T4)
+          
+          try:
+              result = studio.run("rm -rf tree-classification-irim")
+              print(result)
+          
+              result = studio.run("git clone https://github.com/GHOST-Science-Club/tree-classification-irim.git")
+              print(result)
+          
+              result = studio.run(f"cd tree-classification-irim && git checkout {branch}")
+              print(result)
+          
+              studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
+              studio.run("cd tree-classification-irim && python ./src/main.py")
+          finally:
+              studio.stop()
+              studio.delete()'
         env:
           LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
           LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
