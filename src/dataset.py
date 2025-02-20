@@ -128,17 +128,15 @@ class ForestDataModule(pl.LightningDataModule):
             transform=Preprocess(),
             **self.dataset_args
         )
-        self.val_dataset = self.dataset(
+        self.val_dataset = ForestDataset(
             image_paths=self.val_data["paths"],
             labels=self.val_data["labels"],
-            transform=Preprocess(),
-            **self.dataset_args
+            transform=Preprocess()
         )
-        self.test_dataset = self.dataset(
+        self.test_dataset = ForestDataset(
             image_paths=self.test_data["paths"],
             labels=self.test_data["labels"],
-            transform=Preprocess(),
-            **self.dataset_args
+            transform=Preprocess()
         )
 
     def train_dataloader(self):
