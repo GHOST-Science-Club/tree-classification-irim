@@ -83,12 +83,14 @@ class ResNetClassifier(pl.LightningModule):
         self.log("test_loss", loss, on_epoch=True, prog_bar=True)
         self.log("test_acc", acc, prog_bar=True)
 
+        predicted_probs = torch.softmax(outputs, dim=1)
+
         # Save predictions and targets for later use
         if self.predictions is None:
-            self.predictions = predicted_classes
+            self.predictions = predicted_probs
             self.targets = labels
         else:
-            self.predictions = torch.cat((self.predictions, predicted_classes), dim=0)
+            self.predictions = torch.cat((self.predictions, predicted_probs), dim=0)
             self.targets = torch.cat((self.targets, labels), dim=0)
 
         return loss
