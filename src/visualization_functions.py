@@ -5,7 +5,6 @@ from random import choice
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn.functional as F
 from PIL import Image
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
 
@@ -64,7 +63,6 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int = 5):
 def plot_metrics(train_metrics: dict, val_metrics: dict):
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
-
     axs[0].plot(train_metrics["loss"], label="Train loss")
     axs[0].plot(val_metrics["loss"][:-1], label="Val loss")
     axs[0].set_xlabel("Epochs")
@@ -83,7 +81,7 @@ def plot_metrics(train_metrics: dict, val_metrics: dict):
 
     path = Path.cwd() / "src" / "plots"
     path.mkdir(exist_ok=True)
-    plt.savefig(path / f"acc_loss_curves.png")
+    plt.savefig(path / "acc_loss_curves.png")
     plt.close()
 
 
@@ -127,6 +125,10 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
 
     assert model_output.shape[0] == targets.shape[0]
     assert len(targets.shape) == 1
+
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
 
     matrix = confusion_matrix(targets, model_output)
 
@@ -226,6 +228,10 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     assert model_output.shape == targets.shape, "model_output and targets must have the same shape."
     assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
+
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
 
     unique_classes = torch.arange(len(class_names))
     num_classes = len(unique_classes)
@@ -350,11 +356,16 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
 
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
+
     unique_classes = torch.unique(targets).tolist()
     num_classes = len(unique_classes)
 
     if class_names is not None:
-        assert len(class_names) == num_classes, "Length of class_names must match the number of unique classes in targets."
+        assert len(
+            class_names) == num_classes, "Length of class_names must match the number of unique classes in targets."
 
     if class_of_interest is not None:
         assert class_names is not None, "If class_of_interest is specified, class_names must not be None."
@@ -369,7 +380,8 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
         ax = ax.flatten()
 
         for idx, class_num in enumerate(unique_classes):
-            precision, recall, _ = precision_recall_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
+            precision, recall, _ = precision_recall_curve((targets == class_num).numpy(),
+                                                          (model_output == class_num).numpy())
 
             ax[idx].plot(recall, precision)
 
@@ -391,7 +403,8 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
 
         fig, ax = plt.subplots(figsize=(5, 5))
 
-        precision, recall, _ = precision_recall_curve((targets == class_num).numpy(), (model_output == class_num).numpy())
+        precision, recall, _ = precision_recall_curve((targets == class_num).numpy(),
+                                                      (model_output == class_num).numpy())
 
         ax.plot(recall, precision)
 

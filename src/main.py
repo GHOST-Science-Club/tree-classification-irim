@@ -1,3 +1,5 @@
+import os
+
 import yaml
 import torch
 import wandb
@@ -11,9 +13,9 @@ from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
-from visualization_functions import (show_n_samples, plot_metrics, 
+from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
-                                     get_precision_recall_curve, 
+                                     get_precision_recall_curve,
                                      get_roc_auc_curve)
 
 
@@ -65,7 +67,8 @@ def main():
     short_hash = generate_short_hash()
     run_name = f'{branch_name}-{short_hash}'
 
-    wandb.login()
+    wandb_api_key = os.environ.get('WANDB_API_KEY')
+    wandb.login(key=wandb_api_key)
     wandb.init(project="ghost-irim", name=run_name)
     wandb_logger = WandbLogger(
         name=run_name,
