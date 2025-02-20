@@ -9,7 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
-from dataset import ForestDataModule
+from dataset import ForestDataModule, UndersampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
@@ -46,7 +46,12 @@ def main():
     freeze = config["training"]["freeze"]
 
     datamodule = ForestDataModule(
-        dataset['train'], dataset['val'], dataset['test'], batch_size=batch_size
+        dataset['train'],
+        dataset['val'],
+        dataset['test'],
+        dataset=UndersampledDataset,
+        dataset_args={"target_size": 500},
+        batch_size=batch_size
     )
 
     print(datamodule)
