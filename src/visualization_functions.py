@@ -126,6 +126,10 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
     assert model_output.shape[0] == targets.shape[0]
     assert len(targets.shape) == 1
 
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
+
     matrix = confusion_matrix(targets, model_output)
 
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -224,6 +228,10 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     assert model_output.shape == targets.shape, "model_output and targets must have the same shape."
     assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
+
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
 
     unique_classes = torch.arange(len(class_names))
     num_classes = len(unique_classes)
@@ -347,6 +355,10 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     assert model_output.shape == targets.shape, "model_output and targets must have the same shape."
     assert len(model_output.shape) == 1, "model_output must be a 1D tensor."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
+
+    # Move the tensors to CPU
+    targets = targets.cpu()
+    model_output = model_output.cpu()
 
     unique_classes = torch.unique(targets).tolist()
     num_classes = len(unique_classes)

@@ -1,12 +1,7 @@
 name: GPU - Train Model, push logs to Wandb
 
 on:
-  push:
-    branches:
-      - 34-Use-GPU-Runners  # Replace with your branch name
-  pull_request:
-    branches:
-      - 34-Use-GPU-Runners  # Runs on PRs targeting this branch
+  workflow_dispatch:
 
 jobs:
   build:
@@ -32,25 +27,21 @@ jobs:
           from lightning_sdk import Studio, Machine
           
           user = os.environ.get("LIGHTNING_AI_USERNAME")
-          branch = os.environ.get("GITHUB_HEAD_REF", "main")
-          print(f"This is branch: {branch}")
-          branch_mod = branch.replace("/", "-")
-          print(f"This is branch_mod: {branch_mod}")
+          branch = os.environ.get("GITHUB_REF_NAME", "main")          
           branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
-          print(f"This is branch studio name: {branch_studio_name}")
           
           studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
           studio.start(Machine.T4)
           
           try:
               studio.run("rm -rf tree-classification-irim")
-              result = studio.run(f"git clone --branch {branch} --single-branch https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-              print(result)
+              studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
               studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
               studio.run("cd tree-classification-irim && python ./src/main.py")
           finally:
               studio.stop()
               studio.delete()'
+
         env:
           LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
           LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}

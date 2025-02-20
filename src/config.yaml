@@ -1,17 +1,17 @@
 dataset:
   folder: "src/data"
   species_folders:
-    Abies_alba: "data/imagery-Abies_alba.zip"
+#    Abies_alba: "data/imagery-Abies_alba.zip"
 #    Abies_nordmanniana: "data/imagery-Abies_nordmanniana.zip"
 #    Castanea_sativa: "data/imagery-Castanea_sativa.zip"
 #    Fagus_sylvatica: "data/imagery-Fagus_sylvatica.zip"
 #    Larix_decidua: "data/imagery-Larix_decidua.zip"
 #    Picea_abies: "data/imagery-Picea_abies.zip"
 #    Pinus_halepensis: "data/imagery-Pinus_halepensis.zip"
-#    Pinus_nigra: "data/imagery-Pinus_nigra.zip"
-#    Pinus_nigra_laricio: "data/imagery-Pinus_nigra_laricio.zip"
-#    Pinus_pinaster: "data/imagery-Pinus_pinaster.zip"
-#    Pinus_sylvestris: "data/imagery-Pinus_sylvestris.zip"
+    Pinus_nigra: "data/imagery-Pinus_nigra.zip"
+    Pinus_nigra_laricio: "data/imagery-Pinus_nigra_laricio.zip"
+    Pinus_pinaster: "data/imagery-Pinus_pinaster.zip"
+    Pinus_sylvestris: "data/imagery-Pinus_sylvestris.zip"
 #    Pseudotsuga_menziesii: "data/imagery-Pseudotsuga_menziesii.zip"
 #    Quercus_ilex: "data/imagery-Quercus_ilex.zip"
 #    Quercus_petraea: "data/imagery-Quercus_petraea.zip"
@@ -25,7 +25,6 @@ dataset:
 
 training:
   batch_size: 32
-  num_classes: 1
   learning_rate: 0.001
   max_epochs: 2
   freeze: true
