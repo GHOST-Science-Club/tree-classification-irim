@@ -4,13 +4,13 @@ dataset:
 #    Abies_alba: "data/imagery-Abies_alba.zip"
 #    Abies_nordmanniana: "data/imagery-Abies_nordmanniana.zip"
 #    Castanea_sativa: "data/imagery-Castanea_sativa.zip"
-#    Fagus_sylvatica: "data/imagery-Fagus_sylvatica.zip"
+    Fagus_sylvatica: "data/imagery-Fagus_sylvatica.zip"
 #    Larix_decidua: "data/imagery-Larix_decidua.zip"
 #    Picea_abies: "data/imagery-Picea_abies.zip"
 #    Pinus_halepensis: "data/imagery-Pinus_halepensis.zip"
-    Pinus_nigra: "data/imagery-Pinus_nigra.zip"
-    Pinus_nigra_laricio: "data/imagery-Pinus_nigra_laricio.zip"
-    Pinus_pinaster: "data/imagery-Pinus_pinaster.zip"
+#    Pinus_nigra: "data/imagery-Pinus_nigra.zip"
+#    Pinus_nigra_laricio: "data/imagery-Pinus_nigra_laricio.zip"
+#    Pinus_pinaster: "data/imagery-Pinus_pinaster.zip"
     Pinus_sylvestris: "data/imagery-Pinus_sylvestris.zip"
 #    Pseudotsuga_menziesii: "data/imagery-Pseudotsuga_menziesii.zip"
 #    Quercus_ilex: "data/imagery-Quercus_ilex.zip"
@@ -26,7 +26,7 @@ dataset:
 training:
   batch_size: 32
   learning_rate: 0.001
-  max_epochs: 2
+  max_epochs: 5
   freeze: true
 
 device: "gpu"
