@@ -101,8 +101,6 @@ def main():
     preds = model.predictions
     targets = model.targets
 
-    print(preds)
-
     get_confusion_matrix(preds, targets, class_names=list(label_map.keys()))
     get_roc_auc_curve(preds, targets, class_names=list(label_map.keys()))
     get_precision_recall_curve(preds, targets, class_names=list(label_map.keys()))

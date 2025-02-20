@@ -421,3 +421,4 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
         plt.show()
     else:
         plt.close()
+        
