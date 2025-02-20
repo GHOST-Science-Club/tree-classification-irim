@@ -9,7 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
-from dataset import ForestDataModule, UndersampledDataset
+from dataset import ForestDataModule, OversampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
@@ -17,6 +17,8 @@ from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
                                      get_precision_recall_curve,
                                      get_roc_auc_curve)
+
+import torchvision
 
 
 def main():
@@ -49,8 +51,14 @@ def main():
         dataset['train'],
         dataset['val'],
         dataset['test'],
-        dataset=UndersampledDataset,
-        dataset_args={"target_size": 500},
+        dataset=OversampledDataset,
+        dataset_args={
+            "minority_transform": torchvision.transforms.Compose([
+                torchvision.transforms.RandomHorizontalFlip(),
+                torchvision.transforms.RandomVerticalFlip(),
+                torchvision.transforms.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(1, 1.2), shear=10),
+            ]),
+        },
         batch_size=batch_size
     )
 

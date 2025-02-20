@@ -78,6 +78,36 @@ class UndersampledDataset(ForestDataset):
         return super().__getitem__(self.sampled_indices[idx])
 
 
+class OversampledDataset(ForestDataset):
+    def __init__(self, image_paths, labels, transform=None, minority_transform=None, oversample_factor=2,
+                 oversample_threshould=200):
+        super().__init__(image_paths, labels, transform)
+        self.minority_transform = minority_transform
+
+        class_indices = {}
+        for idx, label in enumerate(labels):
+            class_indices.setdefault(label, []).append(idx)
+
+        self.to_transform = set()
+        self.sampled_indices = []
+        for label, indices in class_indices.items():
+            if len(indices) <= oversample_threshould:
+                self.to_transform.add(label)
+                # Sampling the minority class with replacement
+                self.sampled_indices.extend(random.choices(indices, k=int(oversample_factor * len(indices))))
+            else:
+                self.sampled_indices.extend(indices)
+
+    def __len__(self):
+        return len(self.sampled_indices)
+
+    def __getitem__(self, idx):
+        image, label = super().__getitem__(self.sampled_indices[idx])
+        if label in self.to_transform and self.minority_transform:
+            image = self.minority_transform(image)
+        return image, label
+
+
 class ForestDataModule(pl.LightningDataModule):
     def __init__(self, train_data, val_data, test_data, dataset, dataset_args={}, batch_size=32):
         super().__init__()
