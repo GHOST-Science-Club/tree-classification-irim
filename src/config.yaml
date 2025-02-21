@@ -25,7 +25,7 @@ dataset:
 
 training:
   batch_size: 32
-  learning_rate: 0.0001
+  learning_rate: 0.00001
   max_epochs: 10
   freeze: true
   oversample: true
