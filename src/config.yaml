@@ -25,8 +25,11 @@ dataset:
 
 training:
   batch_size: 32
-  learning_rate: 0.001
-  max_epochs: 2
+  learning_rate: 0.0003
+  max_epochs: 10
   freeze: true
+  oversample: true
+  oversample_factor: 10
+  oversample_threshould: 200
 
 device: "gpu"
