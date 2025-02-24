@@ -29,6 +29,7 @@ jobs:
           user = os.environ.get("LIGHTNING_AI_USERNAME")
           branch = os.environ.get("GITHUB_REF_NAME", "main")          
           branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+          os.environ['BRANCH_STUDIO_NAME'] = branch_studio_name
           
           studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
           studio.start(Machine.T4)
@@ -47,3 +48,9 @@ jobs:
           LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
           LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+
+      - name: Post plots in PR comment
+        run: |
+          echo $BRANCH_STUDIO_NAME
+          lightning download src/plots/acc_loss_curves.png -s Vision-model/$BRANCH_STUDIO_NAME -l ./acc_loss_curves.png
+          # cml comment create [options] <markdown report file>
