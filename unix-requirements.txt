@@ -64,6 +64,7 @@ pyparsing==3.2.0
 pytest==8.3.4
 python-dateutil==2.9.0.post0
 pytorch-lightning==2.4.0
+lightning==2.5.0.post0
 PyYAML==6.0.2
 pyzmq==26.2.0
 requests==2.32.3

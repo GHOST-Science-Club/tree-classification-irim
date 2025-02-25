@@ -1,49 +1,83 @@
 name: GPU - Train Model, push logs to Wandb
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    environment: Repository
+    build:
+        runs-on: ubuntu-22.04
+        environment: Repository
 
-    steps:
+        steps:
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
+            -   name: Set up Python
+                uses: actions/setup-python@v2
+                with:
+                    python-version: "3.10"
 
-      - name: Install dependencies
-        run: |
-          pip install lightning-sdk
-          pip list
-        shell: bash
+            -   name: Install dependencies
+                run: |
+                    pip install lightning-sdk
+                    pip list
+                shell: bash
 
-      - name: Start lightning.ai studio and train model there
-        run: |
-          python -c 'import os, re
-          from lightning_sdk import Studio, Machine
-          
-          user = os.environ.get("LIGHTNING_AI_USERNAME")
-          branch = os.environ.get("GITHUB_REF_NAME", "main")          
-          branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
-          
-          studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
-          studio.start(Machine.T4)
-          
-          try:
-              studio.run("rm -rf tree-classification-irim")
-              studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-              studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
-              studio.run("cd tree-classification-irim && python ./src/main.py")
-          finally:
-              studio.stop()
-              studio.delete()'
+            -   name: Start lightning.ai studio and train model there
+                run: |
+                    python -c 'import os, re
+                    from lightning_sdk import Studio, Machine
 
-        env:
-          LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
-          LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
-          LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
-          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+                    user = os.environ.get("LIGHTNING_AI_USERNAME")
+                    branch = os.environ.get("GITHUB_REF_NAME", "main")
+                    branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+
+                    studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
+                    studio.start(Machine.T4)
+
+                    try:
+                        studio.run("rm -rf tree-classification-irim")
+                        studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
+                        studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
+                        studio.run("cd tree-classification-irim && python ./src/main.py")
+                    except:
+                        studio.stop()
+                        studio.delete()'
+
+                env:
+                    LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
+                    LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
+                    LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
+                    WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+
+            -   name: Post plots in PR comment
+                run: |
+                    BRANCH_STUDIO_NAME=$(echo "$GITHUB_REF_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c1-30)
+                    pwd # /home/runner/work/tree-classification-irim/tree-classification-irim
+                    lightning download folder /home/runner/work/tree-classification-irim/tree-classification-irim/src/plots \
+                      -s Vision-model/$BRANCH_STUDIO_NAME -l plots
+                    ls plots
+                    # echo "## Model metrics" > report.md
+                    # cat metrics.txt >> report.md
+
+                    # echo "## Data viz" >> report.md
+                    # cml-publish feature_importance.png --md >> report.md
+                    # cml-publish residuals.png --md >> report.md
+
+                    # cml-send-comment create [options] <markdown report file>
+
+            -   name: Cleanup - delete studio
+                run: |
+                    python -c 'import os, re
+                    from lightning_sdk import Studio, Machine
+
+                    user = os.environ.get("LIGHTNING_AI_USERNAME")
+                    branch = os.environ.get("GITHUB_REF_NAME", "main")
+                    branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+
+                    studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
+
+                    try:
+                        studio.stop()
+                        studio.delete()'
+                    else:
+                        print("Studio not found")
+                        exit(0)'
