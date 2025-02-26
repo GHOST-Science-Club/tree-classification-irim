@@ -63,7 +63,7 @@ def main():
             ]),
             "oversample_factor": oversample_factor,
             "oversample_threshould": oversample_threshould
-        } if oversample else None,
+        } if oversample else {},
         batch_size=batch_size
     )
 
