@@ -28,7 +28,7 @@ training:
   learning_rate: 0.0001
   max_epochs: 10
   freeze: true
-  oversample: false
+  oversample: true
   oversample_factor: 10
   oversample_threshould: 200
 
