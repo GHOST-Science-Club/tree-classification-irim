@@ -1,7 +1,9 @@
+import huggingface_hub.errors
 import pytest
 import yaml
 from pathlib import Path
 import zipfile
+import huggingface_hub
 from src.dataset_functions import download_data, load_dataset, extract_files
 
 
@@ -41,6 +43,18 @@ def test_extract_file_bad_zip_error(tmp_path, dataset_folder, main_subfolders):
     
     with pytest.raises(zipfile.BadZipFile):
         extract_files(corrupt_zip_path, dataset_folder, main_subfolders)
+
+
+@pytest.mark.dataset_functions
+def test_hf_download_errors(dataset_folder, main_subfolders):
+    invalid_entry = {"invalid": "entry"}
+    invalid_folder = {"invalid": 12345}
+    
+    with pytest.raises(huggingface_hub.errors.EntryNotFoundError):
+        download_data(invalid_entry, main_subfolders, dataset_folder)
+        
+    with pytest.raises(AttributeError):
+        download_data(invalid_folder, main_subfolders, dataset_folder)
 
     
 @pytest.mark.dataset_functions
