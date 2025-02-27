@@ -1,5 +1,6 @@
 import pytest
 import torch
+from PIL import Image
 from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from src.model import ResNetClassifier
@@ -7,8 +8,15 @@ from src.dataset import ForestDataset
 from src.transforms import Preprocess
 
 @pytest.fixture
-def model():
-    return ResNetClassifier(num_classes=2, learning_rate=1e-3, freeze=True)
+def model(monkeypatch):
+    model = ResNetClassifier(num_classes=2, learning_rate=1e-3, freeze=True)
+    
+    model.trainer = Trainer() #  running training_step() from pl.LightningModule throws an error without a trainer
+    for _ in range(10): # if no optimizer is present, it triggers an index error as model retrieves current_lr for logs
+        model.trainer.optimizers.append(torch.optim.Adam(model.model.fc.parameters()))
+    monkeypatch.setattr(model, "log", lambda *args, **kwargs: None) # log is not tested at it is done by pytorch-lightning
+        
+    return model
 
 
 @pytest.fixture
@@ -20,13 +28,33 @@ def sample_batch():
 
 
 @pytest.fixture
-def data_loader(sample_batch):
+def sample_data(tmp_path):
+    """Creates data instance with two sample images."""
+    image_path1 = tmp_path / "sample_image1.jpg"
+    image1 = Image.new("RGB", (224, 224), color=(255, 0, 0))
+    image1.save(image_path1)
+    
+    image_path2 = tmp_path / "sample_image2.jpg"
+    image2 = Image.new("RGB", (224, 224), color=(255, 225, 0))
+    image2.save(image_path2)
+
+    return {
+        "paths": [image_path1, image_path2],
+        "labels": [0, 1]
+    }
+
+
+@pytest.fixture
+def data_loader(sample_data):
     """Fixture to create a DataLoader for testing training and validation steps."""
-    dataset = ForestDataset(sample_batch[0], sample_batch[1], transform=Preprocess())
+    dataset = ForestDataset(sample_data["paths"], sample_data["labels"], transform=Preprocess())
     return DataLoader(dataset, batch_size=2)
 
 
 @pytest.mark.model
+@pytest.mark.filterwarnings(
+    "ignore:Starting from v1.9.0, `tensorboardX` has been removed as a dependency of the `pytorch_lightning` package.*"
+)
 def test_model_initialization(model):
     
     assert model.model is not None
@@ -51,17 +79,9 @@ def test_forward_pass(model, sample_batch):
 
 
 @pytest.mark.model
-def test_training_step(monkeypatch, model, sample_batch):
+def test_training_step(model, sample_batch):
     batch = sample_batch
     
-    model.trainer = Trainer()
-    
-    for _ in range(10):
-        model.trainer.optimizers.append(torch.optim.Adam(model.model.fc.parameters()))
-    
-    monkeypatch.setattr(model, "log", lambda *args, **kwargs: None)
-    # monkeypatch.setattr(model, "trainer.optimizers[0].param_groups[0]['lr']", lambda *args, **kwargs: "mock_trainer")
-    # with mock.patch.object(model, "trainer.optimizers[0].param_groups[0]['lr']", lambda *args, **kwargs: "mock_trainer"):
     loss = model.training_step(batch, batch_idx=0)
     
     assert loss is not None
@@ -71,6 +91,7 @@ def test_training_step(monkeypatch, model, sample_batch):
 @pytest.mark.model
 def test_validation_step(model, sample_batch):
     batch = sample_batch
+    
     loss = model.validation_step(batch, batch_idx=0)
     
     assert loss is not None
@@ -80,6 +101,7 @@ def test_validation_step(model, sample_batch):
 @pytest.mark.model
 def test_test_step(model, sample_batch):
     batch = sample_batch
+    
     loss = model.test_step(batch, batch_idx=0)
     
     assert loss is not None
@@ -99,7 +121,7 @@ def test_optimizer_configuration(model):
 def test_model_freezing(model):
     frozen_params = [p.requires_grad for p in model.model.parameters()]
     
-    assert all(p is False for p in frozen_params)
+    assert all(p is False for p in frozen_params[:-2])
 
 
 @pytest.mark.model
