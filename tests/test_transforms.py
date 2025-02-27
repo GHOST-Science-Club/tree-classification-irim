@@ -1,7 +1,7 @@
 import pytest
 import torch
 import numpy as np
-from src.transforms import Preprocess, Transforms
+from src.transforms import Preprocess
 from kornia.utils import image_to_tensor
 
 
