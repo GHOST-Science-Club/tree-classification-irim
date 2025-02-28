@@ -28,6 +28,11 @@ def dataset(sample_data):
     return ForestDataset(sample_data["paths"], sample_data["labels"])
 
 
+@pytest.fixture
+def data_module(sample_data):
+    return ForestDataModule(sample_data, sample_data, sample_data, batch_size=2)
+
+
 @pytest.mark.dataset
 def test_dataset_length(dataset):
     assert len(dataset) == 2, f"Dataset size is not as expected (size: {len(dataset)})"
@@ -81,21 +86,16 @@ def test_multiple_samples(dataset):
     assert label2 == 1, f"Incorrect label. Expected label: 1"
 
 
-@pytest.fixture
-def data_module(sample_data):
-    return ForestDataModule(sample_data, sample_data, sample_data, batch_size=2)
-
-
 @pytest.mark.dataset
 def test_setup_creates_datasets(data_module):
     data_module.setup()
 
-    assert data_module.train_dataset is not None
-    assert data_module.val_dataset is not None
-    assert data_module.test_dataset is not None
-    assert isinstance(data_module.train_dataset, ForestDataset)
-    assert isinstance(data_module.val_dataset, ForestDataset)
-    assert isinstance(data_module.test_dataset, ForestDataset)
+    assert data_module.train_dataset is not None, "Train dataset in data module is invalid (None)"
+    assert data_module.val_dataset is not None, "Validation dataset in data module is invalid (None)"
+    assert data_module.test_dataset is not None, "Test dataset in data module is invalid (None)"
+    assert isinstance(data_module.train_dataset, ForestDataset), "Train dataset is not ForestDataset"
+    assert isinstance(data_module.val_dataset, ForestDataset), "Validation dataset is not ForestDataset"
+    assert isinstance(data_module.test_dataset, ForestDataset), "Test dataset is not ForestDataset"
 
 
 @pytest.mark.dataset
@@ -106,14 +106,15 @@ def test_dataloader_returns_correct_batch_size(data_module):
     val_loader = data_module.val_dataloader()
     test_loader = data_module.test_dataloader()
 
-    assert isinstance(train_loader, DataLoader)
-    assert isinstance(val_loader, DataLoader)
-    assert isinstance(test_loader, DataLoader)
+    assert isinstance(train_loader, DataLoader), "Train data loader is not DataLoader"
+    assert isinstance(val_loader, DataLoader), "Validation data loader is not DataLoader"
+    assert isinstance(test_loader, DataLoader), "Test data loader is not DataLoader"
     
     images, labels = next(iter(train_loader))    
     
-    assert images.shape[0] == 2  # Batch size
-    assert labels.shape[0] == 2
+    # Batch size
+    assert images.shape[0] == 2, f"Incorrect batch size for images (current: {images.shape[0]})"
+    assert labels.shape[0] == 2, f"Incorrect batch size for labels (current: {labels.shape[0]})"
 
 
 @pytest.mark.dataset
@@ -121,5 +122,5 @@ def test_dataloader_shuffling(data_module):
     data_module.setup()
     train_loader = data_module.train_dataloader()
 
-    assert train_loader.sampler is not None
+    assert train_loader.sampler is not None, "Data in train data loader in not shuffled"
 

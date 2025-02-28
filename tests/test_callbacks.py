@@ -29,20 +29,20 @@ def mock_trainer():
 def test_on_train_epoch_end(callback, mock_trainer):
     callback.on_train_epoch_end(mock_trainer, None)
 
-    assert len(callback.train_metrics["loss"]) == 1
-    assert len(callback.train_metrics["acc"]) == 1
-    assert callback.train_metrics["loss"][0] == pytest.approx(0.2345)
-    assert callback.train_metrics["acc"][0] == pytest.approx(0.9123)
+    assert len(callback.train_metrics["loss"]) == 1, "Invalid loss metric number in training callback"
+    assert len(callback.train_metrics["acc"]) == 1, "Invalid accuracy metric number in training callback"
+    assert callback.train_metrics["loss"][0] == pytest.approx(0.2345), "Invalid loss in training callback"
+    assert callback.train_metrics["acc"][0] == pytest.approx(0.9123), "Invalid accuracy in training callback"
 
 
 @pytest.mark.callbacks
 def test_on_validation_epoch_end(callback, mock_trainer):
     callback.on_validation_epoch_end(mock_trainer, None)
 
-    assert len(callback.val_metrics["loss"]) == 1
-    assert len(callback.val_metrics["acc"]) == 1
-    assert callback.val_metrics["loss"][0] == pytest.approx(0.3456)
-    assert callback.val_metrics["acc"][0] == pytest.approx(0.8765)
+    assert len(callback.val_metrics["loss"]) == 1, "Invalid loss metric number in validation callback"
+    assert len(callback.val_metrics["acc"]) == 1, "Invalid accuracy metric number in validation callback"
+    assert callback.val_metrics["loss"][0] == pytest.approx(0.3456), "Invalid loss in validation callback"
+    assert callback.val_metrics["acc"][0] == pytest.approx(0.8765), "Invalid accuracy in validation callback"
 
 
 @pytest.mark.callbacks
@@ -51,5 +51,5 @@ def test_callback_prints_correctly(callback, mock_trainer, capsys):
     callback.on_validation_epoch_end(mock_trainer, None)
 
     captured = capsys.readouterr()
-    assert "Train Loss: 0.2345, Train Acc: 0.9123" in captured.out
-    assert "Epoch: 1, Val Loss: 0.3456, Val Acc: 0.8765" in captured.out
+    assert "Train Loss: 0.2345, Train Acc: 0.9123" in captured.out, "Incorrect training callback output"
+    assert "Epoch: 1, Val Loss: 0.3456, Val Acc: 0.8765" in captured.out, "Incorrect validation callback output"

@@ -56,7 +56,7 @@ def test_model_initialization(model):
     
     assert model.model is not None, "Model is not initialized"
     # May need to be changed in the future for other models
-    assert isinstance(model.criterion, torch.nn.CrossEntropyLoss), f"Loss function is not cross-entropy. Current loss function: {model.criterion}"
+    assert isinstance(model.criterion, torch.nn.CrossEntropyLoss), f"Current loss function ({model.criterion}) is not cross-entropy"
     assert model.accuracy is not None, "Accuracy is not initialized"
 
 
@@ -65,7 +65,7 @@ def test_model_initialization(model):
 def test_model_different_class_sizes(num_classes):
 
     model = ResNetClassifier(num_classes=num_classes)
-    assert model.model.fc.out_features == num_classes, "Model classes do not match expected number of classes"
+    assert model.model.fc.out_features == num_classes, f"Model classes ({model.model.fc.out_features}) do not match expected number of classes: {num_classes}."
 
 
 @pytest.mark.model
@@ -74,7 +74,7 @@ def test_forward_pass(model, sample_batch):
     outputs = model(images)
     
     # Expecting 4 samples and 2 output classes
-    assert outputs.shape == (4, 2), "Forward pass produces wrong number of samples and classes"
+    assert outputs.shape == (4, 2), f"Forward pass produces wrong number of samples and classes. Current: ({outputs.shape})"
 
 
 @pytest.mark.model
@@ -83,8 +83,8 @@ def test_training_step(model, sample_batch):
     
     loss = model.training_step(batch, batch_idx=0)
     
-    assert loss is not None
-    assert loss.item() > 0
+    assert loss is not None, "Loss is invalid"
+    assert loss.item() > 0, "Loss is less than 0"
 
 
 @pytest.mark.model
@@ -93,8 +93,8 @@ def test_validation_step(model, sample_batch):
     
     loss = model.validation_step(batch, batch_idx=0)
     
-    assert loss is not None
-    assert loss.item() > 0
+    assert loss is not None, "Loss is invalid"
+    assert loss.item() > 0, "Loss is less than 0"
 
 
 @pytest.mark.model
@@ -103,24 +103,25 @@ def test_test_step(model, sample_batch):
     
     loss = model.test_step(batch, batch_idx=0)
     
-    assert loss is not None
-    assert loss.item() > 0
+    assert loss is not None, "Loss is invalid"
+    assert loss.item() > 0, "Loss is less than 0"
 
 
 @pytest.mark.model
 def test_optimizer_configuration(model):
     optim_config = model.configure_optimizers()
     
-    assert "optimizer" in optim_config
-    assert "lr_scheduler" in optim_config
-    assert optim_config["lr_scheduler"]["scheduler"] is not None
+    assert "optimizer" in optim_config, "configure_optimizer does not output optimizer"
+    assert optim_config["optimizer"] is not None, "Optimizer is invalid (None)"
+    assert "lr_scheduler" in optim_config, "configure_optimizer does not output learning scheduler"
+    assert optim_config["lr_scheduler"]["scheduler"] is not None, "Scheduler is invalid (None)"
 
 
 @pytest.mark.model
 def test_model_freezing(model):
     frozen_params = [p.requires_grad for p in model.model.parameters()]
     
-    assert all(p is False for p in frozen_params[:-2])
+    assert all(p is False for p in frozen_params[:-2]), "Pretrained weights are not frozen"
 
 
 @pytest.mark.model
@@ -128,4 +129,5 @@ def test_train_dataloader(model, data_loader):
     batch = next(iter(data_loader))
     loss = model.training_step(batch, batch_idx=0)
 
-    assert loss.item() > 0
+    assert loss.item() > 0, "Dataloader produces loss less than 0"
+
