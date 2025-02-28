@@ -52,14 +52,12 @@ def data_loader(sample_data):
 
 
 @pytest.mark.model
-@pytest.mark.filterwarnings(
-    "ignore:Starting from v1.9.0, `tensorboardX` has been removed as a dependency of the `pytorch_lightning` package.*"
-)
 def test_model_initialization(model):
     
-    assert model.model is not None
-    assert isinstance(model.criterion, torch.nn.CrossEntropyLoss)
-    assert model.accuracy is not None
+    assert model.model is not None, "Model is not initialized"
+    # May need to be changed in the future for other models
+    assert isinstance(model.criterion, torch.nn.CrossEntropyLoss), f"Loss function is not cross-entropy. Current loss function: {model.criterion}"
+    assert model.accuracy is not None, "Accuracy is not initialized"
 
 
 @pytest.mark.model
@@ -67,7 +65,7 @@ def test_model_initialization(model):
 def test_model_different_class_sizes(num_classes):
 
     model = ResNetClassifier(num_classes=num_classes)
-    assert model.model.fc.out_features == num_classes
+    assert model.model.fc.out_features == num_classes, "Model classes do not match expected number of classes"
 
 
 @pytest.mark.model
@@ -75,7 +73,8 @@ def test_forward_pass(model, sample_batch):
     images, _ = sample_batch
     outputs = model(images)
     
-    assert outputs.shape == (4, 2)  # Expecting 4 samples and 2 output classes
+    # Expecting 4 samples and 2 output classes
+    assert outputs.shape == (4, 2), "Forward pass produces wrong number of samples and classes"
 
 
 @pytest.mark.model
@@ -126,7 +125,7 @@ def test_model_freezing(model):
 
 @pytest.mark.model
 def test_train_dataloader(model, data_loader):
-    for batch in data_loader:
-        loss = model.training_step(batch, batch_idx=0)
-        assert loss.item() > 0
-        break
+    batch = next(iter(data_loader))
+    loss = model.training_step(batch, batch_idx=0)
+
+    assert loss.item() > 0
