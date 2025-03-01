@@ -29,9 +29,6 @@ jobs:
       - name: Run tests with tox
         run: tox
 
-      - name: Generate coverage report
-        run: pytest --color=yes --cov=src --cov-branch --cov-report=html
-
       - name: Upload coverage report artifact
         uses: actions/upload-pages-artifact@v3
         with:
