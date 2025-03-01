@@ -33,7 +33,7 @@ jobs:
         run: pytest --color=yes --cov=src --cov-branch --cov-report=html
 
       - name: Upload coverage report artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: './htmlcov/'
 
@@ -45,5 +45,5 @@ jobs:
       id-token: write
     steps:
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
         id: deployment
