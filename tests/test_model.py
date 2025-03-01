@@ -177,3 +177,35 @@ def test_train_dataloader(model, data_loader):
     loss = model.training_step(batch, batch_idx=0)
 
     assert loss.item() > 0, "Dataloader produces loss less than 0"
+
+
+@pytest.mark.model
+def test_on_after_batch_transfer_without_transform(model, sample_batch):
+    result = model.on_after_batch_transfer(sample_batch, dataloader_idx=0)
+
+    error_msg = {
+        "img": "Image has been altered by after batch transfer",
+        "lbl": "Label has been altered by after batch transfer"
+    }
+
+    assert torch.equal(result[0], sample_batch[0]), error_msg["img"]
+    assert torch.equal(result[1], sample_batch[1]), error_msg["lbl"]
+
+
+@pytest.mark.model
+def test_on_after_batch_transfer_with_transform(model, sample_batch):
+    def mock_transform(x):
+        return x * 2
+
+    model.transform = mock_transform
+    result = model.on_after_batch_transfer(sample_batch, dataloader_idx=0)
+
+    expected_x = sample_batch[0] * 2
+
+    error_msg = {
+        "img": "Image remained unchanged after batch transfer",
+        "lbl": "Label has been altered by after batch transfer"
+    }
+
+    assert torch.equal(result[0], expected_x), error_msg["img"]
+    assert torch.equal(result[1], sample_batch[1]), error_msg["lbl"]
