@@ -13,6 +13,8 @@ pythonpath = [
 addopts = [
     "-v",
     "--cov=src",
+    "--cov-branch",
+    "--color=yes",
     "--cov-report=html",
 ]
 markers = [

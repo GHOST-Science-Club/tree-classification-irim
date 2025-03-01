@@ -7,3 +7,5 @@ __pycache__
 ghost-irim
 wandb
 .pytest_cache
+.coverage
+.tox
