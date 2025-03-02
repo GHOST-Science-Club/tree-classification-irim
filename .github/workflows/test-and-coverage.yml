@@ -34,11 +34,6 @@ jobs:
         if: runner.os == 'Windows'
         run: tox -c tox_win.ini
 
-      - name: Upload coverage report artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './htmlcov/'
-
   deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -46,6 +41,10 @@ jobs:
       pages: write
       id-token: write
     steps:
+      - name: Upload coverage report artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './htmlcov/'
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
         id: deployment
