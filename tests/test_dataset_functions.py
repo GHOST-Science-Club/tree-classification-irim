@@ -15,11 +15,19 @@ def dataset_folder():
 
 
 @pytest.fixture
-def species_folders():
-    return {
+def species_folders(dataset_folder, monkeypatch):
+    species_folders = {
         "Castanea_sativa": "data/imagery-Castanea_sativa.zip",
         "Pinus_nigra": "data/imagery-Pinus_nigra.zip"
     }
+
+    for species in species_folders:
+        monkeypatch.setattr(
+            "extract_dir.mkdir(exist_ok=True)",
+            lambda *args, **kwargs: dataset_folder / species
+        )
+
+    return
 
 
 @pytest.fixture
@@ -28,14 +36,22 @@ def main_subfolders():
 
 
 @pytest.fixture
-def sample_images(dataset_folder):
+def sample_images(dataset_folder, monkeypatch):
     exp_path1 = dataset_folder / Path(
         "Castanea_sativa/test/TEST-Castanea_sativa-C3-17_1_42.tiff"
         )
+    monkeypatch.setattr(
+        dataset_folder / exp_path1,
+        lambda *args, **kwargs: dataset_folder / exp_path1
+    )
 
     exp_path2 = dataset_folder / Path(
         "Pinus_nigra/train/TRAIN-Pinus_nigra-C7-100_1_280.tiff"
         )
+    monkeypatch.setattr(
+        dataset_folder / exp_path2,
+        lambda *args, **kwargs: dataset_folder / exp_path2
+    )
 
     return exp_path1, exp_path2
 
