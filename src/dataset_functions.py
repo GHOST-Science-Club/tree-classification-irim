@@ -54,7 +54,7 @@ def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: 
         )
 
         extract_dir = dataset_folder / filename
-        extract_dir.mkdir(exist_ok=True)
+        extract_dir.mkdir(exist_ok=True, parents=True)
 
         try:
             extract_files(file_path, extract_dir, main_subfolders)
