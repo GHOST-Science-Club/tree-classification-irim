@@ -26,8 +26,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox tox-gh-actions
 
-      - name: Run tests with tox
-        run: tox
+      - name: Run tests with tox for Linux
+        if: runner.os == 'Linux'
+        run: tox -c tox_lin.ini
+
+      - name: Run tests with tox for Windows
+        if: runner.os == 'Windows'
+        run: tox -c tox_win.ini
 
       - name: Upload coverage report artifact
         uses: actions/upload-pages-artifact@v3
