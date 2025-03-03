@@ -1,18 +1,18 @@
 import os
+from pathlib import Path
 
-import yaml
+import kornia.augmentation as kaug
 import torch
 import wandb
-from pathlib import Path
-import kornia.augmentation as kaug
+import yaml
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 
-from model import ResNetClassifier
-from dataset import ForestDataModule
 from callbacks import PrintMetricsCallback
+from dataset import ForestDataModule
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
+from model import ResNetClassifier
 from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
                                      get_precision_recall_curve,
