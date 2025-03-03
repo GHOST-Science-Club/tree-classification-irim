@@ -32,7 +32,7 @@ class ForestDataset(Dataset):
         with Image.open(image_path) as img:
             # Convert to numpy array
             image = np.array(img)
-            image = image[:, :, 1:] if image.shape[-1] == 4 else image # Removing "near-inferred" channel
+            image = image[:, :, 1:] if image.shape[-1] == 4 else image  # Removing "near-inferred" channel
         # We found out that PIL conversion to RGB
         # keeps the "near-inferred" channel which was not desired
 

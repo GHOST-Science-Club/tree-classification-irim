@@ -6,7 +6,7 @@ from huggingface_hub import hf_hub_download
 
 def print_extracted_files(extract_dir: Path):
     print(f"Successfully extracted to {extract_dir}")
-    
+
     extracted_files = Path(extract_dir).iterdir()
     print("Extracted files:")
     for extracted_file in list(extracted_files)[:5]:
@@ -37,6 +37,7 @@ def extract_files(file_path: Path, extract_dir: Path, main_subfolders: str):
                 f.write(source)
 
         print_extracted_files(extract_dir)
+
 
 def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: Path):
     """
