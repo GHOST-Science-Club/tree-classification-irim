@@ -1,28 +1,93 @@
-from unittest.mock import patch
-from src.dataset_functions import download_data
+import huggingface_hub.errors
+import pytest
+import yaml
+from pathlib import Path
+import zipfile
+import huggingface_hub
+from src.dataset_functions import download_data, load_dataset, extract_files
 
 
-def test_download_data(tmp_path):
-    # Mock input
-    species_folders = {"Castanea_sativa": "data/imagery-Castanea_sativa.zip"}
-    main_subfolders = {"aerial_imagery": "imagery/"}
-    dataset_folder = tmp_path / "dataset"
+@pytest.fixture
+def dataset_folder():
+    with open("src/config.yaml", "r") as c:
+        config = yaml.safe_load(c)
+    return Path.cwd() / config["dataset"]["folder"]
 
-    # Mock hf_hub_download
-    mock_zip_path = tmp_path / "mock.zip"
-    mock_zip_path.touch()  # Create a mock file
-    with patch("huggingface_hub.hf_hub_download", return_value=mock_zip_path):
-        # Mock zipfile.ZipFile
-        with patch("zipfile.ZipFile") as mock_zip:
-            mock_zip.return_value.__enter__.return_value.namelist.return_value = [
-                "aerial_imagery/file1.tif",
-                "aerial_imagery/file2.tif",
-            ]
-            mock_zip.return_value.__enter__.return_value.read.side_effect = lambda x: b"mock data"
 
-            # Call the function
-            download_data(species_folders, main_subfolders, dataset_folder)
+@pytest.fixture
+def species_folders(dataset_folder, monkeypatch):
+    return {
+        "Castanea_sativa": "data/imagery-Castanea_sativa.zip",
+        "Pinus_nigra": "data/imagery-Pinus_nigra.zip"
+    }
 
-            # Assert the expected files are created
-            assert (dataset_folder / "species1/file1.tif").exists()
-            assert (dataset_folder / "species1/file2.tif").exists()
+
+@pytest.fixture
+def main_subfolders():
+    return {"aerial_imagery": "imagery/"}
+
+
+@pytest.fixture
+def sample_images(dataset_folder, monkeypatch):
+    exp_path1 = dataset_folder / Path(
+        "Castanea_sativa/test/TEST-Castanea_sativa-C3-17_1_42.tiff"
+        )
+
+    exp_path2 = dataset_folder / Path(
+        "Pinus_nigra/train/TRAIN-Pinus_nigra-C7-100_1_280.tiff"
+        )
+
+    return exp_path1, exp_path2
+
+
+@pytest.mark.dataset_functions
+def test_download_data(dataset_folder,
+                       species_folders,
+                       main_subfolders,
+                       sample_images
+                       ):
+    download_data(species_folders, main_subfolders, dataset_folder)
+
+    assert sample_images[0].exists(), f"File {sample_images[0]} not found"
+    assert sample_images[1].exists(), f"File {sample_images[1]} not found"
+
+
+@pytest.mark.dataset_functions
+def test_extract_file_bad_zip_error(tmp_path, dataset_folder, main_subfolders):
+    corrupt_zip_path = tmp_path / "corrupt.zip"
+    with open(corrupt_zip_path, "wb") as f:
+        f.write(b"not a real zip file")  # Writing invalid data
+
+    with pytest.raises(zipfile.BadZipFile):
+        extract_files(corrupt_zip_path, dataset_folder, main_subfolders)
+
+
+@pytest.mark.dataset_functions
+def test_hf_download_errors(dataset_folder, main_subfolders):
+    invalid_entry = {"invalid": "entry"}
+    invalid_folder = {"invalid": 12345}
+
+    with pytest.raises(huggingface_hub.errors.EntryNotFoundError):
+        download_data(invalid_entry, main_subfolders, dataset_folder)
+
+    with pytest.raises(AttributeError):
+        download_data(invalid_folder, main_subfolders, dataset_folder)
+
+
+@pytest.mark.dataset_functions
+def test_load_dataset(dataset_folder, species_folders, sample_images):
+    exp_label_map = {
+        species: idx for idx, species in enumerate(species_folders)
+        }
+
+    dataset, label_map = load_dataset(dataset_folder, species_folders)
+
+    error_msg = {
+        "img-1": f"Path {sample_images[0]} not found",
+        "img-2": f"Path {sample_images[1]} not found",
+        "wrong-label": f"Incorrect label map. Expected: {exp_label_map}"
+    }
+
+    assert sample_images[0] in dataset["test"]["paths"], error_msg["img-1"]
+    assert sample_images[1] in dataset["train"]["paths"], error_msg["img-2"]
+    assert exp_label_map == label_map, error_msg["wrong-label"]

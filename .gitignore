@@ -6,3 +6,6 @@ __pycache__
 .vscode
 ghost-irim
 wandb
+.pytest_cache
+.coverage
+.tox
