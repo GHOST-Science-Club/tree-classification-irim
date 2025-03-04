@@ -1,6 +1,7 @@
 import zipfile
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 from huggingface_hub import hf_hub_download
 
 

@@ -105,6 +105,23 @@ wandb login
 
 Provide your API key when prompted.
 
+### How to run the project 💡
+
+To run the tests locally, you can use the following command:
+
+```bash
+git clone git@github.com:GHOST-Science-Club/tree-classification-irim.git
+cd tree-classification-irim
+source .venv/bin/activate
+pip install -r unix-requirements.txt
+
+# For Windows
+tox -c tox_win.ini
+# For Linux/MacOS/Unix
+tox -c tox_lin.ini
+```
+
+
 ### Objectives:
 
 - Identify tree species sensitive to fires, storms, disease, and pests.
