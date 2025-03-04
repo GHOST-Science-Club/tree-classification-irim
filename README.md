@@ -5,6 +5,7 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+[![Tests](https://github.com/GHOST-Science-Club/tree-classification-irim/actions/workflows/test-and-coverage.yml/badge.svg)]
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
