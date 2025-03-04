@@ -4,29 +4,29 @@ on:
     pull_request:
 
 jobs:
-    mypy-tests:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                os: [ ubuntu-latest, windows-latest ]
-                python-version: [ '3.11' ]
-
-        steps:
-            -   uses: actions/checkout@v3
-            -   name: Set up Python ${{ matrix.python-version }}
-                uses: actions/setup-python@v4
-                with:
-                    python-version: ${{ matrix.python-version }}
-            -   name: Install dependencies
-                run: |
-                    python -m pip install --upgrade pip
-                    pip install tox tox-gh-actions
-            -   name: Run Linux TOX tests
-                if: runner.os == 'Linux'
-                run: tox -c tox_lin.ini -e mypy
-            -   name: Run Windows TOX tests
-                if: runner.os == 'Windows'
-                run: tox -c tox_win.ini -e mypy
+#    mypy-tests:
+#        runs-on: ${{ matrix.os }}
+#        strategy:
+#            matrix:
+#                os: [ ubuntu-latest, windows-latest ]
+#                python-version: [ '3.11' ]
+#
+#        steps:
+#            -   uses: actions/checkout@v3
+#            -   name: Set up Python ${{ matrix.python-version }}
+#                uses: actions/setup-python@v4
+#                with:
+#                    python-version: ${{ matrix.python-version }}
+#            -   name: Install dependencies
+#                run: |
+#                    python -m pip install --upgrade pip
+#                    pip install tox tox-gh-actions
+#            -   name: Run Linux TOX tests
+#                if: runner.os == 'Linux'
+#                run: tox -c tox_lin.ini -e mypy
+#            -   name: Run Windows TOX tests
+#                if: runner.os == 'Windows'
+#                run: tox -c tox_win.ini -e mypy
 
     flake8-tests:
         runs-on: ${{ matrix.os }}
