@@ -42,7 +42,7 @@
     <a href="https://github.com/GHOST-Science-Club/tree-classification-irim/tree/docu">View Demo</a>
     ·
     <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a> -->
-    · 
+    ·
     <a href="https://github.com/GHOST-Science-Club/tree-classification-irim/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
     ·
   </p>
@@ -64,7 +64,9 @@
 **GHOST x IRIM** is an initiative by the [GHOST](https://ghost.put.poznan.pl) student organization to develop and test
 an AI algorithm for identifying tree species from aerial photos, focusing on Polish forests.
 
-### How to run
+### How to run the project 💡
+
+! We use Python 3.11.11. If you run into any issues, please check your Python version.
 
 Clone the repo and cd into:
 
@@ -76,10 +78,10 @@ cd tree-classification-irim
 For Linux/MacOS/Unix:
 
 ```
-python -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r unix-requirements.txt
-python src/main.py
+python3.11 src/main.py
 ```
 
 For CUDA PyTorch installation, please refer to this link: https://pytorch.org/get-started/locally/ and select your
@@ -87,10 +89,10 @@ platform and CUDA.
 For Windows with CUDA and win32 lib:
 
 ```
-python -m venv .venv
+python3.11 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python src/main.py
+python3.11 src/main.py
 ```
 
 If you are a project maintainer you should have received Wandb api key.
@@ -174,7 +176,7 @@ For participant contact details, see the [Team](#the-team) section.
 We are a passionate group of students from Poznan University of Technology (PUT), ranging from first-year undergraduates
 to final-year graduate students.
 
-**Team Leader:**  
+**Team Leader:**
 Kacper Dobek ([email@example.com](mailto:email@example.com))
 
 **Team Members:**
