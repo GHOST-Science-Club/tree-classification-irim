@@ -1,51 +1,50 @@
 name: Tests and Coverage Deployment
 
 on:
-  push:
-  pull_request:
+    push:
+    pull_request:
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11']
+    test:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ ubuntu-latest, windows-latest ]
+                python-version: [ '3.11.11' ]
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+            -   name: Set up Python ${{ matrix.python-version }}
+                uses: actions/setup-python@v2
+                with:
+                    python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install tox tox-gh-actions
+            -   name: Install dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install tox tox-gh-actions
 
-      - name: Run tests with tox # for Linux
-        run: tox
-      #   if: runner.os == 'Linux'
-      #   run: tox -c tox_lin.ini
+            -   name: Run Linux TOX tests
+                if: runner.os == 'Linux'
+                run: tox -c tox_lin.ini
 
-      # - name: Run tests with tox for Windows
-      #   if: runner.os == 'Windows'
-      #   run: tox -c tox_win.ini
+            -   name: Run Windows TOX tests
+                if: runner.os == 'Windows'
+                run: tox -c tox_win.ini
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    steps:
-      - name: Upload coverage report artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './htmlcov/'
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-        id: deployment
+#    deploy:
+#        needs: test
+#        runs-on: ubuntu-latest
+#        permissions:
+#            pages: write
+#            id-token: write
+#        steps:
+#            -   name: Upload coverage report artifact
+#                uses: actions/upload-pages-artifact@v3
+#                with:
+#                    path: './htmlcov/'
+#            -   name: Deploy to GitHub Pages
+#                uses: actions/deploy-pages@v4
+#                id: deployment
