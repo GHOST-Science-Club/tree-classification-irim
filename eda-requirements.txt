@@ -1,0 +1,7 @@
+pandas
+matplotlib
+numpy
+seaborn
+cv2
+sklearn
+rasterio
