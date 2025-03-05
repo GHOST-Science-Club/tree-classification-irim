@@ -28,7 +28,7 @@ frozenlist==1.5.0
 fsspec==2024.10.0
 gitdb==4.0.12
 GitPython==3.1.44
-huggingface-hub==0.26.5
+huggingface-hub==0.29.1
 idna==3.10
 iniconfig==2.0.0
 ipykernel==6.29.5
