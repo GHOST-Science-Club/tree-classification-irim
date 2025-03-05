@@ -85,7 +85,7 @@ sympy==1.13.1
 threadpoolctl==3.5.0
 torch==2.5.1
 torchaudio==2.5.1
-torchmetrics==1.6.0
+torchmetrics==1.6.2
 torchvision==0.20.1
 tornado==6.4.2
 tox==4.24.1
