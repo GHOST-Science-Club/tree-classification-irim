@@ -1,0 +1,13 @@
+md5: 4253407e66290f8606794addb8b78ef5
+frozen: true
+deps:
+- path: data
+  repo:
+    url: https://huggingface.co/datasets/rojberr/tree-classification-irim-dataset
+    rev_lock: 9fa3f02b9dfc56740d633d01c5c6eced2c9b2614
+outs:
+- md5: d7dc4e6956ca58cd4b58b55463c4aeeb.dir
+  size: 24807690251
+  nfiles: 18
+  hash: md5
+  path: data

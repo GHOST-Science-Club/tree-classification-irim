@@ -9,3 +9,4 @@ wandb
 .pytest_cache
 .coverage
 .tox
+/data
