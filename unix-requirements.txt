@@ -62,7 +62,7 @@ protobuf==5.29.3
 psutil==6.1.0
 ptyprocess==0.7.0
 pure_eval==0.2.3
-pydantic==2.10.5
+pydantic==2.10.6
 pydantic_core==2.27.2
 Pygments==2.19.1
 pyparsing==3.2.0
