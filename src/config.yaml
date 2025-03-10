@@ -26,7 +26,13 @@ dataset:
 training:
   batch_size: 32
   learning_rate: 0.001
-  max_epochs: 5
+  max_epochs: 100
   freeze: true
+
+  early_stopping:
+    apply: true
+    monitor: "val_loss"
+    patience: 3
+    mode: "min"
 
 device: "gpu"
