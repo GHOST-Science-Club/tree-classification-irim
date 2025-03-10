@@ -1,49 +1,49 @@
 name: GPU - Train Model, push logs to Wandb
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    environment: Repository
+    build:
+        runs-on: ubuntu-22.04
+        environment: Repository
 
-    steps:
+        steps:
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
+            -   uses: actions/setup-python@v5
+                with:
+                    python-version: '3.11.11'
+                    cache: 'pip'
 
-      - name: Install dependencies
-        run: |
-          pip install lightning-sdk
-          pip list
-        shell: bash
+            -   name: Install dependencies
+                run: |
+                    pip install lightning-sdk
+                    pip list
+                shell: bash
 
-      - name: Start lightning.ai studio and train model there
-        run: |
-          python -c 'import os, re
-          from lightning_sdk import Studio, Machine
-          
-          user = os.environ.get("LIGHTNING_AI_USERNAME")
-          branch = os.environ.get("GITHUB_REF_NAME", "main")          
-          branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
-          
-          studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
-          studio.start(Machine.T4)
-          
-          try:
-              studio.run("rm -rf tree-classification-irim")
-              studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-              studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
-              studio.run("cd tree-classification-irim && python ./src/main.py")
-          finally:
-              studio.stop()
-              studio.delete()'
+            -   name: Start lightning.ai studio and train model there
+                run: |
+                    python -c 'import os, re
+                    from lightning_sdk import Studio, Machine
 
-        env:
-          LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
-          LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
-          LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
-          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+                    user = os.environ.get("LIGHTNING_AI_USERNAME")
+                    branch = os.environ.get("GITHUB_REF_NAME", "main")
+                    branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
+
+                    studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user)
+                    studio.start(Machine.T4)
+
+                    try:
+                        studio.run("rm -rf tree-classification-irim")
+                        studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
+                        studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
+                        studio.run("cd tree-classification-irim && python ./src/main.py")
+                    finally:
+                        studio.stop()
+                        studio.delete()'
+
+                env:
+                    LIGHTNING_AI_USERNAME: ${{ secrets.LIGHTNING_AI_USERNAME }}
+                    LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
+                    LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
+                    WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}

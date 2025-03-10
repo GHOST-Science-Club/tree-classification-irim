@@ -1,31 +1,44 @@
 name: CPU - Train Model, push logs to Wandb
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: Repository
+    build:
+        permissions: write-all
+        runs-on: ubuntu-latest
+        environment: Repository
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+        steps:
+            -   uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11.11'
+            -   uses: actions/setup-node@v3
+                with:
+                    node-version: '16'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r unix-requirements.txt
+            -   uses: actions/setup-python@v5
+                with:
+                    python-version: '3.11.11'
+                    cache: 'pip'
 
-      - name: Set WANDB API key
-        run: |
-          echo "WANDB_API_KEY=${{ secrets.WANDB_API_KEY }}" >> $GITHUB_ENV
+            -   uses: iterative/setup-cml@v1
 
+            -   name: Install dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install -r unix-requirements.txt
 
-      - name: Run Python script
-        run: python src/main.py
+            -   name: Set WANDB API key
+                run: |
+                    echo "WANDB_API_KEY=${{ secrets.WANDB_API_KEY }}" >> $GITHUB_ENV
+
+            -   name: Run Python script
+                run: python src/main.py
+
+            -   name: Post plots with CML in PR comment
+                env:
+                    REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    echo "## Data viz" >> report.md
+                    echo '![](./src/plots/confusion_matrix.png "Confusion Matrix")' >> report.md
+                    cml comment create report.md

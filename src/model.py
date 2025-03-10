@@ -13,7 +13,7 @@ class ResNetClassifier(pl.LightningModule):
         self.transform = transform
         self.learning_rate = learning_rate
 
-        self.model = models.resnet18(pretrained=True)
+        self.model = models.resnet18(weights='DEFAULT')
 
         # Freeze pre-trained layers
         if freeze:

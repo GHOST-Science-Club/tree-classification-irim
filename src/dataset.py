@@ -33,17 +33,9 @@ class ForestDataset(Dataset):
         with Image.open(image_path) as img:
             # Convert to numpy array
             image = np.array(img)
-            image = image[:, :, 1:]  # Removing "near-inferred" channel
-
-        # Convert numpy array to a PIL Image if needed
-        # if isinstance(image, np.ndarray):
-        #    image = Image.fromarray(image)
-
-        # Convert image to RGB if it has an alpha channel
-        # if image.mode == "RGBA":
+            image = image[:, :, 1:] if image.shape[-1] == 4 else image  # Removing "near-inferred" channel
         # We found out that PIL conversion to RGB
         # keeps the "near-inferred" channel which was not desired
-        # image = image.convert("RGB")
 
         # Apply transformations
         if self.transform:

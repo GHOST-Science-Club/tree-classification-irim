@@ -1,10 +1,10 @@
 import os
+from pathlib import Path
 
-import yaml
+import kornia.augmentation as kaug
 import torch
 import wandb
-from pathlib import Path
-import kornia.augmentation as kaug
+import yaml
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 

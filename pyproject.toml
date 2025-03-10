@@ -1,0 +1,30 @@
+[tool.coverage.run]
+omit = [
+    "src/__init__.py",
+    "src/visualization_functions.py"
+    ]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "src",
+    "tests"
+]
+addopts = [
+    "-v",
+    "--cov=src",
+    "--cov-branch",
+    "--color=yes",
+    "--cov-report=html",
+]
+markers = [
+    "transforms: pre-processing with Kornia and tranformation of images",
+    "dataset_functions: downloading and managing tree species files",
+    "dataset: managing the entire dataset for the model efficiently",
+    "callbacks: managing and monitoring learning process",
+    "git_functions: managing commits to repo and wandb",
+    "model: creating model for experiments"
+]
+filterwarnings = [
+    "ignore:Starting from v1.9.0, `tensorboardX` has been removed as a dependency of the `pytorch_lightning` package.*",
+]
