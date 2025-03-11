@@ -16,7 +16,7 @@ with open("src/config.yaml", "r") as c:
 
 def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=3, precision=32, ram_fraction=0.8):
     """
-    Function calculates the number of workers and prefetch factor 
+    Function calculates the number of workers and prefetch factor
     for DataLoader based on the available RAM.
 
     Input:
