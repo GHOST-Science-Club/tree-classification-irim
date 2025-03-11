@@ -46,9 +46,9 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
         num_workers = min(floor(prefetch_factor / 2), os.cpu_count())
 
         params = {"num_workers": num_workers,
-                "prefetch_factor": prefetch_factor,
-                "pin_memory": config['device'] == 'gpu',
-                "persistent_workers": True}
+                  "prefetch_factor": prefetch_factor,
+                  "pin_memory": config['device'] == 'gpu',
+                  "persistent_workers": True}
         
     else:
         params = {"num_workers": config['training']['dataloader']['num_workers'],
@@ -123,22 +123,13 @@ class ForestDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, 
-                          batch_size=self.batch_size, 
-                          shuffle=True,
-                          **self.params)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, **self.params)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, 
-                          batch_size=self.batch_size,
-                          **self.params)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, **self.params)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, 
-                          batch_size=self.batch_size,
-                          **self.params)
-
-
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, **self.params)
 
 if __name__ == '__main__':
     params = calculate_dataloader_params(32)
