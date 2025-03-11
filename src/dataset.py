@@ -41,7 +41,7 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
             raise ValueError("Batch size too large for available RAM. Reduce the batch size or image dimensions.")
 
         max_batches_in_ram = floor(total_ram / batch_memory)
-        
+
         prefetch_factor = min(max_batches_in_ram, 16)
         num_workers = min(floor(prefetch_factor / 2), os.cpu_count())
 
@@ -49,15 +49,15 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
                   "prefetch_factor": prefetch_factor,
                   "pin_memory": config['device'] == 'gpu',
                   "persistent_workers": True}
-        
+
     else:
         params = {"num_workers": config['training']['dataloader']['num_workers'],
                   "prefetch_factor": config['training']['dataloader']['prefetch_factor'],
                   "pin_memory": config['training']['dataloader']['pin_memory'],
                   "persistent_workers": config['training']['dataloader']['persistent_workers']}
 
-
     return params
+
 
 class ForestDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
@@ -130,6 +130,7 @@ class ForestDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size, **self.params)
+
 
 if __name__ == '__main__':
     params = calculate_dataloader_params(32)
