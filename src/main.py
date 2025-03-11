@@ -6,6 +6,7 @@ import torch
 import wandb
 import yaml
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
 from callbacks import PrintMetricsCallback
@@ -62,6 +63,11 @@ def main():
     max_epochs = config["training"]["max_epochs"]
     device = config["device"] if torch.cuda.is_available() else "cpu"
     callbacks = [PrintMetricsCallback()]
+
+    if config["training"]["early_stopping"]['apply']:
+        callbacks.append(EarlyStopping(monitor=config["training"]["early_stopping"]['monitor'],
+                                       patience=config["training"]["early_stopping"]['patience'],
+                                       mode=config["training"]["early_stopping"]['mode']))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
