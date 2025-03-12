@@ -22,7 +22,8 @@ def sample_data(tmp_path):
         )
         img.save(img_path)
 
-        # Assign predefined labels for the first two images, random for the rest
+        # Assign predefined labels for the first two images,
+        # random for the rest
         label = predefined_labels.get(i, random.randint(0, 9))
 
         data["paths"].append(img_path)

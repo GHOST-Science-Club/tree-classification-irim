@@ -1,6 +1,5 @@
 import pytest
 import torch
-from PIL import Image
 from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from src.model import ResNetClassifier
