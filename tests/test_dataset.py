@@ -1,5 +1,7 @@
 import pytest
 import torch
+from PIL import Image
+# from torchvision.transforms.functional import pil_to_tensor
 from torch.utils.data import DataLoader
 from src.dataset import (
     ForestDataset,
@@ -199,3 +201,140 @@ def test_multiple_samples(forest_dataset, sample_data):
     assert isinstance(image2, torch.Tensor), error_msg["not-tensor2"]
     assert label1 == exp_label1, error_msg["invalid-label1"]
     assert label2 == exp_label2, error_msg["invalid-label2"]
+
+
+def mock_transform(x):
+    """Create simple tranformation for testing."""
+    return x * 2
+
+
+def mock_minority_transform(x):
+    """
+    Create simple minority transform that increments
+    the input for test verification.
+    """
+    return x + 1
+
+
+@pytest.mark.dataset
+def test_no_oversampling_needed():
+    image_paths = [f"img_{i}.jpg" for i in range(10)]
+    labels = [0] * 5 + [1] * 5  # All classes have more samples than threshold
+
+    dataset = OversampledDataset(
+        image_paths,
+        labels,
+        transform=mock_transform,
+        oversample_threshold=2
+    )
+
+    assert len(dataset) == 10, "Dataset size changed."
+
+
+@pytest.mark.dataset
+def test_all_classes_are_minority():
+    image_paths = [f"img_{i}.jpg" for i in range(6)]
+    # All classes have only 2 samples (below threshold)
+    labels = [0, 1, 2, 0, 1, 2]
+
+    dataset = OversampledDataset(
+        image_paths,
+        labels,
+        transform=mock_transform,
+        minority_transform=mock_minority_transform,
+        oversample_threshold=3,
+        oversample_factor=2
+    )
+
+    assert len(dataset) > 6, "Dataset size didn't change."
+
+
+@pytest.mark.dataset
+def test_no_minority_transform(tmp_path):
+    """Ensure dataset functions correctly when `minority_transform` is None."""
+    image_paths = []
+    for i in range(7):
+        img_path = tmp_path / f"img_{i}.jpg"
+        Image.new(
+            "RGB",
+            (224, 224),
+            color=(255, 0, 0)
+        ).save(img_path)
+
+        image_paths.append(img_path)
+
+    print(image_paths)
+    labels = [0, 1, 0, 1, 2, 2, 3]  # Class 3 is a minority
+
+    dataset = OversampledDataset(
+        image_paths,
+        labels,
+        oversample_threshold=3,
+        oversample_factor=2
+    )
+
+    image, label = dataset[0]
+    print("lol", image)
+    assert isinstance(image, torch.Tensor), "Image is not a tensor"
+    assert isinstance(label, int), "Invalid label type"
+
+
+@pytest.mark.dataset
+def test_single_class_dataset(tmp_path):
+    image_paths = []
+    for i in range(5):
+        img_path = tmp_path / f"img_{i}.jpg"
+        Image.new(
+            "RGB",
+            (224, 224),
+            color=(255, 0, 0)
+        ).save(img_path)
+
+        image_paths.append(img_path)
+    labels = [0] * 5  # Only one class
+
+    dataset = OversampledDataset(
+        image_paths,
+        labels,
+        transform=mock_transform,
+        oversample_threshold=3,
+        oversample_factor=2
+    )
+
+    assert len(dataset) == 5, "Dataset size didn't change"
+    assert all(label == 0 for _, label in dataset), "Labels are different"
+
+
+@pytest.mark.dataset
+def test_exact_threshold_behavior():
+    image_paths = [f"img_{i}.jpg" for i in range(6)]
+    labels = [0, 0, 0, 1, 1, 1]  # Both classes exactly at threshold
+
+    dataset = OversampledDataset(
+        image_paths,
+        labels,
+        transform=mock_transform,
+        minority_transform=mock_minority_transform,
+        oversample_threshold=3,
+        oversample_factor=2
+    )
+
+    assert len(dataset) == 12, "Dataset size changed"
+
+
+# TODO: Write tests the undersample classs and for checking
+# TODO: transformations in oversample dataset
+# @pytest.mark.dataset
+# def test_transform_is_applied(oversampled_dataset, sample_data):
+#     """Ensure that the standard `transform` is applied to every image."""
+#     oversampled_dataset.transform = mock_transform
+#     image, _ = oversampled_dataset[0]
+
+#     with Image.open(sample_data["paths"][0]) as img:
+#         img = pil_to_tensor(img)
+#         exp_image = img * 2
+
+#     print("Lol1", image, "Lol2", exp_image)
+
+#     assert torch.equal(image, exp_image),
+# "Transform didn't modify every image."
