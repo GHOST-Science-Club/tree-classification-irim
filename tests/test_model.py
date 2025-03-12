@@ -43,23 +43,6 @@ def sample_batch():
 
 
 @pytest.fixture
-def sample_data(tmp_path):
-    """Creates data instance with two sample images."""
-    image_path1 = tmp_path / "sample_image1.jpg"
-    image1 = Image.new("RGB", (224, 224), color=(255, 0, 0))
-    image1.save(image_path1)
-
-    image_path2 = tmp_path / "sample_image2.jpg"
-    image2 = Image.new("RGB", (224, 224), color=(255, 225, 0))
-    image2.save(image_path2)
-
-    return {
-        "paths": [image_path1, image_path2],
-        "labels": [0, 1]
-    }
-
-
-@pytest.fixture
 def data_loader(sample_data):
     """Fixture to create a DataLoader for
     testing training and validation steps."""
