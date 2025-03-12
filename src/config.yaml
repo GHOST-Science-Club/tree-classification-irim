@@ -30,6 +30,6 @@ training:
   freeze: true
   oversample: true
   oversample_factor: 10
-  oversample_threshould: 200
+  oversample_threshold: 200
 
 device: "gpu"

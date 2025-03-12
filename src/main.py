@@ -48,7 +48,7 @@ def main():
     freeze = config["training"]["freeze"]
     oversample = config["training"]["oversample"]
     oversample_factor = config["training"]["oversample_factor"]
-    oversample_threshould = config["training"]["oversample_threshould"]
+    oversample_threshold = config["training"]["oversample_threshold"]
 
     datamodule = ForestDataModule(
         dataset['train'],
@@ -62,7 +62,7 @@ def main():
                 torchvision.transforms.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(1, 1.2), shear=10),
             ]),
             "oversample_factor": oversample_factor,
-            "oversample_threshould": oversample_threshould
+            "oversample_threshold": oversample_threshold
         } if oversample else {},
         batch_size=batch_size
     )

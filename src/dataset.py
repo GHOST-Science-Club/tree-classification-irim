@@ -72,7 +72,7 @@ class UndersampledDataset(ForestDataset):
 
 class OversampledDataset(ForestDataset):
     def __init__(self, image_paths, labels, transform=None, minority_transform=None, oversample_factor=2,
-                 oversample_threshould=200):
+                 oversample_threshold=200):
         super().__init__(image_paths, labels, transform)
         self.minority_transform = minority_transform
 
@@ -83,7 +83,7 @@ class OversampledDataset(ForestDataset):
         self.to_transform = set()
         self.sampled_indices = []
         for label, indices in class_indices.items():
-            if len(indices) <= oversample_threshould:
+            if len(indices) <= oversample_threshold:
                 self.to_transform.add(label)
                 # Sampling the minority class with replacement
                 self.sampled_indices.extend(random.choices(indices, k=int(oversample_factor * len(indices))))
