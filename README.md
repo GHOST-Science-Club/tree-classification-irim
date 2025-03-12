@@ -91,7 +91,7 @@ For Windows with CUDA and win32 lib:
 
 ```
 python3.11 -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv/Scripts/Activate.ps1
 pip install -r requirements.txt
 python3.11 src/main.py
 ```
@@ -106,21 +106,26 @@ wandb login
 
 Provide your API key when prompted.
 
-### How to run the project 💡
 
-To run the tests locally, you can use the following command:
+### How to test the project 💡
+
+Before running tests, ensure your setup follows the [How to run the project](#how-to-run-the-project-) section. You can test locally using **`pytest`** (faster) or **`tox`** (more comprehensive). See [`tests/README.md`](https://github.com/GHOST-Science-Club/tree-classification-irim/tree/main/tests) for details.
+
+**1. Pytest (Recommended for Quick Testing)**  
+Pytest runs tests *quickly* without creating isolated environments. Use it for *as-you-go* testing:  
 
 ```bash
-git clone git@github.com:GHOST-Science-Club/tree-classification-irim.git
-cd tree-classification-irim
-source .venv/bin/activate
-pip install -r unix-requirements.txt
+pytest
+```  
+This prints test results to the terminal and generates coverage reports in `htmlcov/`.  
 
-# For Windows
-tox -c tox_win.ini
-# For Linux/MacOS/Unix
-tox -c tox_lin.ini
-```
+**2. Tox (Recommended Before Pushing)**  
+Tox tests in *multiple environments* (e.g., different Python versions), ensuring system-independent compatibility.  
+
+```bash
+tox
+```  
+Like `pytest`, it prints results to the terminal and saves coverage data in `htmlcov/`. ⚠ *First run may take longer* as environments are set up (subsequent runs are faster due to caching).  
 
 
 ### Objectives:
@@ -199,6 +204,7 @@ Kacper Dobek ([email@example.com](mailto:email@example.com))
 
 **Team Members:**
 
+- Adam Dobosz
 - Adam Mazur
 - Jakub Drzymała
 - Jędrzej Warczyński
