@@ -5,7 +5,8 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![Tests](https://github.com/GHOST-Science-Club/tree-classification-irim/actions/workflows/test-and-coverage.yml/badge.svg)]
+<br>
+![Tests](https://github.com/GHOST-Science-Club/tree-classification-irim/actions/workflows/test-and-coverage.yml/badge.svg)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
@@ -67,7 +68,8 @@ an AI algorithm for identifying tree species from aerial photos, focusing on Pol
 
 ### How to run the project 💡
 
-! We use Python 3.11.11. If you run into any issues, please check your Python version.
+! Python 3.10+ is required to run code from this repo.
+If you run into any issues, please check your Python version.
 
 Clone the repo and cd into:
 
@@ -121,7 +123,6 @@ tox -c tox_win.ini
 # For Linux/MacOS/Unix
 tox -c tox_lin.ini
 ```
-
 
 ### Objectives:
 
