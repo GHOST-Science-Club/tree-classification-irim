@@ -13,6 +13,7 @@ from callbacks import PrintMetricsCallback
 from dataset import ForestDataModule
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
+from counting_functions import calculate_metrics_per_class
 from model import ResNetClassifier
 from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
@@ -95,10 +96,6 @@ def main():
     # ====================================== TESTING ========================================== #
     trainer.test(model, datamodule=datamodule)
 
-    # log classes which model took as input
-    training_table = wandb.Table(columns=['Class name', 'Label'], data=[[key, value] for key, value in label_map.items()])
-    wandb.log({'Classes': training_table})
-
     # Callbacks' service
     for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
@@ -110,6 +107,19 @@ def main():
     # Logging plots
     preds = model.predictions
     targets = model.targets
+
+    metrics = calculate_metrics_per_class(targets, preds)
+
+    # log classes which model took as input
+    accs = [metrics[key]['accuracy'] for key in metrics.keys()]
+    precs = [metrics[key]['precision'] for key in metrics.keys()]
+    recs = [metrics[key]['recall'] for key in metrics.keys()]
+    f1s = [metrics[key]['f1'] for key in metrics.keys()]
+    names_and_labels = [[key, value] for key, value in label_map.items()]
+    logged_metrics = [[name, label, acc, prec, rec, f1] for [name, label], acc, prec, rec, f1 in zip(names_and_labels, accs, precs, recs, f1s)]
+
+    training_table = wandb.Table(columns=['Class name', 'Label', 'Accuracy', 'Precision', 'Recall', 'F1-score'], data=logged_metrics)
+    wandb.log({'Classes': training_table})
 
     get_confusion_matrix(preds, targets, class_names=list(label_map.keys()))
     get_roc_auc_curve(preds, targets, class_names=list(label_map.keys()))
