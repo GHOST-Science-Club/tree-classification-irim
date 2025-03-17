@@ -26,10 +26,22 @@ dataset:
 training:
   batch_size: 32
   learning_rate: 0.0001
-  max_epochs: 10
+  max_epochs: 100
   freeze: true
   oversample: true
   oversample_factor: 10
   oversample_threshold: 200
+
+  dataloader:
+    auto: true
+    num_workers: 0
+    pin_memory: false
+    presistent_workers: false
+
+  early_stopping:
+    apply: true
+    monitor: "val_loss"
+    patience: 3
+    mode: "min"
 
 device: "gpu"
