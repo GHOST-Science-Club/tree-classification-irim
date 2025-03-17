@@ -1,7 +1,22 @@
+
 name: Tests and Coverage Deployment
 
 on:
     pull_request:
+    workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+            
 
 jobs:
 #    mypy-tests:
@@ -65,50 +80,34 @@ jobs:
                 run: tox
                 env:
                     PLATFORM: ${{ matrix.os }}
-            # -   name: Save Coverage Report
-            #     run: |
-            #         mkdir -p coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}
-            #         cp -r ./htmlcov/* coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}/
-            
-            # -   name: Upload Partial Coverage Reports
-            #     uses: actions/upload-artifact@v4
-            #     with:
-            #         name: test-coverage-reports
-            #         path: coverage_reports/
-    coverage:
-        runs-on: ubuntu-latest
-        needs: pytest
-        steps:
-            -   uses: actions/checkout@v3
-            -   name: Set up Python
-                uses: actions/setup-python@v4
-                with:
-                    python-version: 3.11
-            -   name: Install dependencies
+            -   name: Save Coverage Report
                 run: |
-                    python -m pip install --upgrade pip
-                    pip install pytest pytest-cov -r unix-requirements.txt
-            -   name: Generate test coverage
-                run: pytest --cov=src --cov-report=html
-            -   name: Upload artifacts
-                uses: actions/upload-pages-artifact@v3
+                    mkdir -p coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}
+                    cp -r ./htmlcov/* coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}/
+            # -   name: Upload artifacts
+            #     uses: actions/upload-pages-artifact@v3
+            #     with:
+            #        path: ./htmlcov
+            -   name: Upload Partial Coverage Reports
+                uses: actions/upload-artifact@v4
                 with:
-                   path: ./htmlcov
+                    name: test-coverage-reports
+                    path: coverage_reports/
 
     deploy:
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
-        needs: coverage
+        needs: pytest
         steps:
-            # -   name: Get First File
-            #     run: echo "FIRST_FILE=$(find coverage_reports -type f | head -n 1)" >> $GITHUB_ENV
-            # -   name: Upload First File
-            #     uses: actions/upload-artifact@v4
-            #     with:
-            #         name: first-coverage-file
-            #         path: ${{ env.FIRST_FILE }}
+            -   name: Get First File
+                run: echo "FIRST_FILE=$(find coverage_reports -type f | head -n 1)" >> $GITHUB_ENV
+            -   name: Upload First File
+                uses: actions/upload-artifact@v4
+                with:
+                    name: first-coverage-file
+                    path: ${{ env.FIRST_FILE }}
             -   name: Deploy to GitHub Pages
                 id: deployment
                 uses: actions/deploy-pages@v4
