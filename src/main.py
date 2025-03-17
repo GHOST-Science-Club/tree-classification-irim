@@ -95,6 +95,10 @@ def main():
     # ====================================== TESTING ========================================== #
     trainer.test(model, datamodule=datamodule)
 
+    # log classes which model took as input
+    training_table = wandb.Table(columns=['Class name', 'Label'], data=[[key, value] for key, value in label_map.items()])
+    wandb.log({'Classes': training_table})
+
     # Callbacks' service
     for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
