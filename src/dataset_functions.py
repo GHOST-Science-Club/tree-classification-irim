@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from huggingface_hub import hf_hub_download
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 def print_extracted_files(extract_dir: Path):
@@ -66,10 +66,10 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
             print(f"Error: {filename} is not a valid zip file")
 
 
-def load_dataset(main_dir: Dict, species_folders: Dict, splits=None):
+def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[str]] = None):
     if splits is None:
         splits = ["train", "val", "test"]
-    dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
+    dataset: Dict[str, Dict[str, List]] = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
     # base_dirs = list(main_dir.glob("*"))
     base_dirs = [species_folders[filename].
                  replace("data/imagery-", "").
