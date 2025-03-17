@@ -4,6 +4,8 @@ from pathlib import Path
 import numpy as np
 from huggingface_hub import hf_hub_download
 
+from typing import List, Dict
+
 
 def print_extracted_files(extract_dir: Path):
     print(f"Successfully extracted to {extract_dir}")
@@ -16,7 +18,7 @@ def print_extracted_files(extract_dir: Path):
         print(f"... and {len(list(extracted_files)) - 5} more files")
 
 
-def extract_files(file_path: Path, extract_dir: Path, main_subfolders: str):
+def extract_files(file_path: Path, extract_dir: Path, main_subfolders: Dict):
     with zipfile.ZipFile(file_path, "r") as zip_ref:
         # Get list of all files in zip
         image_file_list = zip_ref.namelist()
@@ -40,7 +42,7 @@ def extract_files(file_path: Path, extract_dir: Path, main_subfolders: str):
         print_extracted_files(extract_dir)
 
 
-def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: Path):
+def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: Path):
     """
     Function downloads specified data from HF (PureForest dataset)
     """
@@ -64,7 +66,7 @@ def download_data(species_folders: dict, main_subfolders: dict, dataset_folder: 
             print(f"Error: {filename} is not a valid zip file")
 
 
-def load_dataset(main_dir: dict, species_folders: dict, splits=None):
+def load_dataset(main_dir: Dict, species_folders: Dict, splits=None):
     if splits is None:
         splits = ["train", "val", "test"]
     dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
@@ -109,7 +111,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
     return dataset, label_map
 
 
-def clip_balanced_dataset(dataset: dict):
+def clip_balanced_dataset(dataset: Dict):
     clipped_dataset = {}
     for split in dataset.keys():
         if len(dataset[split]["paths"]) == 0:
