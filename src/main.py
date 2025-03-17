@@ -13,7 +13,7 @@ from callbacks import PrintMetricsCallback
 from dataset import ForestDataModule
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
-from counting_functions import calculate_metrics_per_class
+from counting_functions import calculate_metrics_per_class, count_metrics
 from model import ResNetClassifier
 from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
@@ -108,19 +108,25 @@ def main():
     preds = model.predictions
     targets = model.targets
 
-    metrics = calculate_metrics_per_class(targets, preds)
+    # Log metrics
+    metrics_per_experiment = count_metrics(targets, preds)
+    for key, value in metrics_per_experiment.items():
+        wandb.log({key: value})
 
-    # log classes which model took as input
-    accs = [metrics[key]['accuracy'] for key in metrics.keys()]
-    precs = [metrics[key]['precision'] for key in metrics.keys()]
-    recs = [metrics[key]['recall'] for key in metrics.keys()]
-    f1s = [metrics[key]['f1'] for key in metrics.keys()]
+    # Log metrics per class and classnames
+    metrics_per_class = calculate_metrics_per_class(targets, preds)
+    accs = [metrics_per_class[key]['accuracy'] for key in metrics_per_class.keys()]
+    precs = [metrics_per_class[key]['precision'] for key in metrics_per_class.keys()]
+    recs = [metrics_per_class[key]['recall'] for key in metrics_per_class.keys()]
+    f1s = [metrics_per_class[key]['f1'] for key in metrics_per_class.keys()]
+    ious = [metrics_per_class[key]['IoU'] for key in metrics_per_class.keys()]
     names_and_labels = [[key, value] for key, value in label_map.items()]
-    logged_metrics = [[name, label, acc, prec, rec, f1] for [name, label], acc, prec, rec, f1 in zip(names_and_labels, accs, precs, recs, f1s)]
+    logged_metrics = [[name, label, acc, prec, rec, f1, iou] for [name, label], acc, prec, rec, f1, iou in zip(names_and_labels, accs, precs, recs, f1s, ious)]
 
-    training_table = wandb.Table(columns=['Class name', 'Label', 'Accuracy', 'Precision', 'Recall', 'F1-score'], data=logged_metrics)
+    training_table = wandb.Table(columns=['Class name', 'Label', 'Accuracy', 'Precision', 'Recall', 'F1-score', 'IoU'], data=logged_metrics)
     wandb.log({'Classes': training_table})
 
+    # Log confusion matrix, precision-recall curve and roc-auc curve
     get_confusion_matrix(preds, targets, class_names=list(label_map.keys()))
     get_roc_auc_curve(preds, targets, class_names=list(label_map.keys()))
     get_precision_recall_curve(preds, targets, class_names=list(label_map.keys()))
