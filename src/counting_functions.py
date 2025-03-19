@@ -2,6 +2,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import numpy as np
 import torch
 
+
 def calculate_metrics_per_class(y_true, y_pred):
     y_pred = torch.softmax(y_pred, dim=1).argmax(dim=1).cpu().detach().numpy()
     y_true = y_true.cpu().detach().numpy()
@@ -17,7 +18,6 @@ def calculate_metrics_per_class(y_true, y_pred):
         fp = np.sum((y_true != cls) & (y_pred == cls))
         fn = np.sum((y_true == cls) & (y_pred != cls))
         union = tp + fp + fn
-
 
         metrics[cls.item()] = {
             'accuracy': accuracy_score(y_true_binary, y_pred_binary),
