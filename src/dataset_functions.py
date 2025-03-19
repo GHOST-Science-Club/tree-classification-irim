@@ -102,7 +102,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
                  replace("data/imagery-", "").
                  replace(".zip", "")
                  for filename in species_folders]
- 
+
     # Load images and create labels
     for base_dir in base_dirs:
         original_label = base_dir
