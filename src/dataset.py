@@ -14,56 +14,6 @@ import random
 with open("src/config.yaml", "r") as c:
     config = yaml.safe_load(c)
 
-
-def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=3, precision=32, ram_fraction=0.8):
-    """
-    Function calculates the number of workers and prefetch factor
-    for DataLoader based on the available RAM.
-
-    Input:
-        batch_size: int - the batch size used in DataLoader
-        img_size: int - the size of the image
-        image_channels: int - the number of channels in the image
-        precision: int - the precision of the weights
-        ram_fraction: float - the fraction of RAM to use
-    Output:
-        dict of params: num_workers, prefetch_factor, pin_memory, persistent_workers
-            num_workers: int - the number of workers
-            prefetch_factor: int - the prefetch factor
-            pin_memory: bool - whether to use pin_memory
-            persistent_workers: bool - whether to use persistent workers
-    """
-    if config['training']['dataloader']['auto']:
-        total_ram = psutil.virtual_memory().available * ram_fraction
-        img_memory = np.prod(img_size) * image_channels * (precision/8)
-        batch_memory = batch_size * img_memory
-
-        if batch_memory > total_ram:
-            raise ValueError("Batch size too large for available RAM. Reduce the batch size or image dimensions.")
-
-        max_batches_in_ram = floor(total_ram / batch_memory)
-
-        prefetch_factor = min(max_batches_in_ram, 16)
-        num_workers = min(floor(prefetch_factor / 2), os.cpu_count())
-
-        params = {"num_workers": num_workers,
-                  "prefetch_factor": prefetch_factor,
-                  "pin_memory": config['device'] == 'gpu',
-                  "persistent_workers": True}
-
-    else:
-        params = {"num_workers": config['training']['dataloader']['num_workers'],
-                  "prefetch_factor": config['training']['dataloader']['prefetch_factor'],
-                  "pin_memory": config['training']['dataloader']['pin_memory'],
-                  "persistent_workers": config['training']['dataloader']['persistent_workers']}
-
-    return params
-
-
-with open("src/config.yaml", "r") as c:
-    config = yaml.safe_load(c)
-
-
 def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=3, precision=32, ram_fraction=0.8):
     """
     Function calculates the number of workers and prefetch factor
