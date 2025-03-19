@@ -92,7 +92,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
 
     # Filtering merged_labels to present classes in config.yaml
     available_labels = {key: merged_labels[key] for key in species_folders if key in merged_labels}
-    
+
     unique_labels = sorted(set(available_labels.values()))
     label_map = {label: idx for idx, label in enumerate(unique_labels)}
     print("Label mapping:", label_map)
@@ -102,7 +102,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
                  replace("data/imagery-", "").
                  replace(".zip", "")
                  for filename in species_folders]
-    
+ 
     # Load images and create labels
     for base_dir in base_dirs:
         original_label = base_dir
