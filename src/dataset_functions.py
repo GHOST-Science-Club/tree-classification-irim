@@ -91,9 +91,7 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
     }
 
     # Filtering merged_labels to present classes in config.yaml
-    available_labels = {key: merged_labels[key] 
-                        for key in species_folders 
-                        if key in merged_labels}
+    available_labels = {key: merged_labels[key] for key in species_folders if key in merged_labels}
     
     unique_labels = sorted(set(available_labels.values()))
     label_map = {label: idx for idx, label in enumerate(unique_labels)}
@@ -174,7 +172,6 @@ def clip_balanced_dataset(dataset: dict):
     return clipped_dataset
 
 
-
 if __name__ == '__main__':
     import yaml
 
@@ -186,7 +183,6 @@ if __name__ == '__main__':
 
     species_folders = config["dataset"]["species_folders"]
     main_subfolders = config["dataset"]["main_subfolders"]
-
 
     download_data(species_folders, main_subfolders, dataset_folder)
     dataset, label_map = load_dataset(dataset_folder, species_folders)
