@@ -68,25 +68,54 @@ def load_dataset(main_dir: dict, species_folders: dict, splits=None):
     if splits is None:
         splits = ["train", "val", "test"]
     dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
+
+    merged_labels = {
+        "Quercus_petraea": "Deciduous_oak",
+        "Quercus_pubescens": "Deciduous_oak",
+        "Quercus_robur": "Deciduous_oak",
+        "Quercus_rubra": "Deciduous_oak",
+        "Quercus_ilex": "Evergreen_oak",
+        "Fagus_sylvatica": "Beech",
+        "Castanea_sativa": "Chestnut",
+        "Robinia_pseudoacacia": "Black_locust",
+        "Pinus_pinaster": "Maritime_pine",
+        "Pinus_sylvestris": "Scotch_pine",
+        "Pinus_nigra_laricio": "Black_pine",
+        "Pinus_nigra": "Black_pine",
+        "Pinus_halepensis": "Aleppo pine",
+        "Abies_alba": "Fir",
+        "Abies_nordmanniana": "Fir",
+        "Picea_abies": "Spruce",
+        "Larix_decidua": "Larch",
+        "Pseudotsuga_menziesii": "Douglas"
+    }
+
+    # Filtering merged_labels to present classes in config.yaml
+    available_labels = {key: merged_labels[key] 
+                        for key in species_folders 
+                        if key in merged_labels}
+    
+    unique_labels = sorted(set(available_labels.values()))
+    label_map = {label: idx for idx, label in enumerate(unique_labels)}
+    print("Label mapping:", label_map)
+
     # base_dirs = list(main_dir.glob("*"))
     base_dirs = [species_folders[filename].
                  replace("data/imagery-", "").
                  replace(".zip", "")
                  for filename in species_folders]
-
-    # Create label mapping
-    # label_map = {base_dir.stem: idx for idx, base_dir in enumerate(base_dirs)}
-    label_map = {base_dir: idx for idx, base_dir in enumerate(base_dirs)}
-
-    print("Label mapping:", label_map)
-
+    
     # Load images and create labels
     for base_dir in base_dirs:
-        label = label_map[base_dir]
+        original_label = base_dir
+        merged_label = available_labels.get(original_label, None)
+        if merged_label is None:
+            continue
+
+        label = label_map[merged_label]
 
         for split in splits:
             split_dir = main_dir / base_dir / split
-            # split_dir = base_dir
             if not split_dir.exists():
                 print(f"Warning: {split_dir} does not exist")
                 continue
@@ -143,3 +172,24 @@ def clip_balanced_dataset(dataset: dict):
         }
 
     return clipped_dataset
+
+
+
+if __name__ == '__main__':
+    import yaml
+
+    with open("src/config.yaml", "r") as c:
+        config = yaml.safe_load(c)
+
+    dataset_folder = Path.cwd() / config["dataset"]["folder"]
+    dataset_folder.mkdir(exist_ok=True)
+
+    species_folders = config["dataset"]["species_folders"]
+    main_subfolders = config["dataset"]["main_subfolders"]
+
+
+    download_data(species_folders, main_subfolders, dataset_folder)
+    dataset, label_map = load_dataset(dataset_folder, species_folders)
+
+    print(dataset.keys())
+    print(label_map)
