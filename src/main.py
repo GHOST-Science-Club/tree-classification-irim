@@ -9,15 +9,17 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
+from model import ResNetClassifier
+from dataset import ForestDataModule, ForestDataset, OversampledDataset
 from callbacks import PrintMetricsCallback
-from dataset import ForestDataModule
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
-from model import ResNetClassifier
 from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
                                      get_precision_recall_curve,
                                      get_roc_auc_curve)
+
+import torchvision
 
 
 def main():
@@ -45,9 +47,25 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
+    oversample = config["training"]["oversample"]
+    oversample_factor = config["training"]["oversample_factor"]
+    oversample_threshold = config["training"]["oversample_threshold"]
 
     datamodule = ForestDataModule(
-        dataset['train'], dataset['val'], dataset['test'], batch_size=batch_size
+        dataset['train'],
+        dataset['val'],
+        dataset['test'],
+        dataset=OversampledDataset if oversample else ForestDataset,
+        dataset_args={
+            "minority_transform": torchvision.transforms.Compose([
+                torchvision.transforms.RandomHorizontalFlip(),
+                torchvision.transforms.RandomVerticalFlip(),
+                torchvision.transforms.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(1, 1.2), shear=10),
+            ]),
+            "oversample_factor": oversample_factor,
+            "oversample_threshold": oversample_threshold
+        } if oversample else {},
+        batch_size=batch_size
     )
 
     print(datamodule)
