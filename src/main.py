@@ -15,7 +15,6 @@ from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
 from counting_functions import calculate_metrics_per_class, count_metrics
-from model import ResNetClassifier
 from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
                                      get_precision_recall_curve,
