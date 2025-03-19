@@ -4,7 +4,7 @@ import torch
 
 
 def calculate_metrics_per_class(y_true, y_pred):
-    y_pred = torch.argmax(dim=1).cpu().detach().numpy()
+    y_pred = torch.argmax(y_pred, dim=1).cpu().detach().numpy()
     y_true = y_true.cpu().detach().numpy()
 
     classes = np.unique(y_true)
@@ -31,7 +31,7 @@ def calculate_metrics_per_class(y_true, y_pred):
 
 
 def count_metrics(y_true, y_pred):
-    y_pred = torch.argmax(dim=1).cpu().detach().numpy()
+    y_pred = torch.argmax(y_pred, dim=1).cpu().detach().numpy()
     y_true = y_true.cpu().detach().numpy()
 
     accuracy = accuracy_score(y_true, y_pred)
