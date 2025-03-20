@@ -52,6 +52,7 @@ multidict==6.1.0
 nest-asyncio==1.6.0
 networkx==3.2.1
 numpy==2.2.4
+pandas==2.2.3
 packaging==24.2
 parso==0.8.4
 pexpect==4.9.0
