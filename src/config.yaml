@@ -44,16 +44,4 @@ training:
     patience: 3
     mode: "min"
 
-  dataloader:
-    auto: true
-    num_workers: 0
-    pin_memory: false
-    presistent_workers: false
-
-  early_stopping:
-    apply: true
-    monitor: "val_loss"
-    patience: 3
-    mode: "min"
-
 device: "gpu"
