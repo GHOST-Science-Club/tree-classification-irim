@@ -1,4 +1,3 @@
-
 name: Tests and Coverage Deployment
 
 on:
@@ -80,23 +79,13 @@ jobs:
                 run: tox
                 env:
                     PLATFORM: ${{ matrix.os }}
-            # -   name: Save Coverage Report
-            #     run: |
-            #         mkdir -p coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}
-            #         cp -r ./htmlcov/* coverage_reports/${{ matrix.os }}-${{ matrix.python-version }}/
-            
-            # -   name: Upload Partial Coverage Reports
-            #     uses: actions/upload-artifact@v4
-            #     with:
-            #         name: test-coverage-reports
-            #         path: coverage_reports/
-    coverage:
+
+    deploy-coverage-page:
         runs-on: ubuntu-latest
-        needs: pytest
         steps:
             -   uses: actions/checkout@v3
-            -   name: Set up Python
-                uses: actions/setup-python@v4
+            -   uses: actions/configure-pages@v2
+            -   uses: actions/setup-python@v4
                 with:
                     python-version: 3.11
             -   name: Install dependencies
@@ -108,22 +97,7 @@ jobs:
             -   name: Upload artifacts
                 uses: actions/upload-pages-artifact@v3
                 with:
-                    path: ./htmlcov
-
-    deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
-        needs: coverage
-        steps:
-            # -   name: Get First File
-            #     run: echo "FIRST_FILE=$(find coverage_reports -type f | head -n 1)" >> $GITHUB_ENV
-            # -   name: Upload First File
-            #     uses: actions/upload-artifact@v4
-            #     with:
-            #         name: first-coverage-file
-            #         path: ${{ env.FIRST_FILE }}
-            -   name: Deploy to GitHub Pages
-                id: deployment
-                uses: actions/deploy-pages@v4
+                    path: htmlcov
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v1
