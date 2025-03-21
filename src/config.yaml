@@ -29,7 +29,7 @@ training:
   max_epochs: 100
   freeze: true
   oversample: true
-  oversample_factor: 10
+  oversample_factor: 20
   oversample_threshold: 200
 
   dataloader:
@@ -41,7 +41,7 @@ training:
   early_stopping:
     apply: true
     monitor: "val_loss"
-    patience: 3
+    patience: 5
     mode: "min"
 
 device: "gpu"
