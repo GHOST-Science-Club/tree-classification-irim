@@ -2,6 +2,13 @@ name: Tests and Coverage Deployment
 
 on:
     pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+            
 
 jobs:
 #    mypy-tests:
@@ -66,17 +73,27 @@ jobs:
                 env:
                     PLATFORM: ${{ matrix.os }}
 
-#    deploy:
-#        needs: test
-#        runs-on: ubuntu-latest
-#        permissions:
-#            pages: write
-#            id-token: write
-#        steps:
-#            -   name: Upload coverage report artifact
-#                uses: actions/upload-pages-artifact@v3
-#                with:
-#                    path: './htmlcov/'
-#            -   name: Deploy to GitHub Pages
-#                uses: actions/deploy-pages@v4
-#                id: deployment
+    deploy-coverage-page:
+        runs-on: ubuntu-latest
+        concurrency:
+                group: 'pages'
+                cancel-in-progress: true
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: actions/configure-pages@v2
+            -   uses: actions/setup-python@v4
+                with:
+                    python-version: 3.11
+            -   name: Install dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install pytest pytest-cov -r unix-requirements.txt
+            -   name: Generate test coverage
+                run: pytest --cov=src --cov-report=html
+            -   name: Upload artifacts
+                uses: actions/upload-pages-artifact@v3
+                with:
+                    path: htmlcov
+            -   name: Deploy to GitHub Pages
+                id: deployment
+                uses: actions/deploy-pages@v4
