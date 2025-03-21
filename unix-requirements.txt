@@ -59,7 +59,7 @@ platformdirs==4.3.6
 pluggy==1.5.0
 prompt_toolkit==3.0.48
 propcache==0.2.1
-protobuf==6.30.1
+protobuf==5.29.1
 psutil==7.0.0
 ptyprocess==0.7.0
 pure_eval==0.2.3
@@ -95,6 +95,6 @@ traitlets==5.14.3
 typing_extensions==4.12.2
 urllib3==2.2.3
 virtualenv==20.29.2
-wandb==0.19.3
+wandb==0.19.8
 wcwidth==0.2.13
 yarl==1.18.3
