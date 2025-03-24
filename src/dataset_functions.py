@@ -18,7 +18,7 @@ def print_extracted_files(extract_dir: Path):
         print(f"... and {len(list(extracted_files)) - 5} more files")
 
 
-def extract_files(file_path: Path, extract_dir: Path, main_subfolders: Dict):
+def extract_files(file_path: str, extract_dir: Path, main_subfolders: Dict):
     with zipfile.ZipFile(file_path, "r") as zip_ref:
         # Get list of all files in zip
         image_file_list = zip_ref.namelist()
