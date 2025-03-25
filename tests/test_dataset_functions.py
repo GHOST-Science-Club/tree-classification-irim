@@ -15,10 +15,10 @@ def dataset_folder():
 
 
 @pytest.fixture
-def species_folders(dataset_folder, monkeypatch):
+def species_folders():
     return {
-        "Castanea_sativa": "data/imagery-Castanea_sativa.zip",
-        "Pinus_nigra": "data/imagery-Pinus_nigra.zip"
+        "Pinus_nigra": "data/imagery-Pinus_nigra.zip",
+        "Castanea_sativa": "data/imagery-Castanea_sativa.zip"
     }
 
 
@@ -28,7 +28,7 @@ def main_subfolders():
 
 
 @pytest.fixture
-def sample_images(dataset_folder, monkeypatch):
+def sample_images(dataset_folder):
     exp_path1 = dataset_folder / Path(
         "Castanea_sativa/test/TEST-Castanea_sativa-C3-17_1_42.tiff"
         )
@@ -76,9 +76,15 @@ def test_hf_download_errors(dataset_folder, main_subfolders):
 
 @pytest.mark.dataset_functions
 def test_load_dataset(dataset_folder, species_folders, sample_images):
+    merged_labels = {
+        "Castanea_sativa": "Chestnut",
+        "Pinus_nigra": "Black_pine",
+    }
+
     exp_label_map = {
-        species: idx for idx, species in enumerate(species_folders)
-        }
+        merged_labels[species]: idx for idx,
+        species in enumerate(species_folders)
+    }
 
     dataset, label_map = load_dataset(dataset_folder, species_folders)
 
