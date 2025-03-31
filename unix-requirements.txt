@@ -89,7 +89,7 @@ torchaudio==2.5.1
 torchmetrics==1.6.2
 torchvision==0.20.1
 tornado==6.4.2
-tox==4.24.1
+tox==4.25.0
 tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.12.2
