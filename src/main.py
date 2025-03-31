@@ -10,6 +10,7 @@ from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
+from vit import ViTClassifier
 from dataset import ForestDataModule, ForestDataset, OversampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
@@ -71,7 +72,7 @@ def main():
 
     print(datamodule)
 
-    model = ResNetClassifier(
+    model = ViTClassifier(
         num_classes=num_classes,
         learning_rate=learning_rate,
         transform=transforms,
