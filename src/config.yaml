@@ -29,9 +29,11 @@ training:
   max_epochs: 100
   freeze: true
   
-  oversample:
-    oversample_factor: 30
-    oversample_threshold: 200
+  # oversample:
+  #   oversample_factor: 30
+  #   oversample_threshold: 200
+  undersample:
+    target_size: 530
 
   dataloader:
     auto: true
