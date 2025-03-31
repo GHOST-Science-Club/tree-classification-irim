@@ -55,10 +55,10 @@ packaging==24.2
 parso==0.8.4
 pexpect==4.9.0
 pillow==11.1.0
-platformdirs==4.3.6
+platformdirs==4.3.7
 pluggy==1.5.0
 prompt_toolkit==3.0.48
-propcache==0.2.1
+propcache==0.3.1
 protobuf==5.29.1
 psutil==7.0.0
 ptyprocess==0.7.0
@@ -83,7 +83,7 @@ six==1.17.0
 smmap==5.0.2
 stack-data==0.6.3
 sympy==1.13.1
-threadpoolctl==3.5.0
+threadpoolctl==3.6.0
 torch==2.5.1
 torchaudio==2.5.1
 torchmetrics==1.6.2
