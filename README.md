@@ -137,7 +137,7 @@ Like `pytest`, it prints results to the terminal and saves coverage data in `htm
 
 ### Long-Term Goals:
 
-- Present findings at major conferences ([MLinPL](https://mlinpl.org), [GHOST Day](https://ghostday.pl)).
+- Present findings at well recognized Polish conferences ([MLinPL](https://mlinpl.org), [GHOST Day](https://ghostday.pl)).
 - Contribute to the open-source [Deepness](https://github.com/PUTvision/qgis-plugin-deepness) project.
 
 Supported by the **Institute of Robotics and Machine Intelligence (IRIM)** at **Poznań University of Technology (PUT)**.
@@ -201,7 +201,7 @@ We are a passionate group of students from Poznan University of Technology (PUT)
 to final-year graduate students.
 
 **Team Leader:**
-Kacper Dobek ([email@example.com](mailto:email@example.com))
+Kacper Dobek ([kacperdobek01{at}gmail{dot}com](kacperdobek01{at}gmail{dot}com))
 
 **Team Members:**
 
