@@ -6,7 +6,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 <br>
-![Tests](https://github.com/GHOST-Science-Club/tree-classification-irim/actions/workflows/test-and-coverage.yml/badge.svg)
+[![Tests](https://github.com/GHOST-Science-Club/tree-classification-irim/actions/workflows/test-and-coverage.yml/badge.svg)](https://ghost-science-club.github.io/tree-classification-irim/)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
