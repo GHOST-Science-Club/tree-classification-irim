@@ -9,7 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
-from model import ResNetClassifier
+# from model import ResNetClassifier
 from vit import ViTClassifier
 from dataset import ForestDataModule, ForestDataset, OversampledDataset
 from callbacks import PrintMetricsCallback
