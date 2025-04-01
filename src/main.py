@@ -87,6 +87,12 @@ def main():
         freeze=freeze
     )
 
+    # ================================ OPTIMIZING THE MODEL ==================================== #
+
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
+    model = torch.compile(model)
+
     # ====================================== TRAINING ========================================== #
     max_epochs = config["training"]["max_epochs"]
     device = config["device"] if torch.cuda.is_available() else "cpu"
@@ -115,7 +121,8 @@ def main():
         max_epochs=max_epochs,
         accelerator=device,
         devices=1,
-        callbacks=callbacks
+        callbacks=callbacks,
+        precision="bf16-mixed"
     )
 
     trainer.fit(model, datamodule)
