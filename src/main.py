@@ -87,14 +87,6 @@ def main():
         freeze=freeze
     )
 
-    # ================================ OPTIMIZING THE MODEL ==================================== #
-
-    torch.backends.cudnn.benchmark = True
-    torch.backends.cudnn.enabled = True
-
-    bf16_supported = torch.cuda.is_bf16_supported()
-    precision = "bf16-mixed" if bf16_supported else "16-mixed"
-
     # ====================================== TRAINING ========================================== #
     max_epochs = config["training"]["max_epochs"]
     device = config["device"] if torch.cuda.is_available() else "cpu"
@@ -117,6 +109,9 @@ def main():
         project='ghost-irim',
         log_model=True
     )
+
+    bf16_supported = torch.cuda.is_bf16_supported()
+    precision = "bf16-mixed" if bf16_supported else "16-mixed"
 
     trainer = Trainer(
         logger=wandb_logger,
