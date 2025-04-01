@@ -92,7 +92,7 @@ def main():
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.enabled = True
 
-    model = torch.compile(model)
+    model = torch.compile(model, backend="eager")
 
     # ====================================== TRAINING ========================================== #
     max_epochs = config["training"]["max_epochs"]
