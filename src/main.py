@@ -89,8 +89,12 @@ def main():
 
     # ================================ OPTIMIZING THE MODEL ==================================== #
 
+    bf16_supported = torch.cuda.is_bf16_supported()
+    precision = "bf16-mixed" if bf16_supported else "16-mixed"
+
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.enabled = True
+
     model = torch.compile(model)
 
     # ====================================== TRAINING ========================================== #
@@ -122,7 +126,7 @@ def main():
         accelerator=device,
         devices=1,
         callbacks=callbacks,
-        precision="bf16-mixed"
+        precision=precision
     )
 
     trainer.fit(model, datamodule)
