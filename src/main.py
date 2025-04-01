@@ -10,7 +10,7 @@ from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
 from model import ResNetClassifier
-from dataset import ForestDataModule, ForestDataset, OversampledDataset
+from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
@@ -48,24 +48,33 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
-    oversample = config["training"]["oversample"]
-    oversample_factor = config["training"]["oversample_factor"]
-    oversample_threshold = config["training"]["oversample_threshold"]
 
-    datamodule = ForestDataModule(
-        dataset['train'],
-        dataset['val'],
-        dataset['test'],
-        dataset=OversampledDataset if oversample else ForestDataset,
-        dataset_args={
+    dataset_module = ForestDataset
+    dataset_args = {}
+
+    if "oversample" in config["training"]:
+        dataset_module = OversampledDataset
+        dataset_args = {
             "minority_transform": torchvision.transforms.Compose([
                 torchvision.transforms.RandomHorizontalFlip(),
                 torchvision.transforms.RandomVerticalFlip(),
                 torchvision.transforms.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(1, 1.2), shear=10),
             ]),
-            "oversample_factor": oversample_factor,
-            "oversample_threshold": oversample_threshold
-        } if oversample else {},
+            "oversample_factor": config["training"]["oversample"]["oversample_factor"],
+            "oversample_threshold": config["training"]["oversample"]["oversample_threshold"]
+        }
+    elif "undersample" in config["training"]:
+        dataset_module = UndersampledDataset
+        dataset_args = {
+            "target_size": config["training"]["undersample"]["target_size"]
+        }
+
+    datamodule = ForestDataModule(
+        dataset['train'],
+        dataset['val'],
+        dataset['test'],
+        dataset=dataset_module,
+        dataset_args=dataset_args,
         batch_size=batch_size
     )
 
