@@ -92,7 +92,8 @@ def main():
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.enabled = True
 
-    model = torch.compile(model, backend="eager")
+    bf16_supported = torch.cuda.is_bf16_supported()
+    precision = "bf16-mixed" if bf16_supported else "16-mixed"
 
     # ====================================== TRAINING ========================================== #
     max_epochs = config["training"]["max_epochs"]
@@ -123,7 +124,7 @@ def main():
         accelerator=device,
         devices=1,
         callbacks=callbacks,
-        precision="16-mixed"
+        precision=precision
     )
 
     trainer.fit(model, datamodule)
