@@ -39,6 +39,8 @@ module = [
     "torchvision",
     "sklearn",
     "matplotlib",
-    "transforms"
+    "transforms",
+    "pytorch_lightning",
+    "wandb",
 ]
 ignore_missing_imports = true
