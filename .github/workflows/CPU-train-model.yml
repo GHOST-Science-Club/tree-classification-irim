@@ -40,7 +40,7 @@ jobs:
                     REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     echo "## Model was built using Config" >> config.md
-                    sed 's/  /\&nbsp;/g' ./src/config.yaml > config-indented.md
+                    sed 's/  /\&nbsp;\&nbsp;/g' ./src/config.yaml > config-indented.md
                     echo "## Data viz" >> config-indented.md
                     echo '![](./src/plots/confusion_matrix.png "Confusion Matrix")' >> config-indented.md
                     cml comment update --watermark-title='CPU {workflow} config' config-indented.md
