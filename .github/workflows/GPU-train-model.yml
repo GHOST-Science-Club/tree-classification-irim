@@ -29,9 +29,9 @@ jobs:
                 env:
                     REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    echo "## Model was built using Config" >> report.md
-                    cat ./src/config.yaml >> report.md
-                    cml comment update report.md
+                    echo "## Model was built using Config" >> config.md
+                    sed 's/  /\&nbsp;/g' ./src/config.yaml > config-indented.md
+                    cml comment update --watermark-title='GPU {workflow} config' config-indented.md
 
             -   name: Start lightning.ai studio and train model there
                 run: |
