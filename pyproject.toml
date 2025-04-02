@@ -28,3 +28,17 @@ markers = [
 filterwarnings = [
     "ignore:Starting from v1.9.0, `tensorboardX` has been removed as a dependency of the `pytorch_lightning` package.*",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+    "huggingface_hub",
+    "numpy",
+    "torch",
+    "PIL",
+    "kornia",
+    "torchvision",
+    "sklearn",
+    "matplotlib",
+    "transforms"
+]
+ignore_missing_imports = true

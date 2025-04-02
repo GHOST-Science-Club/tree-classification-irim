@@ -69,7 +69,7 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
 def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[str]] = None):
     if splits is None:
         splits = ["train", "val", "test"]
-    dataset = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
+    dataset: Dict = {split: {"labels": [], "paths": []} for split in splits}  # PLEASE KEEP "paths" KEY!!!!!
 
     merged_labels = {
         "Quercus_petraea": "Deciduous_oak",
