@@ -30,6 +30,8 @@ jobs:
                     pip install tox tox-gh-actions
             -   name: Run TOX mypy
                 run: tox -e mypy
+                env:
+                    PLATFORM: ${{ matrix.os }}
 
     flake8-tests:
         runs-on: ${{ matrix.os }}
