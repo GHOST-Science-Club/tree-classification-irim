@@ -37,11 +37,6 @@ jobs:
                 if: runner.os == 'Windows'
                 run: tox -e mypy-windows
 
-            # -   name: Run TOX mypy
-            #     run: tox -e mypy ${{ matrix.os }}
-            #     env:
-            #         PLATFORM: ${{ matrix.os }}
-
     flake8-tests:
         runs-on: ${{ matrix.os }}
         strategy:
