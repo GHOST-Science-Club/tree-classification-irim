@@ -104,6 +104,10 @@ def main():
     wandb_api_key = os.environ.get('WANDB_API_KEY')
     wandb.login(key=wandb_api_key)
     wandb.init(project="ghost-irim", name=run_name)
+
+    # Log config.yaml to wandb
+    wandb.save("src/config.yaml")
+
     wandb_logger = WandbLogger(
         name=run_name,
         project='ghost-irim',
