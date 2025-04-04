@@ -114,6 +114,9 @@ def main():
         log_model=True
     )
 
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
+
     trainer = Trainer(
         logger=wandb_logger,
         max_epochs=max_epochs,
