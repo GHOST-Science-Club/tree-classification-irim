@@ -95,7 +95,7 @@ tox-gh-actions==3.3.0
 tox==4.25.0
 tqdm==4.67.1
 traitlets==5.14.3
-typing_extensions==4.12.2
+typing_extensions==4.13.1
 types-PyYAML==6.0.12.20250402
 urllib3==2.2.3
 virtualenv==20.29.3
