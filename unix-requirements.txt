@@ -30,7 +30,7 @@ gitdb==4.0.12
 GitPython==3.1.44
 huggingface-hub==0.29.1
 idna==3.10
-iniconfig==2.0.0
+iniconfig==2.1.0
 ipykernel==6.29.5
 ipython==8.30.0
 jedi==0.19.2
