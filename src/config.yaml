@@ -31,9 +31,12 @@ training:
   learning_rate: 0.0001
   max_epochs: 100
   freeze: true
-  oversample: true
-  oversample_factor: 10
-  oversample_threshold: 200
+  
+  oversample:
+    oversample_factor: 4
+    oversample_threshold: 1000
+  # undersample:
+  #   target_size: 530
 
   dataloader:
     auto: true

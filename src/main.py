@@ -53,20 +53,32 @@ def main():
     oversample_threshold = config["training"]["oversample_threshold"]
     model_name = config["model"]["name"]
 
-    datamodule = ForestDataModule(
-        dataset['train'],
-        dataset['val'],
-        dataset['test'],
-        dataset=OversampledDataset if oversample else ForestDataset,
-        dataset_args={
+    dataset_module = ForestDataset
+    dataset_args = {}
+
+    if "oversample" in config["training"]:
+        dataset_module = OversampledDataset
+        dataset_args = {
             "minority_transform": torchvision.transforms.Compose([
                 torchvision.transforms.RandomHorizontalFlip(),
                 torchvision.transforms.RandomVerticalFlip(),
                 torchvision.transforms.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(1, 1.2), shear=10),
             ]),
-            "oversample_factor": oversample_factor,
-            "oversample_threshold": oversample_threshold
-        } if oversample else {},
+            "oversample_factor": config["training"]["oversample"]["oversample_factor"],
+            "oversample_threshold": config["training"]["oversample"]["oversample_threshold"]
+        }
+    elif "undersample" in config["training"]:
+        dataset_module = UndersampledDataset
+        dataset_args = {
+            "target_size": config["training"]["undersample"]["target_size"]
+        }
+
+    datamodule = ForestDataModule(
+        dataset['train'],
+        dataset['val'],
+        dataset['test'],
+        dataset=dataset_module,
+        dataset_args=dataset_args,
         batch_size=batch_size
     )
 
@@ -95,11 +107,18 @@ def main():
     wandb_api_key = os.environ.get('WANDB_API_KEY')
     wandb.login(key=wandb_api_key)
     wandb.init(project="ghost-irim", name=run_name)
+
+    # Log config.yaml to wandb
+    wandb.save("src/config.yaml")
+
     wandb_logger = WandbLogger(
         name=run_name,
         project='ghost-irim',
         log_model=True
     )
+
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
 
     trainer = Trainer(
         logger=wandb_logger,

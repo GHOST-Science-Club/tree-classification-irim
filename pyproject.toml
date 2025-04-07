@@ -28,3 +28,7 @@ markers = [
 filterwarnings = [
     "ignore:Starting from v1.9.0, `tensorboardX` has been removed as a dependency of the `pytorch_lightning` package.*",
 ]
+
+[tool.mypy]
+files = "src"
+ignore_missing_imports = true

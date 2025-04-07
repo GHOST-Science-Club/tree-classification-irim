@@ -5,20 +5,33 @@ on:
 
 jobs:
     build:
+        permissions: write-all
         runs-on: ubuntu-22.04
         environment: Repository
 
         steps:
+            -   uses: actions/checkout@v3
 
             -   uses: actions/setup-python@v5
                 with:
                     python-version: '3.11.11'
+
+            -   uses: iterative/setup-cml@v1
 
             -   name: Install dependencies
                 run: |
                     pip install lightning-sdk
                     pip list
                 shell: bash
+
+            -   name: Post config.yaml in PR comment
+                continue-on-error: true
+                env:
+                    REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    echo "## Model was built using Config" >> config-indented.md
+                    sed 's/  /\&nbsp;\&nbsp;/g' ./src/config.yaml > config-indented.md
+                    cml comment update --watermark-title='GPU {workflow} config' config-indented.md
 
             -   name: Start lightning.ai studio and train model there
                 run: |
@@ -46,3 +59,4 @@ jobs:
                     LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
                     LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
                     WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+
