@@ -4,7 +4,6 @@ import pytorch_lightning as pl
 from torchmetrics import Accuracy
 import torchvision.models as models
 
-
 class ViTClassifier(pl.LightningModule):
     def __init__(self, num_classes=2, learning_rate=1e-3, transform=None, freeze=False):
         super(ViTClassifier, self).__init__()

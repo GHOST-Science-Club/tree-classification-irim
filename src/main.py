@@ -9,8 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
-# from model import ResNetClassifier
-from vit import ViTClassifier
+from models.classifier_module import ClassifierModule
 from dataset import ForestDataModule, ForestDataset, OversampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
@@ -52,6 +51,7 @@ def main():
     oversample = config["training"]["oversample"]
     oversample_factor = config["training"]["oversample_factor"]
     oversample_threshold = config["training"]["oversample_threshold"]
+    model_name = config["model"]["name"]
 
     datamodule = ForestDataModule(
         dataset['train'],
@@ -70,13 +70,12 @@ def main():
         batch_size=batch_size
     )
 
-    print(datamodule)
-
-    model = ViTClassifier(
+    model = ClassifierModule(
+        model_name=model_name,
         num_classes=num_classes,
-        learning_rate=learning_rate,
+        freeze=freeze,
         transform=transforms,
-        freeze=freeze
+        learning_rate=learning_rate
     )
 
     # ====================================== TRAINING ========================================== #
