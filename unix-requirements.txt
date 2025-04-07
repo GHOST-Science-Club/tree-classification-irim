@@ -41,7 +41,7 @@ jupyter_core==5.7.2
 kiwisolver==1.4.8
 kornia==0.7.4
 kornia_rs==0.1.7
-lightning-utilities==0.14.0
+lightning-utilities==0.14.3
 MarkupSafe==2.1.5
 matplotlib==3.10.1
 matplotlib-inline==0.1.7
