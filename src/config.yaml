@@ -34,8 +34,7 @@ training:
   #   oversample_threshold: 1000
   # undersample:
   #   target_size: 530
-  class_weight: [28.85, 10.7, 58.87, 18.76, 36.8, 2.82, 255.79, 6.06, 161.39, 41.16, 17.91, 7.42, 33.28]
-
+  class_weight: [1, 1, 1, 6, 14, 6, 1, 4, 20, 1, 1, 1, 1]
   dataloader:
     auto: true
     num_workers: 0
