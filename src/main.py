@@ -48,6 +48,10 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
+    class_weight = config["training"]["class_weight"]
+
+    if "class_weight" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
+        raise Exception("Can't use class weights and resampling at the same time.")
 
     dataset_module = ForestDataset
     dataset_args = {}
@@ -84,7 +88,8 @@ def main():
         num_classes=num_classes,
         learning_rate=learning_rate,
         transform=transforms,
-        freeze=freeze
+        freeze=freeze,
+        weight=class_weight
     )
 
     # ====================================== TRAINING ========================================== #
