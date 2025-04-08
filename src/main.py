@@ -89,7 +89,7 @@ def main():
         learning_rate=learning_rate,
         transform=transforms,
         freeze=freeze,
-        weight=class_weight
+        weight=torch.tensor(class_weight, dtype=torch.float)
     )
 
     # ====================================== TRAINING ========================================== #
