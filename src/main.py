@@ -46,10 +46,10 @@ def main():
     batch_size = config["training"]["batch_size"]
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
-    image_size = 299 if model_name == "inception_v3" else 224
-    transforms = kaug.Resize(size=(image_size, image_size))
     freeze = config["training"]["freeze"]
     model_name = config["model"]["name"]
+    image_size = 299 if model_name == "inception_v3" else 224
+    transforms = kaug.Resize(size=(image_size, image_size))
 
     dataset_module = ForestDataset
     dataset_args = {}
