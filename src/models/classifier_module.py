@@ -45,11 +45,12 @@ class ClassifierModule(pl.LightningModule):
             outputs, aux_outputs = self(images)
             loss1 = self.criterion(outputs, labels)
             loss2 = self.criterion(aux_outputs, labels)
-            loss = loss1 + 0.4 * loss2 # inception specific loss
+            # inception specific loss
+            loss = loss1 + 0.4 * loss2
         else:
             outputs = self(images)
             loss = self.criterion(outputs, labels)
-        
+
         preds = torch.argmax(outputs, dim=1)
         acc = self.accuracy(preds, labels)
 
