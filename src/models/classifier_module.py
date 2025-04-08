@@ -13,6 +13,7 @@ class ClassifierModule(pl.LightningModule):
         self.model = create_model(model_name, num_classes, freeze)
         self.transform = transform
         self.learning_rate = learning_rate
+        self.name = model_name
 
         # Define a loss function and metric
         self.criterion = nn.CrossEntropyLoss()
@@ -39,9 +40,16 @@ class ClassifierModule(pl.LightningModule):
     def step(self, batch, stage):
         images, labels = batch
         labels = labels.long()
-        outputs = self(images)
-        loss = self.criterion(outputs, labels)
 
+        if stage == "train" and self.name.startswith("inception"):
+            outputs, aux_outputs = self(images)
+            loss1 = self.criterion(outputs, labels)
+            loss2 = self.criterion(aux_outputs, labels)
+            loss = loss1 + 0.4 * loss2 # inception specific loss
+        else:
+            outputs = self(images)
+            loss = self.criterion(outputs, labels)
+        
         preds = torch.argmax(outputs, dim=1)
         acc = self.accuracy(preds, labels)
 

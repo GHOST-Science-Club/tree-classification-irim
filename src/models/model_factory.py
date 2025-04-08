@@ -13,7 +13,7 @@ def create_model(model_name, num_classes, freeze=False):
         model.fc = nn.Linear(in_features, num_classes)
 
     elif model_name == "inception_v3":
-        model = tv_models.inception_v3(weights="DEFAULT", aux_logits=False)
+        model = tv_models.inception_v3(weights="DEFAULT", aux_logits=True)
         if freeze:
             for param in model.parameters():
                 param.requires_grad = False
