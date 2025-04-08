@@ -46,7 +46,8 @@ def main():
     batch_size = config["training"]["batch_size"]
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
-    transforms = kaug.Resize(size=(224, 224))
+    image_size = 299 if model_name == "inception_v3" else 224
+    transforms = kaug.Resize(size=(image_size, image_size))
     freeze = config["training"]["freeze"]
     model_name = config["model"]["name"]
 
