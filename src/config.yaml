@@ -45,7 +45,7 @@ training:
   early_stopping:
     apply: true
     monitor: "val_loss"
-    patience: 5
+    patience: 3
     mode: "min"
 
 device: "gpu"
