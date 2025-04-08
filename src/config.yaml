@@ -24,7 +24,7 @@ dataset:
     lidar: "lidar/"
 
 model: 
-  name: "resnet18" # currently supporting resnet18, vit and inception_v3
+  name: "inception_v3" # currently supporting resnet18, vit and inception_v3
 
 training:
   batch_size: 32
