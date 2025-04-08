@@ -31,5 +31,5 @@ def create_model(model_name, num_classes, freeze=False):
 
     else:
         raise ValueError(f"Model '{model_name}' not supported.")
-    
+
     return model

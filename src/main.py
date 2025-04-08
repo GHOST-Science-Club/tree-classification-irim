@@ -10,7 +10,7 @@ from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
 from models.classifier_module import ClassifierModule
-from dataset import ForestDataModule, ForestDataset, OversampledDataset
+from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
@@ -48,9 +48,6 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
-    oversample = config["training"]["oversample"]
-    oversample_factor = config["training"]["oversample_factor"]
-    oversample_threshold = config["training"]["oversample_threshold"]
     model_name = config["model"]["name"]
 
     dataset_module = ForestDataset
