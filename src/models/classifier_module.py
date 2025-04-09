@@ -29,7 +29,13 @@ class ClassifierModule(pl.LightningModule):
 
     def forward(self, x):
         out = self.model(x)
-        return out.logits if hasattr(out, "logits") else out
+        # If it's a tuple (Inception), return it directly
+        if isinstance(out, tuple):
+            return out
+        # If it has logits, return logits
+        if hasattr(out, "logits"):
+            return out.logits
+        return out
 
     def on_after_batch_transfer(self, batch, dataloader_idx):
         x, y = batch
