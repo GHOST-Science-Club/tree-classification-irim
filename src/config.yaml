@@ -23,6 +23,9 @@ dataset:
     aerial_imagery: "imagery/"
     lidar: "lidar/"
 
+model: 
+  name: "resnet18" # currently supporting resnet18, vit and inception_v3
+
 training:
   batch_size: 32
   learning_rate: 0.0001
