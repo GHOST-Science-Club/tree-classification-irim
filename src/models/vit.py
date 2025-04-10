@@ -6,13 +6,13 @@ import torchvision.models as models
 
 
 class ViTClassifier(pl.LightningModule):
-    def __init__(self, num_classes=2, learning_rate=1e-3, transform=None, freeze=False):
+    def __init__(self, num_classes=2, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
         super(ViTClassifier, self).__init__()
         self.save_hyperparameters()
 
         self.transform = transform
         self.learning_rate = learning_rate
-
+        self.weight_decay = weight_decay
         self.model = models.vision_transformer.vit_b_16(weights="IMAGENET1K_V1")
 
         # Freeze pre-trained layers
@@ -96,7 +96,7 @@ class ViTClassifier(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.heads.head.parameters(), lr=self.hparams.learning_rate)
+        optimizer = torch.optim.Adam(self.model.heads.head.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
         # Decay LR by a factor of 0.1 every 1 epoch
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
