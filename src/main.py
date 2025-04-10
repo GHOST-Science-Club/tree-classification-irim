@@ -48,6 +48,7 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
+    weight_decay = config["training"]["weight_decay"]
 
     dataset_module = ForestDataset
     dataset_args = {}
@@ -84,7 +85,8 @@ def main():
         num_classes=num_classes,
         learning_rate=learning_rate,
         transform=transforms,
-        freeze=freeze
+        freeze=freeze,
+        weight_decay=weight_decay
     )
 
     # ====================================== TRAINING ========================================== #
