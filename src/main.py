@@ -72,7 +72,7 @@ def main():
     elif "curriculum_learning" in config["training"]:
         dataset_module = CurriculumLearningDataset
         dataset_args = {
-            "indices": []
+            "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
         }
 
     datamodule = ForestDataModule(
