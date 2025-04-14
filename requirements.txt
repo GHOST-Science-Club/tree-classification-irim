@@ -1,6 +1,6 @@
 GitPython==3.1.44
 Jinja2==3.1.6
-MarkupSafe==2.1.5
+MarkupSafe==3.0.2
 PyYAML==6.0.2
 Pygments==2.19.1
 aiohappyeyeballs==2.6.1
@@ -88,7 +88,7 @@ threadpoolctl==3.6.0
 tomli==2.2.1
 torch==2.6.0
 torchaudio==2.6.0
-torchmetrics==1.6.2
+torchmetrics==1.7.1
 torchvision==0.21.0
 tornado==6.4.2
 tox-gh-actions==3.3.0
@@ -99,6 +99,6 @@ typing_extensions==4.13.2
 types-PyYAML==6.0.12.20250402
 urllib3==2.2.3
 virtualenv==20.29.3
-wandb==0.19.8
+wandb==0.19.9
 wcwidth==0.2.13
 yarl==1.18.3
