@@ -48,9 +48,9 @@ def main():
     learning_rate = config["training"]["learning_rate"]
     transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
-    class_weight = config["training"]["class_weight"]
+    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
 
-    if "class_weight" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
+    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
         raise Exception("Can't use class weights and resampling at the same time.")
 
     dataset_module = ForestDataset
@@ -89,7 +89,7 @@ def main():
         learning_rate=learning_rate,
         transform=transforms,
         freeze=freeze,
-        weight=torch.tensor(class_weight, dtype=torch.float)
+        weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None
     )
 
     # ====================================== TRAINING ========================================== #
