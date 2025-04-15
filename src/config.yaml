@@ -36,7 +36,7 @@ training:
   #   target_size: 530
 
   curriculum_learning:
-    initial_ratio: 1
+    initial_ratio: 2
     step_size: 1
     class_order: [10, 11, 5, 7, 9, 1, 12, 0, 2, 3, 6, 4, 8] # Based on decreasing IoU 
 
@@ -49,7 +49,7 @@ training:
   early_stopping:
     apply: true
     monitor: "val_loss"
-    patience: 3
+    patience: 4
     mode: "min"
 
 device: "gpu"
