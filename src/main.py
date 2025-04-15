@@ -47,6 +47,7 @@ def main():
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     freeze = config["training"]["freeze"]
+    weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
     transforms = kaug.Resize(size=(image_size, image_size))
@@ -85,7 +86,8 @@ def main():
         num_classes=num_classes,
         freeze=freeze,
         transform=transforms,
-        learning_rate=learning_rate
+        learning_rate=learning_rate,
+        weight_decay=weight_decay
     )
 
     # ====================================== TRAINING ========================================== #
