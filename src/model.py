@@ -98,8 +98,8 @@ class ResNetClassifier(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate)
 
-        # Decay LR by a factor of 0.1 every 1 epoch
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
+        # Decay LR by a factor of 0.1 every 13 epochs
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=13, gamma=0.1)  # TODO: tune parameters
 
         return {
             'optimizer': optimizer,
