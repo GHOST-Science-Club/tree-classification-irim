@@ -40,6 +40,7 @@ def main():
 
     download_data(species_folders, main_subfolders, dataset_folder)
     dataset, label_map = load_dataset(dataset_folder, species_folders)
+
     show_n_samples(dataset, species_folders)
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
@@ -80,7 +81,7 @@ def main():
         batch_size=batch_size
     )
 
-    model = ClassifierModule(
+    model = classifier_module.ClassifierModule(
         model_name=model_name,
         num_classes=num_classes,
         freeze=freeze,
@@ -158,6 +159,7 @@ def main():
     names_and_labels = [[key, value] for key, value in label_map.items()]
     logged_metrics = [[name, label, acc, prec, rec, f1, iou] for [name, label], acc, prec, rec, f1, iou in zip(names_and_labels, accs, precs, recs, f1s, ious)]
 
+    
     training_table = wandb.Table(columns=['Class name', 'Label', 'Accuracy', 'Precision', 'Recall', 'F1-score', 'IoU'], data=logged_metrics)
     wandb.log({'Classes': training_table})
 
