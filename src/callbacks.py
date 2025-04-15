@@ -51,4 +51,3 @@ class CurriculumLearningCallback(Callback):
 
         datamodule.dataset_args["indices"] = indices
         datamodule.setup()
-        datamodule.reset_train_dataloader()

@@ -119,6 +119,7 @@ def main():
         min_epochs = math.ceil(num_classes / initial_ratio) * step_size
     else:
         min_epochs = None
+        step_size = 0
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
@@ -146,7 +147,8 @@ def main():
         max_epochs=max_epochs,
         accelerator=device,
         devices=1,
-        callbacks=callbacks
+        callbacks=callbacks,
+        reload_dataloaders_every_n_epochs=step_size
     )
 
     trainer.fit(model, datamodule)
