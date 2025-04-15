@@ -9,7 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
-from models.classifier_module import ClassifierModule
+import models.classifier_module as classifier_module
 from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset

@@ -24,11 +24,11 @@ dataset:
     lidar: "lidar/"
 
 model: 
-  name: "resnet18" # currently supporting resnet18, vit and inception_v3
+  name: "YOLO_cls" # currently supporting resnet18, vit, inception_v3 and YOLO_cls
 
 training:
   batch_size: 32
-  learning_rate: 0.0001
+  learning_rate: 0.00005
   max_epochs: 100
   freeze: true
   
