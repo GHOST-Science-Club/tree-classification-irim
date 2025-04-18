@@ -33,9 +33,9 @@ training:
   freeze: false
   weight_decay: 0.0001
   
-  # oversample:
-  #   oversample_factor: 4
-  #   oversample_threshold: 1000
+  oversample:
+    oversample_factor: 4
+    oversample_threshold: 1000
   # undersample:
   #   target_size: 530
 
