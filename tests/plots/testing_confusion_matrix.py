@@ -7,7 +7,7 @@ import yaml
 
 with open("src/config.yaml", "r") as c:
     config = yaml.safe_load(c)
-    
+
 class_names = config["dataset"]["species_folders"].keys()
 
 num_classes = len(class_names)
