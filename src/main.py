@@ -100,9 +100,9 @@ def main():
                                        patience=config["training"]["early_stopping"]['patience'],
                                        mode=config["training"]["early_stopping"]['mode']))
         callbacks.append(ModelCheckpoint(monitor='val_loss',
-                                        mode='min',
-                                        save_top_k=1,
-                                        save_last=False))
+                                         mode='min',
+                                         save_top_k=1,
+                                         save_last=False))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
