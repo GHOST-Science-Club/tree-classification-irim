@@ -6,7 +6,7 @@ import torch
 import wandb
 import yaml
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from models.classifier_module import ClassifierModule
@@ -99,6 +99,10 @@ def main():
         callbacks.append(EarlyStopping(monitor=config["training"]["early_stopping"]['monitor'],
                                        patience=config["training"]["early_stopping"]['patience'],
                                        mode=config["training"]["early_stopping"]['mode']))
+        callbacks.append(ModelCheckpoint(monitor='val_loss',
+                                        mode='min',
+                                        save_top_k=1,
+                                        save_last=False))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
