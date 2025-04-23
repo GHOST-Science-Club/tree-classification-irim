@@ -99,10 +99,12 @@ def main():
         callbacks.append(EarlyStopping(monitor=config["training"]["early_stopping"]['monitor'],
                                        patience=config["training"]["early_stopping"]['patience'],
                                        mode=config["training"]["early_stopping"]['mode']))
+        checkpoint_dir = config["training"].get("checkpoint_dir", "checkpoints/")
         callbacks.append(ModelCheckpoint(monitor='val_loss',
                                          mode='min',
                                          save_top_k=1,
-                                         save_last=False))
+                                         save_last=False,
+                                         dirpath=checkpoint_dir))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
