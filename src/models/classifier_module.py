@@ -3,6 +3,7 @@ from torch import nn
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from models.model_factory import create_model
+from torch.optim.lr_scheduler import CyclicLR
 
 
 class ClassifierModule(pl.LightningModule):
@@ -84,11 +85,21 @@ class ClassifierModule(pl.LightningModule):
         optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
         # Decay LR by a factor of 0.1 every 1 epoch
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
+        scheduler = CyclicLR(
+            optimizer=optimizer,
+            base_lr=5e-5,  # hardcode for the purpose of the test
+            max_lr=1e-3,
+            step_size_up=13630,
+            mode='triangular',
+            cycle_momentum=False,
+            last_epoch=-1
+        )
 
         return {
             'optimizer': optimizer,
             'lr_scheduler': {
-                'scheduler': scheduler
+                'scheduler': scheduler,
+                'interval': 'step',
+                'frequency': 1
             }
         }

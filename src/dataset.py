@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from math import floor
 import pytorch_lightning as pl
-from transforms import Preprocess
+from transforms import Preprocess, Transforms
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -166,33 +166,39 @@ class ForestDataModule(pl.LightningDataModule):
         self.dataset_args = dataset_args
         self.batch_size = batch_size
         self.params = calculate_dataloader_params(batch_size)
+        self.preprocess = Preprocess()
+        self.augmenter = Transforms(image_size=(224, 224))
 
     def setup(self, stage=None):
+        train_transform = lambda img: self.augmenter(self.preprocess(img), train=True)
+        val_transform   = lambda img: self.augmenter(self.preprocess(img), train=False)
+        test_transform  = lambda img: self.augmenter(self.preprocess(img), train=False)
+
         self.train_dataset = self.dataset(
             image_paths=self.train_data["paths"],
             labels=self.train_data["labels"],
-            transform=Preprocess(),
+            transform=train_transform,
             **self.dataset_args
         )
         self.val_dataset = ForestDataset(
             image_paths=self.val_data["paths"],
             labels=self.val_data["labels"],
-            transform=Preprocess()
+            transform=val_transform
         )
         self.test_dataset = ForestDataset(
             image_paths=self.test_data["paths"],
             labels=self.test_data["labels"],
-            transform=Preprocess()
+            transform=test_transform
         )
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, **self.params)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, **self.params)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False, **self.params)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, **self.params)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, **self.params)
 
 
 if __name__ == '__main__':

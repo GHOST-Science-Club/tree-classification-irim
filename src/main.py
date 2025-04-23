@@ -19,8 +19,8 @@ from visualization_functions import (show_n_samples, plot_metrics,
                                      get_confusion_matrix,
                                      get_precision_recall_curve,
                                      get_roc_auc_curve)
-
 import torchvision
+from transforms import Transforms
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
     weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
-    transforms = kaug.Resize(size=(image_size, image_size))
+    transforms = Transforms(image_size=(image_size, image_size))
 
     dataset_module = ForestDataset
     dataset_args = {}
@@ -125,7 +125,8 @@ def main():
         max_epochs=max_epochs,
         accelerator=device,
         devices=1,
-        callbacks=callbacks
+        callbacks=callbacks,
+        max_steps=13630*2  # hardcode for the purpose of the test
     )
 
     trainer.fit(model, datamodule)

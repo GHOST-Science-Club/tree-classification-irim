@@ -2,8 +2,9 @@ from torch import nn
 import torch
 import numpy as np
 import kornia.augmentation as kaug
-from kornia import image_to_tensor
 from random import choice, random
+import kornia.augmentation as K
+from kornia import image_to_tensor
 
 
 class Preprocess(nn.Module):
@@ -17,38 +18,35 @@ class Preprocess(nn.Module):
 
 
 class Transforms(nn.Module):
-    def __init__(self, prob: float = 0.5, test: bool = False, image_size=(224, 224)):
+    def __init__(self, image_size=(224, 224)):
         """
-        Class handles transformation of images:
-        Params:
-          prob (floating) - probability of applying transformation
-          test (boolean) - specify if the current transformation works on train or test set
+        Class handles transformation of images
         """
         super().__init__()
-        self.prob = prob
-        self.test = test
 
-        self.train_transforms = [
-            kaug.RandomHorizontalFlip(p=1.0),
-            kaug.RandomVerticalFlip(p=1.0),
-            kaug.RandomRotation(degrees=30, p=1.0),
+        self.train_transforms = nn.Sequential(
+            K.Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
+            K.Resize(size=image_size),
+            kaug.RandomRotation(degrees=360.0, p=1.0),
+            kaug.RandomHorizontalFlip(p=0.5),
+            kaug.RandomVerticalFlip(p=0.5),
+            kaug.RandomResizedCrop(224, scale=(0.8,1.0), ratio=(0.7,1.30), p=0.5),
+            kaug.RandomChannelShuffle(p=0.05),
+            K.Normalize(mean=torch.tensor([0.485, 0.456, 0.406]), std=torch.tensor([0.229, 0.224, 0.225]))
             # kaug.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=1.0), # This tranformation is making some issues while images are not in RGB or grayscale
-            kaug.RandomAffine(degrees=15, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=10, p=1.0),
-            kaug.RandomPerspective(distortion_scale=0.2, p=1.0),
-            kaug.RandomGaussianNoise(mean=0.0, std=0.1, p=1.0),
-        ]
+            # kaug.RandomAffine(degrees=15, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=10, p=1.0),
+            # kaug.RandomPerspective(distortion_scale=0.2, p=1.0),
+            # kaug.RandomGaussianNoise(mean=0.0, std=0.1, p=1.0),
+        )
+        
+        self.test_transforms = nn.Sequential(
+            K.Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
+            K.Resize(size=image_size),
+            K.Normalize(mean=torch.tensor([0.485, 0.456, 0.406, 0.456]), std=torch.tensor([0.229, 0.224, 0.225, 0.224]))
+        )
 
-        self.resize = kaug.Resize(size=image_size)
-
-    @torch.no_grad()
-    def forward(self, x):
-
-        if self.test or random() < self.prob:
-            result = self.resize(x)
-            return result.squeeze()
-
+    def forward(self, x, train=True):
+        if train:
+            return self.train_transform(x).squeeze(0)
         else:
-            transform = choice(
-                self.train_transforms)  # In paper method applies only one transformation at once, might change in the future
-            result = transform(self.resize(x))
-            return result.squeeze()
+            return self.test_transform(x).squeeze(0)
