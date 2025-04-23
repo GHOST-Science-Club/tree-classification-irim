@@ -65,13 +65,26 @@ class ForestDataset(Dataset):
         self.image_paths = image_paths
         self.labels = labels
         # Define a default transform if none is provided
-        # TODO: Use transforms suitable for the model
         self.transform = transform or transforms.Compose(
             [
+                transforms.RandomApply([
+                    transforms.RandomCrop(32, padding=4)
+                ], p=0.5),
+                transforms.RandomRotation(degrees=15),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                transforms.RandomApply([
+                    transforms.ColorJitter(
+                        brightness=0.2,
+                        contrast=0.2,
+                        saturation=0.2,
+                        hue=0.1
+                    )
+                ], p=0.5),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),  # Adjust as needed for RGB channels
+                )
             ]
         )
 
