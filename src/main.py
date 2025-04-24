@@ -137,7 +137,7 @@ def main():
     trainer.fit(model, datamodule)
 
     # ====================================== TESTING ========================================== #
-    trainer.test(model, datamodule=datamodule)
+    trainer.test(model, datamodule=datamodule, ckpt_path="best")
 
     # Callbacks' service
     for callback in callbacks:
