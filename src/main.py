@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import kornia.augmentation as kaug
 import torch
 import wandb
 import yaml

@@ -2,9 +2,9 @@ from torch import nn
 import torch
 import numpy as np
 import kornia.augmentation as kaug
-from random import choice, random
 import kornia.augmentation as K
 from kornia import image_to_tensor
+from kornia.augmentation.container import Lambda
 
 
 class Preprocess(nn.Module):
@@ -25,7 +25,7 @@ class Transforms(nn.Module):
         super().__init__()
 
         self.train_transforms = nn.Sequential(
-            K.Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
+            Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
             K.Resize(size=image_size),
             kaug.RandomRotation(degrees=360.0, p=1.0),
             kaug.RandomHorizontalFlip(p=0.5),
@@ -40,7 +40,7 @@ class Transforms(nn.Module):
         )
         
         self.test_transforms = nn.Sequential(
-            K.Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
+            Lambda(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
             K.Resize(size=image_size),
             K.Normalize(mean=torch.tensor([0.485, 0.456, 0.406, 0.456]), std=torch.tensor([0.229, 0.224, 0.225, 0.224]))
         )
