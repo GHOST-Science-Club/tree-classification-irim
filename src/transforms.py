@@ -38,7 +38,7 @@ class Transforms(nn.Module):
             kaug.RandomRotation(degrees=360.0, p=1.0),
             kaug.RandomHorizontalFlip(p=0.5),
             kaug.RandomVerticalFlip(p=0.5),
-            kaug.RandomResizedCrop(224, scale=(0.8, 1.0), ratio=(0.7, 1.30), p=0.5),
+            kaug.RandomResizedCrop((224, 224), scale=(0.8, 1.0), ratio=(0.7, 1.30), p=0.5),
             kaug.RandomChannelShuffle(p=0.05),
             kaug.Normalize(mean=torch.tensor([0.485, 0.456, 0.406]), std=torch.tensor([0.229, 0.224, 0.225]))
             # kaug.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=1.0), # This tranformation is making some issues while images are not in RGB or grayscale
