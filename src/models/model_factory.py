@@ -4,6 +4,7 @@ import torch.nn as nn
 
 from models.diversified_model import FineGrainedModel
 
+
 def create_model(model_name, num_classes, freeze=False):
     if "resnet" in model_name:
         models = {
