@@ -24,7 +24,7 @@ dataset:
     lidar: "lidar/"
 
 model: 
-  name: "fine_grained" # currently supporting resnet18, vit and inception_v3
+  name: "resnet50" # currently supporting resnet18, vit and inception_v3
 
 training:
   batch_size: 32
