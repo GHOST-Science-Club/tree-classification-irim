@@ -28,10 +28,10 @@ model:
 
 training:
   batch_size: 32
-  learning_rate: 0.00005
+  learning_rate: 0.0001
   max_epochs: 100
   freeze: true
-  weight_decay: 0.005
+  weight_decay: 0.0001
   
   #oversample:
   #  oversample_factor: 4
