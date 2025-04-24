@@ -2,6 +2,7 @@ from torchvision import models as tv_models
 from transformers import ViTForImageClassification
 import torch.nn as nn
 
+from models.diversified_model import FineGrainedModel
 
 def create_model(model_name, num_classes, freeze=False):
     if "resnet" in model_name:
@@ -66,6 +67,9 @@ def create_model(model_name, num_classes, freeze=False):
 
         in_features = model.classifier[1].in_features
         model.classifier[1] = nn.Linear(in_features, num_classes)
+
+    elif model_name == "fine_grained":
+        model = FineGrainedModel(num_classes)
 
     else:
         raise ValueError(f"Model '{model_name}' not supported.")

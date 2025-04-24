@@ -3,6 +3,7 @@ from torch import nn
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from models.model_factory import create_model
+from models.diversified_model import GradientBoostingLoss
 
 
 class ClassifierModule(pl.LightningModule):
@@ -17,7 +18,11 @@ class ClassifierModule(pl.LightningModule):
         self.weight_decay = weight_decay
 
         # Define a loss function and metric
-        self.criterion = nn.CrossEntropyLoss()
+        if model_name == "fine_grained":
+            self.criterion = GradientBoostingLoss()
+        else:
+            self.criterion = nn.CrossEntropyLoss()
+
         if num_classes == 2:
             self.accuracy = Accuracy(task="binary")
         else:
@@ -29,7 +34,11 @@ class ClassifierModule(pl.LightningModule):
         self.targets = None
 
     def forward(self, x):
-        out = self.model(x)
+        if self.name == "fine_grained":
+            out = self.model(x, is_train=True) 
+        else:
+            out = self.model(x)
+
         # If it's a tuple (Inception), return it directly
         if isinstance(out, tuple):
             return out
@@ -47,15 +56,18 @@ class ClassifierModule(pl.LightningModule):
     def step(self, batch, stage):
         images, labels = batch
         labels = labels.long()
+        is_training = (stage == "train")
 
-        if stage == "train" and self.name.startswith("inception"):
-            outputs, aux_outputs = self(images)
+        if is_training and self.name.startswith("inception"):
+            outputs, aux_outputs = self.model(images)
             loss1 = self.criterion(outputs, labels)
             loss2 = self.criterion(aux_outputs, labels)
-            # inception specific loss
             loss = loss1 + 0.4 * loss2
+        elif self.name == "fine_grained":
+            outputs = self.model(images, is_train=is_training)
+            loss = self.criterion(outputs, labels)
         else:
-            outputs = self(images)
+            outputs = self.model(images)
             loss = self.criterion(outputs, labels)
 
         preds = torch.argmax(outputs, dim=1)
@@ -83,6 +95,8 @@ class ClassifierModule(pl.LightningModule):
     def configure_optimizers(self):
         if self.name.startswith("efficientnet"):
             optimizer = torch.optim.Adam(self.model.classifier.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+        elif self.name == "fine_grained":
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
         else:
             optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
