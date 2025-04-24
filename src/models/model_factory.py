@@ -4,8 +4,19 @@ import torch.nn as nn
 
 
 def create_model(model_name, num_classes, freeze=False):
-    if model_name == "resnet18":
-        model = tv_models.resnet18(weights="DEFAULT")
+    if "resnet" in model_name:
+        models = {
+            "resnet18": tv_models.resnet18(weights="DEFAULT"),
+            "resnet34": tv_models.resnet34(weights="DEFAULT"),
+            "resnet50": tv_models.resnet50(weights="DEFAULT"),
+            "resnet101": tv_models.resnet101(weights="DEFAULT"),
+            "resnet152": tv_models.resnet152(weights="DEFAULT"),
+        }
+        try:
+            model = models[model_name]
+        except KeyError:
+            print(f"Model '{model_name}' not supported, pick one of {models.keys()}. Using resnet18.")
+            model = models["resnet18"]
         if freeze:
             for param in model.parameters():
                 param.requires_grad = False
