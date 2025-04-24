@@ -55,6 +55,6 @@ class Transforms(nn.Module):
 
     def forward(self, x, train=True):
         if train:
-            return self.train_transform(x).squeeze(0)
+            return self.train_transforms(x).squeeze(0)
         else:
-            return self.test_transform(x).squeeze(0)
+            return self.test_transforms(x).squeeze(0)
