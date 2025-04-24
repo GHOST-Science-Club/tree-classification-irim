@@ -35,7 +35,7 @@ class ClassifierModule(pl.LightningModule):
 
     def forward(self, x):
         if self.name == "fine_grained":
-            out = self.model(x, is_train=True) 
+            out = self.model(x, is_train=True)
         else:
             out = self.model(x)
 
