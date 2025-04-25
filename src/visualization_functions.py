@@ -166,6 +166,7 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
         # Make sure that long label names are also visible
         for label in ax.get_xticklabels():
             label.set_rotation(45)
+            label.set_horizontalalignment('left')
     else:
         ax.set_xticks(np.arange(num_classes))
         ax.set_yticks(np.arange(num_classes))

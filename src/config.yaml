@@ -31,6 +31,7 @@ training:
   learning_rate: 0.00005
   max_epochs: 100
   freeze: true
+  weight_decay: 0.0001
   
   oversample:
     oversample_factor: 4

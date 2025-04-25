@@ -5,7 +5,7 @@ from torchmetrics import Accuracy
 import models.model_factory as model_factory
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, learning_rate=1e-3, transform=None, freeze=False):
+    def __init__(self, model_name, num_classes, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
         super().__init__()
         self.save_hyperparameters()
 
@@ -13,6 +13,7 @@ class ClassifierModule(pl.LightningModule):
         self.transform = transform
         self.learning_rate = learning_rate
         self.name = model_name
+        self.weight_decay = weight_decay
 
         # Define a loss function and metric
         self.criterion = nn.CrossEntropyLoss()
@@ -79,10 +80,14 @@ class ClassifierModule(pl.LightningModule):
         return self.step(batch, "test")
 
     def configure_optimizers(self):
+
         if self.name.startswith("YOLO"):
             last_layer = self.model.model[-1]
             optimizer = torch.optim.Adam(last_layer.parameters(), lr=self.hparams.learning_rate)
-        else: optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate)
+        elif self.name.startswith("efficientnet"):
+            optimizer = torch.optim.Adam(self.model.classifier.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+        else:
+            optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
         # Decay LR by a factor of 0.1 every 1 epoch
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
