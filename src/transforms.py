@@ -17,7 +17,7 @@ class Preprocess(nn.Module):
 
 
 class Transforms(nn.Module):
-    def __init__(self, prob: float = 0.5, test: bool = False):
+    def __init__(self, prob: float = 0.5, test: bool = False, image_size=(224, 224)):
         """
         Class handles transformation of images:
         Params:
@@ -38,7 +38,7 @@ class Transforms(nn.Module):
             kaug.RandomGaussianNoise(mean=0.0, std=0.1, p=1.0),
         ]
 
-        self.resize = kaug.Resize(size=(224, 224))
+        self.resize = kaug.Resize(size=image_size)
 
     @torch.no_grad()
     def forward(self, x):

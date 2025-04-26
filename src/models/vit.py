@@ -5,26 +5,26 @@ from torchmetrics import Accuracy
 import torchvision.models as models
 
 
-class ResNetClassifier(pl.LightningModule):
-    def __init__(self, num_classes=2, learning_rate=1e-3, transform=None, freeze=False, weight=None):
-        super(ResNetClassifier, self).__init__()
+class ViTClassifier(pl.LightningModule):
+    def __init__(self, num_classes=2, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
+        super(ViTClassifier, self).__init__()
         self.save_hyperparameters()
 
         self.transform = transform
         self.learning_rate = learning_rate
-
-        self.model = models.resnet18(weights='DEFAULT')
+        self.weight_decay = weight_decay
+        self.model = models.vision_transformer.vit_b_16(weights="IMAGENET1K_V1")
 
         # Freeze pre-trained layers
         if freeze:
             for param in self.model.parameters():
                 param.requires_grad = False
 
-        in_features = self.model.fc.in_features
-        self.model.fc = nn.Linear(in_features, num_classes)
+        in_features = self.model.heads.head.in_features
+        self.model.heads.head = nn.Linear(in_features, num_classes)
 
         # Define a loss function and metric
-        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        self.criterion = nn.CrossEntropyLoss()
         if num_classes == 2:
             self.accuracy = Accuracy(task="binary")
         else:
@@ -96,10 +96,10 @@ class ResNetClassifier(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate)
+        optimizer = torch.optim.Adam(self.model.heads.head.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
         # Decay LR by a factor of 0.1 every 1 epoch
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.4)  # TODO: tune parameters
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
 
         return {
             'optimizer': optimizer,
