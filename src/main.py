@@ -8,10 +8,9 @@ import yaml
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
-
-from model import ResNetClassifier
 from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset, CurriculumLearningDataset
 from callbacks import PrintMetricsCallback, CurriculumLearningCallback
+from models.classifier_module import ClassifierModule
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
 from counting_functions import calculate_metrics_per_class, count_metrics
@@ -47,8 +46,15 @@ def main():
     batch_size = config["training"]["batch_size"]
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
-    transforms = kaug.Resize(size=(224, 224))
     freeze = config["training"]["freeze"]
+    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
+
+    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
+        raise Exception("Can't use class weights and resampling at the same time.")
+    weight_decay = config["training"]["weight_decay"]
+    model_name = config["model"]["name"]
+    image_size = 299 if model_name == "inception_v3" else 224
+    transforms = kaug.Resize(size=(image_size, image_size))
 
     dataset_module = ForestDataset
     dataset_args = {}
@@ -84,13 +90,15 @@ def main():
         batch_size=batch_size
     )
 
-    print(datamodule)
-
-    model = ResNetClassifier(
+    model = ClassifierModule(
+        model_name=model_name,
         num_classes=num_classes,
-        learning_rate=learning_rate,
+        freeze=freeze,
         transform=transforms,
-        freeze=freeze
+        freeze=freeze,
+        weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
+        learning_rate=learning_rate,
+        weight_decay=weight_decay
     )
 
     # ====================================== TRAINING ========================================== #
