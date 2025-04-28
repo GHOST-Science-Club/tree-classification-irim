@@ -6,7 +6,7 @@ import torch
 import wandb
 import yaml
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 import models.classifier_module as classifier_module
@@ -48,6 +48,10 @@ def main():
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     freeze = config["training"]["freeze"]
+    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
+
+    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
+        raise Exception("Can't use class weights and resampling at the same time.")
     weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
@@ -87,6 +91,8 @@ def main():
         num_classes=num_classes,
         freeze=freeze,
         transform=transforms,
+        freeze=freeze,
+        weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=learning_rate,
         weight_decay=weight_decay
     )
@@ -100,6 +106,12 @@ def main():
         callbacks.append(EarlyStopping(monitor=config["training"]["early_stopping"]['monitor'],
                                        patience=config["training"]["early_stopping"]['patience'],
                                        mode=config["training"]["early_stopping"]['mode']))
+        checkpoint_dir = config["training"].get("checkpoint_dir", "checkpoints/")
+        callbacks.append(ModelCheckpoint(monitor='val_loss',
+                                         mode='min',
+                                         save_top_k=1,
+                                         save_last=False,
+                                         dirpath=checkpoint_dir))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
@@ -132,8 +144,17 @@ def main():
     trainer.fit(model, datamodule)
 
     # ====================================== TESTING ========================================== #
-    trainer.test(model, datamodule=datamodule)
+    # Retrieve the best checkpoint path from the ModelCheckpoint callback
+    best_ckpt_path = None
+    for callback in callbacks:
+        if isinstance(callback, ModelCheckpoint):
+            best_ckpt_path = callback.best_model_path
+            break
 
+    if not best_ckpt_path:
+        raise ValueError("No ModelCheckpoint callback found or no best checkpoint available.")
+
+    trainer.test(model, datamodule=datamodule, ckpt_path=best_ckpt_path)
     # Callbacks' service
     for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
