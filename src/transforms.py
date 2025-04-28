@@ -65,14 +65,13 @@ class Transforms(nn.Module):
         elif isinstance(x, torch.Tensor) and x.dim() == 3:
             # Add batch dimension if needed for kornia transforms
             x = x.unsqueeze(0)
-        
+
         if train:
             x = self.train_transforms(x)
         else:
             x = self.test_transforms(x)
-        
+
         if x.dim() == 4 and x.size(0) == 1:
             x = x.squeeze(0)
-            
+
         return x
-    
