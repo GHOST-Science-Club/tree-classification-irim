@@ -47,6 +47,10 @@ def main():
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     freeze = config["training"]["freeze"]
+    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
+
+    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
+        raise Exception("Can't use class weights and resampling at the same time.")
     weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
@@ -86,6 +90,8 @@ def main():
         num_classes=num_classes,
         freeze=freeze,
         transform=transforms,
+        freeze=freeze,
+        weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=learning_rate,
         weight_decay=weight_decay
     )
