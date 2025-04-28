@@ -67,11 +67,12 @@ class Transforms(nn.Module):
             x = x.unsqueeze(0)
         
         if train:
-            x = self.train_tensor_transforms(x)
+            x = self.train_transforms(x)
         else:
-            x = self.test_tensor_transforms(x)
+            x = self.test_transforms(x)
         
         if x.dim() == 4 and x.size(0) == 1:
             x = x.squeeze(0)
             
         return x
+    
