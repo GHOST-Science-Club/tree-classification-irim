@@ -171,13 +171,13 @@ class ForestDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         def train_transform_func(img):
-            return self.augmenter(self.preprocess(img), train=True)
+            return self.augmenter(img, train=True)
 
         def val_transform_func(img):
-            return self.augmenter(self.preprocess(img), train=False)
+            return self.augmenter(img, train=False)
 
         def test_transform_func(img):
-            return self.augmenter(self.preprocess(img), train=False)
+            return self.augmenter(img, train=False)
 
         self.train_dataset = self.dataset(
             image_paths=self.train_data["paths"],

@@ -33,7 +33,6 @@ class Transforms(nn.Module):
         super().__init__()
 
         self.train_transforms = nn.Sequential(
-            LambdaTransform(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
             kaug.Resize(size=image_size),
             kaug.RandomRotation(degrees=360.0, p=1.0),
             kaug.RandomHorizontalFlip(p=0.5),
@@ -48,13 +47,31 @@ class Transforms(nn.Module):
         )
 
         self.test_transforms = nn.Sequential(
-            LambdaTransform(lambda x: image_to_tensor(x, keepdim=True).float() / 255.0),
             kaug.Resize(size=image_size),
             kaug.Normalize(mean=torch.tensor([0.485, 0.456, 0.406]), std=torch.tensor([0.229, 0.224, 0.225]))
         )
 
+        self.preprocess = Preprocess()
+
+    def preprocess_input(self, x):
+        """Ensures input is a tensor before further processing"""
+        if isinstance(x, np.ndarray):
+            return self.preprocess(x)
+        return x
+
     def forward(self, x, train=True):
+        if isinstance(x, np.ndarray):
+            x = self.preprocess(x)
+        elif isinstance(x, torch.Tensor) and x.dim() == 3:
+            # Add batch dimension if needed for kornia transforms
+            x = x.unsqueeze(0)
+        
         if train:
-            return self.train_transforms(x).squeeze(0)
+            x = self.train_tensor_transforms(x)
         else:
-            return self.test_transforms(x).squeeze(0)
+            x = self.test_tensor_transforms(x)
+        
+        if x.dim() == 4 and x.size(0) == 1:
+            x = x.squeeze(0)
+            
+        return x
