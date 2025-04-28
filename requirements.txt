@@ -28,8 +28,8 @@ docker-pycreds==0.4.0
 exceptiongroup==1.2.2
 executing==2.2.0
 filelock==3.18.0
-fonttools==4.56.0
-frozenlist==1.5.0
+fonttools==4.57.0
+frozenlist==1.6.0
 fsspec==2025.3.0
 gitdb==4.0.12
 huggingface-hub==0.30.2
@@ -67,7 +67,7 @@ ptyprocess==0.7.0
 pure_eval==0.2.3
 pydantic==2.11.3
 pydantic_core==2.33.1
-pyparsing==3.2.0
+pyparsing==3.2.3
 pyproject-api==1.9.0
 pytest-cov==6.0.0
 pytest==8.3.5
@@ -98,7 +98,7 @@ traitlets==5.14.3
 typing_extensions==4.13.2
 types-PyYAML==6.0.12.20250402
 urllib3==2.2.3
-virtualenv==20.29.3
-wandb==0.19.9
+virtualenv==20.30.0
+wandb==0.19.10
 wcwidth==0.2.13
 yarl==1.20.0
