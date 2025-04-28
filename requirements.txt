@@ -86,7 +86,7 @@ stack-data==0.6.3
 sympy==1.13.1
 threadpoolctl==3.6.0
 tomli==2.2.1
-torch==2.6.0
+torch==2.7.0
 torchaudio==2.7.0
 torchmetrics==1.7.1
 torchvision==0.21.0
