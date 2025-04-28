@@ -143,8 +143,17 @@ def main():
     trainer.fit(model, datamodule)
 
     # ====================================== TESTING ========================================== #
-    trainer.test(model, datamodule=datamodule, ckpt_path="best")
+    # Retrieve the best checkpoint path from the ModelCheckpoint callback
+    best_ckpt_path = None
+    for callback in callbacks:
+        if isinstance(callback, ModelCheckpoint):
+            best_ckpt_path = callback.best_model_path
+            break
 
+    if not best_ckpt_path:
+        raise ValueError("No ModelCheckpoint callback found or no best checkpoint available.")
+
+    trainer.test(model, datamodule=datamodule, ckpt_path=best_ckpt_path)
     # Callbacks' service
     for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
