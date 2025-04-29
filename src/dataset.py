@@ -66,14 +66,7 @@ class ForestDataset(Dataset):
         self.labels = labels
         # Define a default transform if none is provided
         # TODO: Use transforms suitable for the model
-        self.transform = transform or transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
-                ),  # Adjust as needed for RGB channels
-            ]
-        )
+        self.transform = transform
 
     def __len__(self):
         return len(self.image_paths)
