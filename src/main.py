@@ -9,7 +9,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
-from models.classifier_module import ClassifierModule
+from models.resnet import ResNetClassifier
 from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset
 from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
@@ -85,8 +85,7 @@ def main():
         batch_size=batch_size
     )
 
-    model = ClassifierModule(
-        model_name=model_name,
+    model = ResNetClassifier(
         num_classes=num_classes,
         freeze=freeze,
         transform=transforms,
