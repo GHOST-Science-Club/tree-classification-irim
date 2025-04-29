@@ -93,6 +93,8 @@ def main():
     model = ClassifierModule(
         model_name=model_name,
         num_classes=num_classes,
+        step_size=config["training"]["step_size"],
+        gamma=config["training"]["gamma"],
         freeze=freeze,
         transform=transforms,
         freeze=freeze,

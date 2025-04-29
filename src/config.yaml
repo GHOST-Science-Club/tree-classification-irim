@@ -28,11 +28,13 @@ model:
 
 training:
   batch_size: 32
-  learning_rate: 0.00003
+  learning_rate: 0.0001
   max_epochs: 100
   freeze: true
   weight_decay: 0.0001
-  
+  step_size: 4
+  gamma: 0.1 
+
   oversample:
     oversample_factor: 4
     oversample_threshold: 1000
