@@ -10,9 +10,33 @@ class Preprocess(nn.Module):
 
     @torch.no_grad()  # disable gradients for efficiency
     def forward(self, x):
-        x_tmp = np.array(x)
-        x_out = image_to_tensor(x_tmp, keepdim=True)
-        return x_out.float() / 255.0
+        if isinstance(x, np.ndarray):
+            # Convert directly from HWC to CHW format
+            x_out = torch.from_numpy(x.transpose(2, 0, 1))
+
+        # For tensors, check if format conversion is needed
+        elif isinstance(x, torch.Tensor):
+            if x.dim() == 3:
+                # If channels dimension is last (HWC format)
+                if x.shape[2] == 3:
+                    x_out = x.permute(2, 0, 1)
+                # If already in CHW format
+                elif x.shape[0] == 3:  # First dimension is 3 for RGB
+                    x_out = x
+                else:
+                    raise ValueError(f"Expected RGB tensor with 3 channels, got shape: {x.shape}")
+            else:
+                raise ValueError(f"Expected 3D tensor for RGB image, got {x.dim()}D tensor")
+        else:
+            raise TypeError(f"Unsupported input type: {type(x)}")
+
+        if x_out.dtype != torch.float32:
+            x_out = x_out.float()
+
+        if x_out.max() > 1.0:
+            x_out = x_out / 255.0
+    
+        return x_out
 
 
 class LambdaTransform(nn.Module):
@@ -53,24 +77,17 @@ class Transforms(nn.Module):
 
         self.preprocess = Preprocess()
 
-    def preprocess_input(self, x):
-        """Ensures input is a tensor before further processing"""
-        if isinstance(x, np.ndarray):
-            return self.preprocess(x)
-        return x
-
     def forward(self, x, train=True):
-        if isinstance(x, np.ndarray):
-            x = self.preprocess(x)
-        elif isinstance(x, torch.Tensor) and x.dim() == 3:
-            # Add batch dimension if needed for kornia transforms
+        x = self.preprocess(x)
+
+        # Add batch dimension if needed for Kornia transforms
+        if x.dim() == 3:
             x = x.unsqueeze(0)
 
-        if train:
-            x = self.train_transforms(x)
-        else:
-            x = self.test_transforms(x)
+        # Apply transformations
+        x = self.train_transforms(x) if train else self.test_transforms(x)
 
+        # Remove batch dimension if it was added
         if x.dim() == 4 and x.size(0) == 1:
             x = x.squeeze(0)
 
