@@ -97,7 +97,6 @@ def main():
         gamma=config["training"]["gamma"],
         freeze=freeze,
         transform=transforms,
-        freeze=freeze,
         weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=learning_rate,
         weight_decay=weight_decay

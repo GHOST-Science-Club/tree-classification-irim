@@ -6,7 +6,7 @@ from models.model_factory import create_model
 
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
+    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
         super().__init__()
         self.save_hyperparameters()
 
@@ -19,7 +19,7 @@ class ClassifierModule(pl.LightningModule):
         self.gamma = gamma
 
         # Define a loss function and metric
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
         if num_classes == 2:
             self.accuracy = Accuracy(task="binary")
         else:

@@ -6,7 +6,7 @@ import torchvision.models as models
 
 
 class ViTClassifier(pl.LightningModule):
-    def __init__(self, num_classes=2, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
+    def __init__(self, num_classes=2, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
         super(ViTClassifier, self).__init__()
         self.save_hyperparameters()
 
@@ -24,7 +24,7 @@ class ViTClassifier(pl.LightningModule):
         self.model.heads.head = nn.Linear(in_features, num_classes)
 
         # Define a loss function and metric
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
         if num_classes == 2:
             self.accuracy = Accuracy(task="binary")
         else:
