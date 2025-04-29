@@ -1,5 +1,5 @@
 from torchvision import models as tv_models
-#from transformers import ViTForImageClassification
+from transformers import ViTForImageClassification
 import torch
 import torch.nn as nn
 from huggingface_hub import hf_hub_download
@@ -42,7 +42,9 @@ def create_model(model_name, num_classes, freeze=False):
         )
         if freeze:
             for param in model.vit.parameters():
-                param.requires_grad = False'''
+                param.requires_grad = False
+
+'''
 
     elif model_name == "YOLO_cls":
 
@@ -65,11 +67,12 @@ def create_model(model_name, num_classes, freeze=False):
             nn.Linear(in_features, num_classes)
         ).to(next(pt_model.parameters()).device)
 
-        '''new_head = nn.Conv2d(
+        
+        new_head = nn.Conv2d(
             in_features, 
             num_classes, 
             kernel_size=1
-        ).to(next(pt_model.parameters()).device)'''
+        ).to(next(pt_model.parameters()).device)
 
         new_head.f = -1 
         new_head.i = len(pt_model.model) - 1 
@@ -113,4 +116,4 @@ def create_model(model_name, num_classes, freeze=False):
     else:
         raise ValueError(f"Model '{model_name}' not supported.")
 
-    return model
+    return model'''
