@@ -111,14 +111,14 @@ class ResNetClassifier(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+        optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=0.001, weight_decay=self.hparams.weight_decay)
 
         scheduler = torch.optim.lr_scheduler.CyclicLR(
             optimizer,
             base_lr=self.hparams.learning_rate,
             max_lr=0.001,
             step_size_up=13630,
-            step_size_down=13630,
+            mode="triangular2",
             cycle_momentum=False
         )
 
