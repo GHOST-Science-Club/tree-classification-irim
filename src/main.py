@@ -6,7 +6,7 @@ import torch
 import wandb
 import yaml
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from models.classifier_module import ClassifierModule
@@ -90,7 +90,6 @@ def main():
         num_classes=num_classes,
         freeze=freeze,
         transform=transforms,
-        freeze=freeze,
         weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=learning_rate,
         weight_decay=weight_decay
@@ -105,6 +104,12 @@ def main():
         callbacks.append(EarlyStopping(monitor=config["training"]["early_stopping"]['monitor'],
                                        patience=config["training"]["early_stopping"]['patience'],
                                        mode=config["training"]["early_stopping"]['mode']))
+        checkpoint_dir = config["training"].get("checkpoint_dir", "checkpoints/")
+        callbacks.append(ModelCheckpoint(monitor='val_loss',
+                                         mode='min',
+                                         save_top_k=1,
+                                         save_last=False,
+                                         dirpath=checkpoint_dir))
 
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
@@ -137,8 +142,17 @@ def main():
     trainer.fit(model, datamodule)
 
     # ====================================== TESTING ========================================== #
-    trainer.test(model, datamodule=datamodule)
+    # Retrieve the best checkpoint path from the ModelCheckpoint callback
+    best_ckpt_path = None
+    for callback in callbacks:
+        if isinstance(callback, ModelCheckpoint):
+            best_ckpt_path = callback.best_model_path
+            break
 
+    if not best_ckpt_path:
+        raise ValueError("No ModelCheckpoint callback found or no best checkpoint available.")
+
+    trainer.test(model, datamodule=datamodule, ckpt_path=best_ckpt_path)
     # Callbacks' service
     for callback in callbacks:
         if isinstance(callback, PrintMetricsCallback):
