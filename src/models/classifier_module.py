@@ -2,15 +2,14 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
-from models.model_factory import create_model
-
+import models.model_factory as model_factory
 
 class ClassifierModule(pl.LightningModule):
     def __init__(self, model_name, num_classes, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model = create_model(model_name, num_classes, freeze)
+        self.model = model_factory.create_model(model_name, num_classes, freeze)
         self.transform = transform
         self.learning_rate = learning_rate
         self.name = model_name
@@ -81,7 +80,11 @@ class ClassifierModule(pl.LightningModule):
         return self.step(batch, "test")
 
     def configure_optimizers(self):
-        if self.name.startswith("efficientnet"):
+
+        if self.name.startswith("YOLO"):
+            last_layer = self.model.model[-1]
+            optimizer = torch.optim.Adam(last_layer.parameters(), lr=self.hparams.learning_rate)
+        elif self.name.startswith("efficientnet"):
             optimizer = torch.optim.Adam(self.model.classifier.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
         else:
             optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)

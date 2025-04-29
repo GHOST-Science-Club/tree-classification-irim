@@ -170,5 +170,4 @@ def clip_balanced_dataset(dataset: Dict):
             "labels": np.array(labels_clipped),
             "paths": paths_clipped,
         }
-
     return clipped_dataset
