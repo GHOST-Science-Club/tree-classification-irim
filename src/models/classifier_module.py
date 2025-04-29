@@ -86,7 +86,6 @@ class ClassifierModule(pl.LightningModule):
         else:
             optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
-        # Decay LR by a factor of 0.1 every 1 epoch
         scheduler = torch.optim.lr_scheduler.CyclicLR(
             optimizer,
             base_lr=self.hparams.learning_rate,

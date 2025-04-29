@@ -23,6 +23,21 @@ class ResNetClassifier(pl.LightningModule):
         in_features = self.model.fc.in_features
         self.model.fc = nn.Linear(in_features, num_classes)
 
+        # Copy the red channel to infrared channel
+        old_conv = self.model.conv1
+        self.model.conv1 = nn.Conv2d(
+            4,
+            old_conv.out_channels,
+            kernel_size=old_conv.kernel_size,
+            stride=old_conv.stride,
+            padding=old_conv.padding,
+            bias=old_conv.bias
+        )
+
+        with torch.no_grad():
+            self.model.conv1.weight[:, 0] = old_conv.weight[:, 0]
+            self.model.conv1.weight[:, 1:] = old_conv.weight
+
         # Define a loss function and metric
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         if num_classes == 2:

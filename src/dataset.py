@@ -83,7 +83,7 @@ class ForestDataset(Dataset):
                 ], p=0.5),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                    mean=[0.485, 0.485, 0.456, 0.406], std=[0.229, 0.229, 0.224, 0.225]
                 )
             ]
         )
@@ -99,9 +99,7 @@ class ForestDataset(Dataset):
         with Image.open(image_path) as img:
             # Convert to numpy array
             image = np.array(img)
-            image = image[:, :, 1:] if image.shape[-1] == 4 else image  # Removing "near-inferred" channel
-        # We found out that PIL conversion to RGB
-        # keeps the "near-inferred" channel which was not desired
+            # image = image[:, :, 1:] if image.shape[-1] == 4 else image  # Removing "near-inferred" channel
 
         # Apply transformations
         if self.transform:
