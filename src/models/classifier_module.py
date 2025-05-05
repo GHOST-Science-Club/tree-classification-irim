@@ -7,7 +7,7 @@ from models.diversified_model import GradientBoostingLoss
 
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False):
+    def __init__(self, model_name, num_classes, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
         super().__init__()
         self.save_hyperparameters()
 
@@ -18,6 +18,7 @@ class ClassifierModule(pl.LightningModule):
         self.weight_decay = weight_decay
 
         # Define a loss function and metric
+
         if model_name == "fine_grained":
             self.criterion = GradientBoostingLoss()
         else:
