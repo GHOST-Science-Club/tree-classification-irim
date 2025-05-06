@@ -118,7 +118,7 @@ def main():
                                          save_last=False,
                                          dirpath=checkpoint_dir))
 
-    if "curriculum_learning" in config["training"]:
+    if config["training"]["class_imbalance_technique"] == "curriculum_learning":
         initial_ratio = config["training"]["curriculum_learning"]["initial_ratio"]
         step_size = config["training"]["curriculum_learning"]["step_size"]
         class_order = config["training"]["curriculum_learning"]["class_order"]
