@@ -1,4 +1,5 @@
 from pytorch_lightning.callbacks import Callback
+from dataset import CurriculumLearningDataset
 
 
 class PrintMetricsCallback(Callback):
@@ -22,3 +23,31 @@ class PrintMetricsCallback(Callback):
 
         self.val_metrics['loss'].append(val_loss)
         self.val_metrics['acc'].append(val_acc)
+
+
+class CurriculumLearningCallback(Callback):
+    def __init__(self, initial_ratio, step_size, class_order, labels):
+        self.initial_ratio = initial_ratio
+        self.step_size = step_size
+        self.class_order = class_order
+
+        self.class_indices = {}
+        for idx, label in enumerate(labels):
+            self.class_indices.setdefault(label, []).append(idx)
+
+    def on_train_epoch_start(self, trainer, pl_module):
+        current_epoch = trainer.current_epoch
+        datamodule = trainer.datamodule
+
+        current_step = int(current_epoch / self.step_size)
+
+        indices = []
+        labels = self.class_order[:(current_step + 1) * self.initial_ratio]
+        for label in labels:
+            indices.extend(self.class_indices[label])
+
+        if datamodule.dataset != CurriculumLearningDataset:
+            raise Exception(f"Curriculum learning callback is being used, but the dataset in the datamodule is of type: {type(datamodule.dataset)}")
+
+        datamodule.dataset_args["indices"] = indices
+        datamodule.setup()
