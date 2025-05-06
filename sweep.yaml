@@ -1,6 +1,5 @@
-# filepath: /Users/jakubdrzymala/src/github.com/tree-classification-irim/sweep.yaml
 program: src/main.py
-method: grid  # Options: grid, random, bayes
+method: grid
 metric:
   name: val_loss
   goal: minimize

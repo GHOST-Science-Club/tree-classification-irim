@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+import copy
 import kornia.augmentation as kaug
 import torch
 import wandb
@@ -22,11 +22,63 @@ from visualization_functions import (show_n_samples, plot_metrics,
 import torchvision
 import math
 
+# Helper function to update nested dictionary
+def _update_nested_dict(d, key_path, value):
+    keys = key_path.split('.')
+    current_dict = d
+    for i, key in enumerate(keys[:-1]):
+        if not isinstance(current_dict.get(key), dict):
+            current_dict[key] = {}
+        current_dict = current_dict[key]
+    current_dict[keys[-1]] = value
 
 def main():
     # Load configuration file
     with open("src/config.yaml", "r") as c:
         config = yaml.safe_load(c)
+
+    branch_name = get_git_branch()
+    short_hash = generate_short_hash()
+    run_name = f'{branch_name}-{short_hash}'
+    wandb_api_key = os.environ.get('WANDB_API_KEY')
+
+    if wandb_api_key:
+        wandb.login(key=wandb_api_key)
+    else:
+        print("WANDB_API_KEY not found. Assuming user is already logged in or using anonymous mode.")
+
+    # Initialize wandb run. Pass 'config' (base configuration).
+    # wandb.config will be populated by the sweep agent, overwriting values from 'config'.
+    wandb.init(project="ghost-irim", name=run_name, config=config)
+
+    # Update local 'config' dictionary with values from wandb.config (which contains overrides from the sweep)
+    # 'config' initially contains base_config. wandb.config contains base_config updated by the sweep.
+    # We want our local 'config' to reflect the final parameters modified by the sweep.
+    
+    # We use deepcopy to ensure we're modifying a copy,
+    # even though passing `config` to `wandb.init` and later iterating over `wandb.config`
+    # is the standard way. Updating `config` in place is the goal here.
+    working_config = copy.deepcopy(config)
+
+    for key_flat, value in wandb.config.items(): # wandb.config contains a merged view
+        if key_flat.startswith('_wandb'): # Skip internal wandb keys
+            continue
+        _update_nested_dict(working_config, key_flat, value) # Update our working 'config' dictionary
+    
+    config = working_config # Assign the updated dictionary back to 'config'
+
+    # Save the *effective* configuration of this run to W&B
+    if wandb.run: # Check if wandb.run is initialized
+        effective_config_path = Path(wandb.run.dir) / "effective_run_config.yaml"
+        try:
+            with open(effective_config_path, 'w') as f:
+                yaml.dump(config, f) # 'config' is the fully updated configuration
+            wandb.save("effective_run_config.yaml") # Save the file to wandb.run.dir
+        except Exception as e:
+            print(f"Warning: Unable to save effective_run_config.yaml to W&B: {e}")
+    else:
+        print("Warning: wandb.run was not initialized, unable to save effective_run_config.yaml to W&B.")
+    # --- End of W&B initialization and configuration linking ---
 
     # Create a dedicated folder for the PureForest dataset to keep each tree species
     # organized, avoiding multiple directories in the main content folder.
@@ -60,6 +112,7 @@ def main():
     dataset_args = {}
 
     if config["training"]["class_imbalance_technique"] == "oversample":
+        print("================OVERSAMPLING=================")
         dataset_module = OversampledDataset
         dataset_args = {
             "minority_transform": torchvision.transforms.Compose([
@@ -71,11 +124,13 @@ def main():
             "oversample_threshold": config["training"]["oversample"]["oversample_threshold"]
         }
     elif config["training"]["class_imbalance_technique"] == "undersample":
+        print("================UNDERSAMPLING=================")
         dataset_module = UndersampledDataset
         dataset_args = {
             "target_size": config["training"]["undersample"]["target_size"]
         }
     elif config["training"]["class_imbalance_technique"] == "curriculum_learning":
+        print("================CURRICULUM LEARNING=================")
         dataset_module = CurriculumLearningDataset
         dataset_args = {
             "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
@@ -135,17 +190,6 @@ def main():
     else:
         min_epochs = None
         step_size = 0
-
-    branch_name = get_git_branch()
-    short_hash = generate_short_hash()
-    run_name = f'{branch_name}-{short_hash}'
-
-    wandb_api_key = os.environ.get('WANDB_API_KEY')
-    wandb.login(key=wandb_api_key)
-    wandb.init(project="ghost-irim", name=run_name)
-
-    # Log config.yaml to wandb
-    wandb.save("src/config.yaml")
 
     wandb_logger = WandbLogger(
         name=run_name,
