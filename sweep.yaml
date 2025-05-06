@@ -17,13 +17,11 @@ parameters:
     values:
         - [2.028603482052949, 1.9149570077824503, 2.3698711832307096, 2.7918140711618267, 8.404431999123624, 1.4891439907690158, 2.8278190246173205, 1.559603179364982, 8.968666793195208, 1.750924051756126, 1.4114322619818822, 1.4826886210799306, 2.025711256102825]
         - [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-  training.oversample:
-    oversample_factor:
-      values: [4]
-    oversample_threshold:
-      values: [1000, -1]
-  training.undersample:
-    target_size:
-      values: [530, 100000000000]
+  training.oversample.oversample_factor:
+    values: [4]
+  training.oversample.oversample_threshold:
+    values: [1000, -1]
+  training.undersample.target_size:
+    values: [530, 100000000000]
   model.name:
     values: ["resnet50", "fine_grained"]
