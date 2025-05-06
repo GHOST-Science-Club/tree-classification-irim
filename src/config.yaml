@@ -36,7 +36,7 @@ training:
   step_size: 4
   gamma: 0.1 
 
-  class_imbalance_technique = "none" # Choose one of "oversample", "undersample", "curriculum_learning", "class_weights", "none"
+  class_imbalance_technique: "none" # Choose one of "oversample", "undersample", "curriculum_learning", "class_weights", "none"
 
   oversample:
     oversample_factor: 4
