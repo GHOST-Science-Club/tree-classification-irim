@@ -47,41 +47,28 @@ def main():
     else:
         print("WANDB_API_KEY not found. Assuming user is already logged in or using anonymous mode.")
 
-    # Initialize wandb run. Pass 'config' (base configuration).
-    # wandb.config will be populated by the sweep agent, overwriting values from 'config'.
     wandb.init(project="ghost-irim", name=run_name, config=config)
-
-    # Update local 'config' dictionary with values from wandb.config (which contains overrides from the sweep)
-    # 'config' initially contains base_config. wandb.config contains base_config updated by the sweep.
-    # We want our local 'config' to reflect the final parameters modified by the sweep.
-    
-    # We use deepcopy to ensure we're modifying a copy,
-    # even though passing `config` to `wandb.init` and later iterating over `wandb.config`
-    # is the standard way. Updating `config` in place is the goal here.
     working_config = copy.deepcopy(config)
 
-    for key_flat, value in wandb.config.items(): # wandb.config contains a merged view
-        if key_flat.startswith('_wandb'): # Skip internal wandb keys
+    for key_flat, value in wandb.config.items():
+        if key_flat.startswith('_wandb'):
             continue
-        _update_nested_dict(working_config, key_flat, value) # Update our working 'config' dictionary
+        _update_nested_dict(working_config, key_flat, value)
     
-    config = working_config # Assign the updated dictionary back to 'config'
+    config = working_config
 
-    # Save the *effective* configuration of this run to W&B
-    if wandb.run: # Check if wandb.run is initialized
+    if wandb.run:
         effective_config_path = Path(wandb.run.dir) / "effective_run_config.yaml"
         try:
             with open(effective_config_path, 'w') as f:
-                yaml.dump(config, f) # 'config' is the fully updated configuration
-            wandb.save("effective_run_config.yaml") # Save the file to wandb.run.dir
+                yaml.dump(config, f)
+            wandb.save("effective_run_config.yaml")
         except Exception as e:
             print(f"Warning: Unable to save effective_run_config.yaml to W&B: {e}")
     else:
         print("Warning: wandb.run was not initialized, unable to save effective_run_config.yaml to W&B.")
-    # --- End of W&B initialization and configuration linking ---
 
-    # Create a dedicated folder for the PureForest dataset to keep each tree species
-    # organized, avoiding multiple directories in the main content folder.
+
     dataset_folder = Path.cwd() / config["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
 
