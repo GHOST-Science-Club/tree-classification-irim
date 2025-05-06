@@ -43,14 +43,14 @@ def main():
     show_n_samples(dataset, species_folders)
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
+    if config["training"]["class_imbalance_technique"] not in ["oversample", "undersample", "curriculum_learning", "class_weights", "none"]:
+        raise ValueError("Invalid class imbalance technique. Choose from 'oversample', 'undersample', 'curriculum_learning', 'class_weights', or 'none'.")
+
     batch_size = config["training"]["batch_size"]
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     freeze = config["training"]["freeze"]
-    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
-
-    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
-        raise Exception("Can't use class weights and resampling at the same time.")
+    class_weights = config["training"]["class_weights"] if config["training"]["class_imbalance_technique"] == "class_weights" else None
     weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
@@ -59,7 +59,7 @@ def main():
     dataset_module = ForestDataset
     dataset_args = {}
 
-    if "oversample" in config["training"]:
+    if config["training"]["class_imbalance_technique"] == "oversample":
         dataset_module = OversampledDataset
         dataset_args = {
             "minority_transform": torchvision.transforms.Compose([
@@ -70,12 +70,12 @@ def main():
             "oversample_factor": config["training"]["oversample"]["oversample_factor"],
             "oversample_threshold": config["training"]["oversample"]["oversample_threshold"]
         }
-    elif "undersample" in config["training"]:
+    elif config["training"]["class_imbalance_technique"] == "undersample":
         dataset_module = UndersampledDataset
         dataset_args = {
             "target_size": config["training"]["undersample"]["target_size"]
         }
-    elif "curriculum_learning" in config["training"]:
+    elif config["training"]["class_imbalance_technique"] == "curriculum_learning":
         dataset_module = CurriculumLearningDataset
         dataset_args = {
             "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
