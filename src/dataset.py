@@ -153,6 +153,18 @@ class OversampledDataset(ForestDataset):
         return image, label
 
 
+class CurriculumLearningDataset(ForestDataset):
+    def __init__(self, image_paths, labels, indices, transform=None):
+        super().__init__(image_paths, labels, transform)
+        self.indices = indices
+
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, idx):
+        return super().__getitem__(self.indices[idx])
+
+
 class ForestDataModule(pl.LightningDataModule):
     def __init__(self, train_data, val_data, test_data, dataset, dataset_args={}, batch_size=32):
         super().__init__()

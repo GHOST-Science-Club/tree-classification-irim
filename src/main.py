@@ -8,10 +8,9 @@ import yaml
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-
+from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset, CurriculumLearningDataset
+from callbacks import PrintMetricsCallback, CurriculumLearningCallback
 from models.classifier_module import ClassifierModule
-from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset
-from callbacks import PrintMetricsCallback
 from dataset_functions import download_data, load_dataset
 from git_functions import get_git_branch, generate_short_hash
 from counting_functions import calculate_metrics_per_class, count_metrics
@@ -21,6 +20,7 @@ from visualization_functions import (show_n_samples, plot_metrics,
                                      get_roc_auc_curve)
 
 import torchvision
+import math
 
 
 def main():
@@ -75,6 +75,11 @@ def main():
         dataset_args = {
             "target_size": config["training"]["undersample"]["target_size"]
         }
+    elif "curriculum_learning" in config["training"]:
+        dataset_module = CurriculumLearningDataset
+        dataset_args = {
+            "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
+        }
 
     datamodule = ForestDataModule(
         dataset['train'],
@@ -88,6 +93,8 @@ def main():
     model = ClassifierModule(
         model_name=model_name,
         num_classes=num_classes,
+        step_size=config["training"]["step_size"],
+        gamma=config["training"]["gamma"],
         freeze=freeze,
         transform=transforms,
         weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
@@ -111,6 +118,24 @@ def main():
                                          save_last=False,
                                          dirpath=checkpoint_dir))
 
+    if "curriculum_learning" in config["training"]:
+        initial_ratio = config["training"]["curriculum_learning"]["initial_ratio"]
+        step_size = config["training"]["curriculum_learning"]["step_size"]
+        class_order = config["training"]["curriculum_learning"]["class_order"]
+        labels = dataset["train"]["labels"]
+
+        callbacks.append(CurriculumLearningCallback(
+            initial_ratio,
+            step_size,
+            class_order,
+            labels
+        ))
+
+        min_epochs = math.ceil(num_classes / initial_ratio) * step_size
+    else:
+        min_epochs = None
+        step_size = 0
+
     branch_name = get_git_branch()
     short_hash = generate_short_hash()
     run_name = f'{branch_name}-{short_hash}'
@@ -133,10 +158,12 @@ def main():
 
     trainer = Trainer(
         logger=wandb_logger,
+        min_epochs=min_epochs,
         max_epochs=max_epochs,
         accelerator=device,
         devices=1,
-        callbacks=callbacks
+        callbacks=callbacks,
+        reload_dataloaders_every_n_epochs=step_size
     )
 
     trainer.fit(model, datamodule)

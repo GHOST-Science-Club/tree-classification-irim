@@ -7,7 +7,7 @@ from models.diversified_model import GradientBoostingLoss
 
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
+    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
         super().__init__()
         self.save_hyperparameters()
 
@@ -16,6 +16,8 @@ class ClassifierModule(pl.LightningModule):
         self.learning_rate = learning_rate
         self.name = model_name
         self.weight_decay = weight_decay
+        self.step_size = step_size
+        self.gamma = gamma
 
         # Define a loss function and metric
 
@@ -101,8 +103,7 @@ class ClassifierModule(pl.LightningModule):
         else:
             optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
 
-        # Decay LR by a factor of 0.1 every 1 epoch
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)  # TODO: tune parameters
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
 
         return {
             'optimizer': optimizer,
