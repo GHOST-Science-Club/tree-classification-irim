@@ -26,6 +26,6 @@ parameters:
     undersample:
       target_size:
         values: [530, 100000000000]
-  model:
-    name:
-      values: ["resnet50", "fine_grained"]
+    model:
+      name:
+        values: ["resnet50", "fine_grained"]
