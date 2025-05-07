@@ -11,7 +11,7 @@ class ClassifierModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model = create_model(model_name, num_classes, freeze)
+        self.model = create_model(model_name, num_classes, freeze or model_name == "resnet50")
         self.transform = transform
         self.learning_rate = learning_rate
         self.name = model_name
@@ -101,9 +101,19 @@ class ClassifierModule(pl.LightningModule):
         elif self.name == "fine_grained":
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
         else:
-            optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+            optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=0.00005, weight_decay=self.hparams.weight_decay)
 
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
+        if self.name == "fine_grained":
+            scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
+        else:
+            scheduler = torch.optim.lr_scheduler.CyclicLR(
+                optimizer,
+                base_lr=0.00005,
+                max_lr=0.001,
+                step_size_up=13630,
+                step_size_down=13630,
+                cycle_momentum=False
+            )
 
         return {
             'optimizer': optimizer,

@@ -64,14 +64,12 @@ class ForestDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
         self.image_paths = image_paths
         self.labels = labels
-        # Define a default transform if none is provided
-        # TODO: Use transforms suitable for the model
         self.transform = transform or transforms.Compose(
             [
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
-                ),  # Adjust as needed for RGB channels
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                )
             ]
         )
 

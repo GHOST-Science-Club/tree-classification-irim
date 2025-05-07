@@ -22,6 +22,7 @@ from visualization_functions import (show_n_samples, plot_metrics,
 import torchvision
 import math
 
+
 # Helper function to update nested dictionary
 def _update_nested_dict(d, key_path, value):
     keys = key_path.split('.')
@@ -31,6 +32,7 @@ def _update_nested_dict(d, key_path, value):
             current_dict[key] = {}
         current_dict = current_dict[key]
     current_dict[keys[-1]] = value
+
 
 def main():
     # Load configuration file
@@ -54,7 +56,7 @@ def main():
         if key_flat.startswith('_wandb'):
             continue
         _update_nested_dict(working_config, key_flat, value)
-    
+
     config = working_config
 
     if wandb.run:
@@ -67,7 +69,6 @@ def main():
             print(f"Warning: Unable to save effective_run_config.yaml to W&B: {e}")
     else:
         print("Warning: wandb.run was not initialized, unable to save effective_run_config.yaml to W&B.")
-
 
     dataset_folder = Path.cwd() / config["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
@@ -122,6 +123,30 @@ def main():
         dataset_args = {
             "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
         }
+
+    if config["training"]["use_augmentation"]:
+        dataset_args["transform"] = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.RandomApply([
+                    torchvision.transforms.RandomCrop(32, padding=4)
+                ], p=0.5),
+                torchvision.transforms.RandomRotation(degrees=15),
+                torchvision.transforms.RandomHorizontalFlip(),
+                torchvision.transforms.RandomVerticalFlip(),
+                torchvision.transforms.RandomApply([
+                    torchvision.transforms.ColorJitter(
+                        brightness=0.2,
+                        contrast=0.2,
+                        saturation=0.2,
+                        hue=0.1
+                    )
+                ], p=0.5),
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                )
+            ]
+        )
 
     datamodule = ForestDataModule(
         dataset['train'],
