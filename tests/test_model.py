@@ -4,7 +4,6 @@ from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from src.models.resnet import ResNetClassifier
 from src.dataset import ForestDataset
-from src.transforms import Preprocess
 
 
 @pytest.fixture
