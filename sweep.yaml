@@ -1,16 +1,20 @@
-# filepath: /Users/jakubdrzymala/src/github.com/tree-classification-irim/sweep.yaml
 program: src/main.py
-method: bayes  # Options: grid, random, bayes
+method: grid
 metric:
   name: val_loss
   goal: minimize
 parameters:
   training.batch_size:
-    values: [16, 32, 64]
+    values: [32]
   training.learning_rate:
-    min: 0.00001
-    max: 0.001
+    values: [0.0001]
   training.max_epochs:
-    values: [10]
+    values: [100]
+  training.freeze:
+    values: [true]
+  training.class_imbalance_technique:
+    values: ["oversample", "undersample", "curriculum_learning", "class_weights", "none"]
   model.name:
-    values: ["resnet18", "resnet34", "efficientnet-b0"]
+    values: ["resnet50", "fine_grained"]
+  training.use_transform:
+    values: [true, false]
