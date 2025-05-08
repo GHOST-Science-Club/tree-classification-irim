@@ -64,12 +64,15 @@ class ForestDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
         self.image_paths = image_paths
         self.labels = labels
-        self.transform = transforms.Compose(
-            [
-                Preprocess(),
-                transform
-            ]
-        )
+        if transform is None:
+            self.transform = Preprocess()
+        else:
+            self.transform = transforms.Compose(
+                [
+                    Preprocess(),
+                    transform
+                ]
+            )
 
     def __len__(self):
         return len(self.image_paths)
