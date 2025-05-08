@@ -16,5 +16,5 @@ parameters:
     values: ["oversample", "undersample", "curriculum_learning", "class_weights", "none"]
   model.name:
     values: ["resnet50", "fine_grained"]
-  training.use_augmentation:
+  training.use_transform:
     values: [true, false]

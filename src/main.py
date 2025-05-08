@@ -124,28 +124,9 @@ def main():
             "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
         }
 
-    if config["training"]["use_augmentation"]:
-        dataset_args["transform"] = torchvision.transforms.Compose(
-            [
-                torchvision.transforms.RandomApply([
-                    torchvision.transforms.RandomCrop(32, padding=4)
-                ], p=0.5),
-                torchvision.transforms.RandomRotation(degrees=15),
-                torchvision.transforms.RandomHorizontalFlip(),
-                torchvision.transforms.RandomVerticalFlip(),
-                torchvision.transforms.RandomApply([
-                    torchvision.transforms.ColorJitter(
-                        brightness=0.2,
-                        contrast=0.2,
-                        saturation=0.2,
-                        hue=0.1
-                    )
-                ], p=0.5),
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                )
-            ]
+    if config["training"]["use_transform"]:
+        dataset_args["transform"] = torchvision.transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
 
     datamodule = ForestDataModule(

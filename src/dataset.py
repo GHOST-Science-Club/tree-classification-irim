@@ -64,12 +64,10 @@ class ForestDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
         self.image_paths = image_paths
         self.labels = labels
-        self.transform = transform or transforms.Compose(
+        self.transform = transforms.Compose(
             [
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                )
+                Preprocess(),
+                transform
             ]
         )
 
@@ -181,18 +179,15 @@ class ForestDataModule(pl.LightningDataModule):
         self.train_dataset = self.dataset(
             image_paths=self.train_data["paths"],
             labels=self.train_data["labels"],
-            transform=Preprocess(),
             **self.dataset_args
         )
         self.val_dataset = ForestDataset(
             image_paths=self.val_data["paths"],
-            labels=self.val_data["labels"],
-            transform=Preprocess()
+            labels=self.val_data["labels"]
         )
         self.test_dataset = ForestDataset(
             image_paths=self.test_data["paths"],
-            labels=self.test_data["labels"],
-            transform=Preprocess()
+            labels=self.test_data["labels"]
         )
 
     def train_dataloader(self):

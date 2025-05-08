@@ -76,6 +76,6 @@ training:
     patience: 3
     mode: "min"
 
-  use_augmentation: true
+  use_transform: true
 
 device: "gpu"
