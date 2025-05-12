@@ -1,0 +1,3 @@
+# Notify and request @rojberr for review when PR opened for files
+requirements.txt            @rojberr #This is for as long as we do not allow auto dependeabot PR
+unix-requirements..txt      @rojberr #See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
