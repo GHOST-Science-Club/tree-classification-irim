@@ -96,7 +96,7 @@ transformers==4.51.3
 typing_extensions==4.13.2
 types-PyYAML==6.0.12.20250402
 urllib3==2.4.0
-virtualenv==20.30.0
+virtualenv==20.31.2
 wandb==0.19.11
 wcwidth==0.2.13
 yarl==1.20.0
