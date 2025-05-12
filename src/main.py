@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+import copy
 import kornia.augmentation as kaug
 import torch
 import wandb
@@ -23,13 +23,53 @@ import torchvision
 import math
 
 
+# Helper function to update nested dictionary
+def _update_nested_dict(d, key_path, value):
+    keys = key_path.split('.')
+    current_dict = d
+    for i, key in enumerate(keys[:-1]):
+        if not isinstance(current_dict.get(key), dict):
+            current_dict[key] = {}
+        current_dict = current_dict[key]
+    current_dict[keys[-1]] = value
+
+
 def main():
     # Load configuration file
     with open("src/config.yaml", "r") as c:
         config = yaml.safe_load(c)
 
-    # Create a dedicated folder for the PureForest dataset to keep each tree species
-    # organized, avoiding multiple directories in the main content folder.
+    branch_name = get_git_branch()
+    short_hash = generate_short_hash()
+    run_name = f'{branch_name}-{short_hash}'
+    wandb_api_key = os.environ.get('WANDB_API_KEY')
+
+    if wandb_api_key:
+        wandb.login(key=wandb_api_key)
+    else:
+        print("WANDB_API_KEY not found. Assuming user is already logged in or using anonymous mode.")
+
+    wandb.init(project="ghost-irim", name=run_name, config=config)
+    working_config = copy.deepcopy(config)
+
+    for key_flat, value in wandb.config.items():
+        if key_flat.startswith('_wandb'):
+            continue
+        _update_nested_dict(working_config, key_flat, value)
+
+    config = working_config
+
+    if wandb.run:
+        effective_config_path = Path(wandb.run.dir) / "effective_run_config.yaml"
+        try:
+            with open(effective_config_path, 'w') as f:
+                yaml.dump(config, f)
+            wandb.save("effective_run_config.yaml")
+        except Exception as e:
+            print(f"Warning: Unable to save effective_run_config.yaml to W&B: {e}")
+    else:
+        print("Warning: wandb.run was not initialized, unable to save effective_run_config.yaml to W&B.")
+
     dataset_folder = Path.cwd() / config["dataset"]["folder"]
     dataset_folder.mkdir(exist_ok=True)
 
@@ -43,14 +83,14 @@ def main():
     show_n_samples(dataset, species_folders)
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #
+    if config["training"]["class_imbalance_technique"] not in ["oversample", "undersample", "curriculum_learning", "class_weights", "none"]:
+        raise ValueError("Invalid class imbalance technique. Choose from 'oversample', 'undersample', 'curriculum_learning', 'class_weights', or 'none'.")
+
     batch_size = config["training"]["batch_size"]
     num_classes = len(label_map)
     learning_rate = config["training"]["learning_rate"]
     freeze = config["training"]["freeze"]
-    class_weights = config["training"]["class_weights"] if "class_weights" in config["training"] else None
-
-    if "class_weights" in config["training"] and ("oversample" in config["training"] or "undersample" in config["training"]):
-        raise Exception("Can't use class weights and resampling at the same time.")
+    class_weights = config["training"]["class_weights"] if config["training"]["class_imbalance_technique"] == "class_weights" else None
     weight_decay = config["training"]["weight_decay"]
     model_name = config["model"]["name"]
     image_size = 299 if model_name == "inception_v3" else 224
@@ -59,7 +99,8 @@ def main():
     dataset_module = ForestDataset
     dataset_args = {}
 
-    if "oversample" in config["training"]:
+    if config["training"]["class_imbalance_technique"] == "oversample":
+        print("================OVERSAMPLING=================")
         dataset_module = OversampledDataset
         dataset_args = {
             "minority_transform": torchvision.transforms.Compose([
@@ -70,16 +111,23 @@ def main():
             "oversample_factor": config["training"]["oversample"]["oversample_factor"],
             "oversample_threshold": config["training"]["oversample"]["oversample_threshold"]
         }
-    elif "undersample" in config["training"]:
+    elif config["training"]["class_imbalance_technique"] == "undersample":
+        print("================UNDERSAMPLING=================")
         dataset_module = UndersampledDataset
         dataset_args = {
             "target_size": config["training"]["undersample"]["target_size"]
         }
-    elif "curriculum_learning" in config["training"]:
+    elif config["training"]["class_imbalance_technique"] == "curriculum_learning":
+        print("================CURRICULUM LEARNING=================")
         dataset_module = CurriculumLearningDataset
         dataset_args = {
             "indices": [0]  # The list cannot be empty, since the dataloder doesn't accept empty dataset
         }
+
+    if config["training"]["use_transform"]:
+        dataset_args["transform"] = torchvision.transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        )
 
     datamodule = ForestDataModule(
         dataset['train'],
@@ -118,7 +166,7 @@ def main():
                                          save_last=False,
                                          dirpath=checkpoint_dir))
 
-    if "curriculum_learning" in config["training"]:
+    if config["training"]["class_imbalance_technique"] == "curriculum_learning":
         initial_ratio = config["training"]["curriculum_learning"]["initial_ratio"]
         step_size = config["training"]["curriculum_learning"]["step_size"]
         class_order = config["training"]["curriculum_learning"]["class_order"]
@@ -135,17 +183,6 @@ def main():
     else:
         min_epochs = None
         step_size = 0
-
-    branch_name = get_git_branch()
-    short_hash = generate_short_hash()
-    run_name = f'{branch_name}-{short_hash}'
-
-    wandb_api_key = os.environ.get('WANDB_API_KEY')
-    wandb.login(key=wandb_api_key)
-    wandb.init(project="ghost-irim", name=run_name)
-
-    # Log config.yaml to wandb
-    wandb.save("src/config.yaml")
 
     wandb_logger = WandbLogger(
         name=run_name,
