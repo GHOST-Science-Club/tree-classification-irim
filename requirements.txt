@@ -96,7 +96,7 @@ tox==4.25.0
 tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.13.2
-types-PyYAML==6.0.12.20250402
+types-PyYAML==6.0.12.20250516
 urllib3==2.4.0
 virtualenv==20.31.2
 wandb==0.19.11
