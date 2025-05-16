@@ -58,7 +58,7 @@ parso==0.8.4
 pexpect==4.9.0
 pillow==11.2.1
 platformdirs==4.3.8
-pluggy==1.5.0
+pluggy==1.6.0
 prompt_toolkit==3.0.51
 propcache==0.3.1
 protobuf==6.30.2
@@ -68,7 +68,7 @@ pure_eval==0.2.3
 pydantic==2.11.4
 pydantic_core==2.33.2
 pyparsing==3.2.3
-pyproject-api==1.9.0
+pyproject-api==1.9.1
 pytest-cov==6.1.1
 pytest==8.3.5
 python-dateutil==2.9.0.post0
