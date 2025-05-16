@@ -67,7 +67,7 @@ pydantic==2.11.4
 pydantic_core==2.33.2
 Pygments==2.19.1
 pyparsing==3.2.3
-pyproject-api==1.9.0
+pyproject-api==1.9.1
 pytest==8.3.5
 pytest-cov==6.1.1
 python-dateutil==2.9.0.post0
