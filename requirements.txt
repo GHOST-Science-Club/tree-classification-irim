@@ -32,7 +32,7 @@ fonttools==4.58.0
 frozenlist==1.6.0
 fsspec==2025.3.2
 gitdb==4.0.12
-huggingface-hub==0.31.1
+huggingface-hub==0.31.2
 idna==3.10
 iniconfig==2.1.0
 ipykernel==6.29.5
@@ -58,7 +58,7 @@ parso==0.8.4
 pexpect==4.9.0
 pillow==11.2.1
 platformdirs==4.3.8
-pluggy==1.5.0
+pluggy==1.6.0
 prompt_toolkit==3.0.51
 propcache==0.3.1
 protobuf==6.30.2
@@ -68,7 +68,7 @@ pure_eval==0.2.3
 pydantic==2.11.4
 pydantic_core==2.33.2
 pyparsing==3.2.3
-pyproject-api==1.9.0
+pyproject-api==1.9.1
 pytest-cov==6.1.1
 pytest==8.3.5
 python-dateutil==2.9.0.post0
@@ -96,7 +96,7 @@ tox==4.26.0
 tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.13.2
-types-PyYAML==6.0.12.20250402
+types-PyYAML==6.0.12.20250516
 urllib3==2.4.0
 virtualenv==20.31.2
 wandb==0.19.11
