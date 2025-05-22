@@ -21,7 +21,7 @@ jobs:
                     python-version: '3.11.11'
                     cache: 'pip'
 
-            -   uses: iterative/setup-cml@v1
+            -   uses: iterative/setup-cml@v3
 
             -   name: Install dependencies
                 run: |
