@@ -2,7 +2,7 @@ import zipfile
 from pathlib import Path
 from huggingface_hub import hf_hub_download
 
-from typing import List, Dict, Optional
+from typing import Dict
 from omegaconf import OmegaConf
 
 
