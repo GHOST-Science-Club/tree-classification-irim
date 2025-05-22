@@ -1,0 +1,5 @@
+stages:
+  data_collection:
+    cmd: python src/download_dataset.py
+    params:
+      - src/config.yaml:
