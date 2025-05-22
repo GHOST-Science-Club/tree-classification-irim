@@ -20,6 +20,9 @@ jobs:
 
         steps:
             -   uses: actions/checkout@v3
+            -   name: Clean up disk space
+                run: |
+                    rm -rf ${{ github.workspace }}/*
             -   name: Set up Python ${{ matrix.python-version }}
                 uses: actions/setup-python@v4
                 with:
