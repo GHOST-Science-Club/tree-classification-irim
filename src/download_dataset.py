@@ -1,4 +1,3 @@
-import os
 import zipfile
 from pathlib import Path
 from huggingface_hub import hf_hub_download
@@ -28,9 +27,6 @@ def extract_files(file_path: str, extract_dir: Path, main_subfolders: Dict):
             # Extract file with modified path
             source = zip_ref.read(image_file)
 
-            # I assumed we are using aeirla imagery data. However, if needed,
-            # a simple function can be written that chooses either aerial or
-            # LiDAR data
             target_path = extract_dir / \
                 Path(image_file).relative_to(main_subfolders["aerial_imagery"])
 

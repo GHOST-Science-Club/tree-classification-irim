@@ -4,7 +4,7 @@ import yaml
 from pathlib import Path
 import zipfile
 import huggingface_hub
-from src.dataset_functions import download_data, load_dataset, extract_files
+from src.data_preparation import download_data, load_dataset, extract_files
 
 
 @pytest.fixture
