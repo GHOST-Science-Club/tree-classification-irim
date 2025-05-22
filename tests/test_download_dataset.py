@@ -31,11 +31,11 @@ def main_subfolders():
 def sample_images(dataset_folder):
     exp_path1 = dataset_folder / Path(
         "Castanea_sativa/test/TEST-Castanea_sativa-C3-17_1_42.tiff"
-        )
+    )
 
     exp_path2 = dataset_folder / Path(
         "Pinus_nigra/train/TRAIN-Pinus_nigra-C7-100_1_280.tiff"
-        )
+    )
 
     return exp_path1, exp_path2
 
@@ -72,4 +72,3 @@ def test_hf_download_errors(dataset_folder, main_subfolders):
 
     with pytest.raises(AttributeError):
         download_data(invalid_folder, main_subfolders, dataset_folder)
-

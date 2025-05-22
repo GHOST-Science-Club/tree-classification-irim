@@ -53,7 +53,7 @@ def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[st
         label = label_map[merged_label]
 
         for split in splits:
-            split_dir = Path(main_dir) / base_dir / split
+            split_dir = Path(str(main_dir)) / base_dir / split
             if not split_dir.exists():
                 print(f"Warning: {split_dir} does not exist")
                 continue

@@ -1,4 +1,5 @@
 import pytest
+import yaml
 from pathlib import Path
 from src.data_preparation import load_dataset
 
