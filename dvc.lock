@@ -1,0 +1,106 @@
+schema: '2.0'
+stages:
+  data_collection:
+    cmd: python src/download_dataset.py
+    params:
+      src/config.yaml:
+        dataset:
+          folder: src/data
+          species_folders:
+            Abies_alba: data/imagery-Abies_alba.zip
+            Abies_nordmanniana: data/imagery-Abies_nordmanniana.zip
+            Castanea_sativa: data/imagery-Castanea_sativa.zip
+            Fagus_sylvatica: data/imagery-Fagus_sylvatica.zip
+            Larix_decidua: data/imagery-Larix_decidua.zip
+            Picea_abies: data/imagery-Picea_abies.zip
+            Pinus_halepensis: data/imagery-Pinus_halepensis.zip
+            Pinus_nigra: data/imagery-Pinus_nigra.zip
+            Pinus_nigra_laricio: data/imagery-Pinus_nigra_laricio.zip
+            Pinus_pinaster: data/imagery-Pinus_pinaster.zip
+            Pinus_sylvestris: data/imagery-Pinus_sylvestris.zip
+            Pseudotsuga_menziesii: data/imagery-Pseudotsuga_menziesii.zip
+            Quercus_ilex: data/imagery-Quercus_ilex.zip
+            Quercus_petraea: data/imagery-Quercus_petraea.zip
+            Quercus_pubescens: data/imagery-Quercus_pubescens.zip
+            Quercus_robur: data/imagery-Quercus_robur.zip
+            Quercus_rubra: data/imagery-Quercus_rubra.zip
+            Robinia_pseudoacacia: data/imagery-Robinia_pseudoacacia.zip
+          main_subfolders:
+            aerial_imagery: imagery/
+            lidar: lidar/
+        device: gpu
+        model:
+          name: fine_grained
+        training:
+          batch_size: 32
+          learning_rate: 0.0001
+          max_epochs: 100
+          freeze: true
+          weight_decay: 0.0001
+          step_size: 4
+          gamma: 0.1
+          oversample:
+            oversample_factor: 4
+            oversample_threshold: 1000
+          dataloader:
+            auto: true
+            num_workers: 0
+            pin_memory: false
+            presistent_workers: false
+          early_stopping:
+            apply: true
+            monitor: val_loss
+            patience: 3
+            mode: min
+  data_preparation:
+    cmd: python src/data_preparation.py
+    params:
+      src/config.yaml:
+        dataset:
+          folder: src/data
+          species_folders:
+            Abies_alba: data/imagery-Abies_alba.zip
+            Abies_nordmanniana: data/imagery-Abies_nordmanniana.zip
+            Castanea_sativa: data/imagery-Castanea_sativa.zip
+            Fagus_sylvatica: data/imagery-Fagus_sylvatica.zip
+            Larix_decidua: data/imagery-Larix_decidua.zip
+            Picea_abies: data/imagery-Picea_abies.zip
+            Pinus_halepensis: data/imagery-Pinus_halepensis.zip
+            Pinus_nigra: data/imagery-Pinus_nigra.zip
+            Pinus_nigra_laricio: data/imagery-Pinus_nigra_laricio.zip
+            Pinus_pinaster: data/imagery-Pinus_pinaster.zip
+            Pinus_sylvestris: data/imagery-Pinus_sylvestris.zip
+            Pseudotsuga_menziesii: data/imagery-Pseudotsuga_menziesii.zip
+            Quercus_ilex: data/imagery-Quercus_ilex.zip
+            Quercus_petraea: data/imagery-Quercus_petraea.zip
+            Quercus_pubescens: data/imagery-Quercus_pubescens.zip
+            Quercus_robur: data/imagery-Quercus_robur.zip
+            Quercus_rubra: data/imagery-Quercus_rubra.zip
+            Robinia_pseudoacacia: data/imagery-Robinia_pseudoacacia.zip
+          main_subfolders:
+            aerial_imagery: imagery/
+            lidar: lidar/
+        device: gpu
+        model:
+          name: fine_grained
+        training:
+          batch_size: 32
+          learning_rate: 0.0001
+          max_epochs: 100
+          freeze: true
+          weight_decay: 0.0001
+          step_size: 4
+          gamma: 0.1
+          oversample:
+            oversample_factor: 4
+            oversample_threshold: 1000
+          dataloader:
+            auto: true
+            num_workers: 0
+            pin_memory: false
+            presistent_workers: false
+          early_stopping:
+            apply: true
+            monitor: val_loss
+            patience: 3
+            mode: min

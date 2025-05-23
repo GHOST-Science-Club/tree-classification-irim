@@ -1,0 +1,19 @@
+stages:
+    # === DATA LOADING === #
+    data_collection:
+        cmd: python src/download_dataset.py
+        params:
+            - src/config.yaml:
+    # === DATA PREPROCESSING === #
+    # data_preparation:
+    #     cmd: python src/data_preparation.py
+    #     params:
+    #         - src/config.yaml:
+    # === TRAINING === #
+    train_model:
+        cmd: python src/main.py
+        params:
+            - src/config.yaml:
+        deps:
+            - src/main.py
+          
