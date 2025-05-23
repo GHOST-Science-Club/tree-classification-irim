@@ -16,7 +16,7 @@ jobs:
                 with:
                     python-version: '3.11.11'
 
-            -   uses: iterative/setup-cml@v1
+            -   uses: iterative/setup-cml@v3
 
             -   name: Install dependencies
                 run: |
