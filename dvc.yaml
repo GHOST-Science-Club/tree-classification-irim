@@ -2,6 +2,9 @@ stages:
     # === DATA LOADING === #
     data_collection:
         cmd: python src/download_dataset.py
+        deps:
+            - src/download_dataset.py
+            - src/config.yaml
         params:
             - src/config.yaml:
     # === DATA PREPROCESSING === #
