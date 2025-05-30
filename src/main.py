@@ -11,7 +11,8 @@ from pytorch_lightning.loggers import WandbLogger
 from dataset import ForestDataModule, ForestDataset, OversampledDataset, UndersampledDataset, CurriculumLearningDataset
 from callbacks import PrintMetricsCallback, CurriculumLearningCallback
 from models.classifier_module import ClassifierModule
-from dataset_functions import download_data, load_dataset
+from download_dataset import download_data
+from dataset_functions import load_dataset
 from git_functions import get_git_branch, generate_short_hash
 from counting_functions import calculate_metrics_per_class, count_metrics
 from visualization_functions import (show_n_samples, plot_metrics,
