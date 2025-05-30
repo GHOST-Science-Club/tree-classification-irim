@@ -15,7 +15,8 @@ jobs:
                 with:
                     version-file: "my-path/to/pyproject.toml-or-requirements.txt"
                     args: "--version"
-            -   name: Ruff Linting Check
-                run: ruff check
             -   name: Ruff Formatting Check
                 run: ruff format --check
+            -   name: Ruff Linting Check
+                run: ruff check
+
