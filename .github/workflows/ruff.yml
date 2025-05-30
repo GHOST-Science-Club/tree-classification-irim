@@ -1,11 +1,13 @@
 name: Linting & Formatting Check
-permissions:
-  contents: read
+
 on: 
     pull_request:
 
+permissions:
+    contents: read
+
 jobs:
-    
+
   ruff:
     runs-on: ubuntu-latest
     steps:
