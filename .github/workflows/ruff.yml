@@ -14,9 +14,8 @@ jobs:
             -   uses: astral-sh/ruff-action@v3
                 with:
                     version-file: "my-path/to/pyproject.toml-or-requirements.txt"
-
-            -   name: Run Ruff lint check
+                    args: "--version"
+            -   name: Ruff Linting Check
                 run: ruff check
-
-            -   name: Run Ruff format check
+            -   name: Ruff Formatting Check
                 run: ruff format --check
