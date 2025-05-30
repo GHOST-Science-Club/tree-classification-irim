@@ -7,16 +7,20 @@ permissions:
     contents: read
 
 jobs:
-    ruff:
+    ruff-linting:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v4
             -   uses: astral-sh/ruff-action@v3
                 with:
                     version-file: "my-path/to/pyproject.toml-or-requirements.txt"
-                    args: "--version" # only installs ruff without executing ruff check automatically
-            -   name: Ruff Linting Check
-                run: ruff check
-            -   name: Ruff Formatting Check
-                run: ruff format --check --diff
+    ruff-formatting:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: astral-sh/ruff-action@v3
+                with:
+                    version-file: "my-path/to/pyproject.toml-or-requirements.txt"
+                    args: "format --check --diff"
+
 
