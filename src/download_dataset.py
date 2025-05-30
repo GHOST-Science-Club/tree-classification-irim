@@ -72,7 +72,8 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
             print(f"Error: {filename} is not a valid zip file")
 
 
-config = OmegaConf.load("src/config.yaml")
+if __name__ == "__main__":
+    config = OmegaConf.load("src/config.yaml")
 
-download_data(config.dataset.species_folders,
-              config.dataset.main_subfolders, config.dataset.folder)
+    download_data(config.dataset.species_folders,
+                  config.dataset.main_subfolders, config.dataset.folder)
