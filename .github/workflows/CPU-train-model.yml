@@ -33,7 +33,7 @@ jobs:
                     echo "WANDB_API_KEY=${{ secrets.WANDB_API_KEY }}" >> $GITHUB_ENV
 
             -   name: Run Python script
-                run: python src/main.py
+                run: dvc repro
 
             -   name: Post plots with CML in PR comment
                 env:
