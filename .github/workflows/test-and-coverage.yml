@@ -12,7 +12,7 @@ permissions:
 
 jobs:
 
-    pytest-mypy:
+    pytest:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
