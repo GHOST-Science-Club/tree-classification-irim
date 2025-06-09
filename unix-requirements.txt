@@ -89,7 +89,7 @@ threadpoolctl==3.6.0
 torch==2.7.0
 torchaudio==2.7.0
 torchmetrics==1.7.2
-torchvision==0.22.0
+torchvision==0.22.1
 tornado==6.5.1
 tox==4.26.0
 tqdm==4.67.1
