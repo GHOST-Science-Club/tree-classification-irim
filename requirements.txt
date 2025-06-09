@@ -101,6 +101,6 @@ typing_extensions==4.13.2
 types-PyYAML==6.0.12.20250516
 urllib3==2.4.0
 virtualenv==20.31.2
-wandb==0.19.11
+wandb==0.20.0
 wcwidth==0.2.13
 yarl==1.20.0
