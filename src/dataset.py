@@ -33,9 +33,9 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
             pin_memory: bool - whether to use pin_memory
             persistent_workers: bool - whether to use persistent workers
     """
-    if config['training']['dataloader']['auto']:
+    if config["training"]["dataloader"]["auto"]:
         total_ram = psutil.virtual_memory().available * ram_fraction
-        img_memory = np.prod(img_size) * image_channels * (precision/8)
+        img_memory = np.prod(img_size) * image_channels * (precision / 8)
         batch_memory = batch_size * img_memory
 
         if batch_memory > total_ram:
@@ -46,16 +46,15 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
         prefetch_factor = min(max_batches_in_ram, 16)
         num_workers = min(floor(prefetch_factor / 2), os.cpu_count())
 
-        params = {"num_workers": num_workers,
-                  "prefetch_factor": prefetch_factor,
-                  "pin_memory": config['device'] == 'gpu',
-                  "persistent_workers": True}
+        params = {"num_workers": num_workers, "prefetch_factor": prefetch_factor, "pin_memory": config["device"] == "gpu", "persistent_workers": True}
 
     else:
-        params = {"num_workers": config['training']['dataloader']['num_workers'],
-                  "prefetch_factor": config['training']['dataloader']['prefetch_factor'],
-                  "pin_memory": config['training']['dataloader']['pin_memory'],
-                  "persistent_workers": config['training']['dataloader']['persistent_workers']}
+        params = {
+            "num_workers": config["training"]["dataloader"]["num_workers"],
+            "prefetch_factor": config["training"]["dataloader"]["prefetch_factor"],
+            "pin_memory": config["training"]["dataloader"]["pin_memory"],
+            "persistent_workers": config["training"]["dataloader"]["persistent_workers"],
+        }
 
     return params
 
@@ -69,9 +68,7 @@ class ForestDataset(Dataset):
         self.transform = transform or transforms.Compose(
             [
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
-                ),  # Adjust as needed for RGB channels
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),  # Adjust as needed for RGB channels
             ]
         )
 
@@ -124,8 +121,7 @@ class UndersampledDataset(ForestDataset):
 
 
 class OversampledDataset(ForestDataset):
-    def __init__(self, image_paths, labels, transform=None, minority_transform=None, oversample_factor=2,
-                 oversample_threshold=200):
+    def __init__(self, image_paths, labels, transform=None, minority_transform=None, oversample_factor=2, oversample_threshold=200):
         super().__init__(image_paths, labels, transform)
         self.minority_transform = minority_transform
 
@@ -183,22 +179,9 @@ class ForestDataModule(pl.LightningDataModule):
         self.params = calculate_dataloader_params(batch_size)
 
     def setup(self, stage=None):
-        self.train_dataset = self.dataset(
-            image_paths=self.train_data["paths"],
-            labels=self.train_data["labels"],
-            transform=Preprocess(),
-            **self.dataset_args
-        )
-        self.val_dataset = ForestDataset(
-            image_paths=self.val_data["paths"],
-            labels=self.val_data["labels"],
-            transform=Preprocess()
-        )
-        self.test_dataset = ForestDataset(
-            image_paths=self.test_data["paths"],
-            labels=self.test_data["labels"],
-            transform=Preprocess()
-        )
+        self.train_dataset = self.dataset(image_paths=self.train_data["paths"], labels=self.train_data["labels"], transform=Preprocess(), **self.dataset_args)
+        self.val_dataset = ForestDataset(image_paths=self.val_data["paths"], labels=self.val_data["labels"], transform=Preprocess())
+        self.test_dataset = ForestDataset(image_paths=self.test_data["paths"], labels=self.test_data["labels"], transform=Preprocess())
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, **self.params)
@@ -210,6 +193,6 @@ class ForestDataModule(pl.LightningDataModule):
         return DataLoader(self.test_dataset, batch_size=self.batch_size, **self.params)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     params = calculate_dataloader_params(32)
     print(params)
