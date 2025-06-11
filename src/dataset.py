@@ -166,7 +166,10 @@ class CurriculumLearningDataset(ForestDataset):
 
 
 class ForestDataModule(pl.LightningDataModule):
-    def __init__(self, train_data, val_data, test_data, dataset, dataset_args={}, batch_size=32):
+    def __init__(self, train_data, val_data, test_data, dataset, dataset_args=None, batch_size=32):
+        if dataset_args is None:
+            dataset_args = {}
+
         super().__init__()
         self.test_dataset = None
         self.train_dataset = None

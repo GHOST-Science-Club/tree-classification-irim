@@ -201,7 +201,7 @@ def main():
     ious = [metrics_per_class[key]['IoU'] for key in metrics_per_class.keys()]
     names_and_labels = [[key, value] for key, value in label_map.items()]
     logged_metrics = [[name, label, acc, prec, rec, f1, iou] for [
-        name, label], acc, prec, rec, f1, iou in zip(names_and_labels, accs, precs, recs, f1s, ious)]
+        name, label], acc, prec, rec, f1, iou in zip(names_and_labels, accs, precs, recs, f1s, ious, strict=False)]
 
     training_table = wandb.Table(columns=[
                                  'Class name', 'Label', 'Accuracy', 'Precision', 'Recall', 'F1-score', 'IoU'], data=logged_metrics)
@@ -216,7 +216,7 @@ def main():
     filenames = ['confusion_matrix.png',
                  'precision_recall_curve.png', 'roc_auc_curve.png']
     titles = ['Confusion Matrix', 'Precision-Recall Curve', 'ROC AUC Curve']
-    for filename, title in zip(filenames, titles):
+    for filename, title in zip(filenames, titles, strict=False):
         wandb.log({title: wandb.Image(f'src/plots/{filename}')})
 
     wandb.finish()

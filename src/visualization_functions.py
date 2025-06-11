@@ -85,7 +85,7 @@ def plot_metrics(train_metrics: dict, val_metrics: dict):
     plt.close()
 
 
-def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_names=None,
+def get_confusion_matrix(model_output, targets, filepath=None, class_names=None,
                          title="Confusion Matrix", show=False):
     """
     Generates a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix) for the given model output and targets and saves it in filepath.
@@ -123,6 +123,9 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_confusion_matrix(output, targets, "plot.png", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], show=True)
     """
+
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
 
     assert model_output.shape[0] == targets.shape[0], "model_output and targets must have the same number of examples."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
@@ -187,7 +190,7 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
         plt.close()
 
 
-def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
+def get_roc_auc_curve(model_output, targets, filepath=None, class_of_interest=None,
                       class_names=None, title="ROC Curves", show=False):
     """
     Generates [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc)
@@ -241,6 +244,9 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     # >>> targets = torch.randint(0, 10, (50,), dtype=torch.int64)
     # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
+
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
 
     assert len(model_output.shape) == 2, "model_output must be a 2D tensor with shape (N, C)."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
@@ -315,7 +321,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
         plt.close()
 
 
-def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
+def get_precision_recall_curve(model_output, targets, filepath=None, class_of_interest=None,
                                class_names=None, title="Precision Recall Curves", show=False):
     """
     Generates precision-recall curves for a multi-class classification task and saves them to filepath.
@@ -356,6 +362,9 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
     AssertionError
         If class_of_interest is provided and class_names is None.
     """
+
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
 
     assert model_output.ndim == 2, "model_output must be a 2D tensor with shape (N, C)."
     assert targets.ndim == 1, "targets must be a 1D tensor with shape (N,)."

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import pytest
 import torch
 from PIL import Image
@@ -58,7 +60,7 @@ class TestDatasetsDataModule:
     Create the same test setup for multiple classes handling dataset
     """
 
-    error_msg = {
+    error_msg: ClassVar[dict[str, str]] = {
         "not-tensor": "Image is not a Tensor",
         "not-rgb": "Color channels are not RGB",
         "label-str": "Incorrect label type",
@@ -123,9 +125,10 @@ class TestDatasetsDataModule:
         with pytest.raises(FileNotFoundError):
             _ = self.dataset_missing_files[0]
 
+        self.data_module_missing_data.setup()
+        train_loader = self.data_module_missing_data.train_dataloader()
+
         with pytest.raises(FileNotFoundError):
-            self.data_module_missing_data.setup()
-            train_loader = self.data_module_missing_data.train_dataloader()
             _ = next(iter(train_loader))
 
     def test_setup_creates_datasets(self, dataset):
