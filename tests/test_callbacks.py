@@ -12,15 +12,11 @@ def callback():
 @pytest.fixture
 def mock_trainer():
     """Create a mock trainer with predefined callback metrics."""
-    class Trainer():
+
+    class Trainer:
         def __init__(self):
             self.current_epoch = 1
-            self.callback_metrics = {
-                'train_loss': torch.tensor(0.2345),
-                'train_acc': torch.tensor(0.9123),
-                'val_loss': torch.tensor(0.3456),
-                'val_acc': torch.tensor(0.8765)
-            }
+            self.callback_metrics = {"train_loss": torch.tensor(0.2345), "train_acc": torch.tensor(0.9123), "val_loss": torch.tensor(0.3456), "val_acc": torch.tensor(0.8765)}
 
     trainer = Trainer()
 
@@ -37,7 +33,7 @@ def test_on_train_epoch_end(callback, mock_trainer):
         "loss-numb": "Invalid loss metric number in training callback",
         "acc-numb": "Invalid accuracy metric number in training callback",
         "invalid-loss": "Invalid loss in training callback",
-        "invalid-acc": "Invalid accuracy in training callback"
+        "invalid-acc": "Invalid accuracy in training callback",
     }
 
     assert len(train_loss) == 1, error_msg["loss-numb"]
@@ -56,7 +52,7 @@ def test_on_validation_epoch_end(callback, mock_trainer):
         "loss-numb": "Invalid loss metric number in validation callback",
         "acc-numb": "Invalid accuracy metric number in validation callback",
         "invalid-loss": "Invalid loss in validation callback",
-        "invalid-acc": "Invalid accuracy in validation callback"
+        "invalid-acc": "Invalid accuracy in validation callback",
     }
 
     assert len(val_loss) == 1, error_msg["loss-numb"]
@@ -70,15 +66,9 @@ def test_callback_prints_correctly(callback, mock_trainer, capsys):
     callback.on_train_epoch_end(mock_trainer, None)
     callback.on_validation_epoch_end(mock_trainer, None)
 
-    exp_out = {
-        "train-out": "Train Loss: 0.2345, Train Acc: 0.9123",
-        "val-out": "Epoch: 1, Val Loss: 0.3456, Val Acc: 0.8765"
-    }
+    exp_out = {"train-out": "Train Loss: 0.2345, Train Acc: 0.9123", "val-out": "Epoch: 1, Val Loss: 0.3456, Val Acc: 0.8765"}
 
-    error_msg = {
-        "train-msg": "Incorrect training callback output",
-        "val-msg": "Incorrect validation callback output"
-    }
+    error_msg = {"train-msg": "Incorrect training callback output", "val-msg": "Incorrect validation callback output"}
 
     captured = capsys.readouterr()
     assert exp_out["train-out"] in captured.out, error_msg["train-msg"]

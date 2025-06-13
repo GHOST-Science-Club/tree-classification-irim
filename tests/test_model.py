@@ -18,9 +18,7 @@ def model(monkeypatch):
     # if no optimizer is present, it triggers an index error
     # as model retrieves current_lr for logs
     for _ in range(10):
-        model.trainer.optimizers.append(
-            torch.optim.Adam(model.model.fc.parameters())
-        )
+        model.trainer.optimizers.append(torch.optim.Adam(model.model.fc.parameters()))
 
     # log is not tested at it is done by pytorch-lightning
     monkeypatch.setattr(model, "log", lambda *args, **kwargs: None)
@@ -45,26 +43,17 @@ def sample_batch():
 def data_loader(sample_data):
     """Fixture to create a DataLoader for
     testing training and validation steps."""
-    dataset = ForestDataset(
-        sample_data["paths"], sample_data["labels"], transform=Preprocess()
-    )
+    dataset = ForestDataset(sample_data["paths"], sample_data["labels"], transform=Preprocess())
     return DataLoader(dataset, batch_size=2)
 
 
 @pytest.mark.model
 def test_model_initialization(model):
-
-    error_msg = {
-        "not-init-m": "Model is not initialized",
-        "bad-loss": f"Unexpected loss function ({model.criterion})",
-        "not-init-acc": "Accuracy is not initialized"
-    }
+    error_msg = {"not-init-m": "Model is not initialized", "bad-loss": f"Unexpected loss function ({model.criterion})", "not-init-acc": "Accuracy is not initialized"}
 
     assert model.model is not None, error_msg["not-init-m"]
     # May need to be changed in the future for other models
-    assert isinstance(
-        model.criterion, torch.nn.CrossEntropyLoss
-    ), error_msg["bad-loss"]
+    assert isinstance(model.criterion, torch.nn.CrossEntropyLoss), error_msg["bad-loss"]
     assert model.accuracy is not None, error_msg["not-init-m"]
 
 
@@ -135,7 +124,7 @@ def test_optimizer_configuration(model):
         "no-opt": "configure_optimizer does not output optimizer",
         "invalid-opt": "Optimizer is invalid (None)",
         "no-lr": "configure_optimizer does not output learning scheduler",
-        "invalid_lr": "Scheduler is invalid (None)"
+        "invalid_lr": "Scheduler is invalid (None)",
     }
 
     assert "optimizer" in optim_config, error_msg["no-opt"]
@@ -165,10 +154,7 @@ def test_train_dataloader(model, data_loader):
 def test_on_after_batch_transfer_without_transform(model, sample_batch):
     result = model.on_after_batch_transfer(sample_batch, dataloader_idx=0)
 
-    error_msg = {
-        "img": "Image has been altered by after batch transfer",
-        "lbl": "Label has been altered by after batch transfer"
-    }
+    error_msg = {"img": "Image has been altered by after batch transfer", "lbl": "Label has been altered by after batch transfer"}
 
     assert torch.equal(result[0], sample_batch[0]), error_msg["img"]
     assert torch.equal(result[1], sample_batch[1]), error_msg["lbl"]
@@ -184,10 +170,7 @@ def test_on_after_batch_transfer_with_transform(model, sample_batch):
 
     expected_x = sample_batch[0] * 2
 
-    error_msg = {
-        "img": "Image remained unchanged after batch transfer",
-        "lbl": "Label has been altered by after batch transfer"
-    }
+    error_msg = {"img": "Image remained unchanged after batch transfer", "lbl": "Label has been altered by after batch transfer"}
 
     assert torch.equal(result[0], expected_x), error_msg["img"]
     assert torch.equal(result[1], sample_batch[1]), error_msg["lbl"]

@@ -42,13 +42,11 @@ class Transforms(nn.Module):
 
     @torch.no_grad()
     def forward(self, x):
-
         if self.test or random() < self.prob:
             result = self.resize(x)
             return result.squeeze()
 
         else:
-            transform = choice(
-                self.train_transforms)  # In paper method applies only one transformation at once, might change in the future
+            transform = choice(self.train_transforms)  # In paper method applies only one transformation at once, might change in the future
             result = transform(self.resize(x))
             return result.squeeze()

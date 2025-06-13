@@ -26,7 +26,7 @@ def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[st
         "Abies_nordmanniana": "Fir",
         "Picea_abies": "Spruce",
         "Larix_decidua": "Larch",
-        "Pseudotsuga_menziesii": "Douglas"
+        "Pseudotsuga_menziesii": "Douglas",
     }
 
     # Filtering merged_labels to present classes in config.yaml
@@ -37,10 +37,7 @@ def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[st
     print("Label mapping:", label_map)
 
     # base_dirs = list(main_dir.glob("*"))
-    base_dirs = [species_folders[filename].
-                 replace("data/imagery-", "").
-                 replace(".zip", "")
-                 for filename in species_folders]
+    base_dirs = [species_folders[filename].replace("data/imagery-", "").replace(".zip", "") for filename in species_folders]
 
     # Load images and create labels
     for base_dir in base_dirs:
@@ -58,9 +55,7 @@ def load_dataset(main_dir: Dict, species_folders: Dict, splits: Optional[List[st
                 continue
 
             # Get all TIFF files in the directory
-            tiff_files = list(split_dir.glob("*.tiff")) + list(
-                split_dir.glob("*.tif")
-            )
+            tiff_files = list(split_dir.glob("*.tiff")) + list(split_dir.glob("*.tif"))
 
             print(f"Loading {len(tiff_files)} images from {split_dir}")
 
@@ -82,9 +77,7 @@ def clip_balanced_dataset(dataset: Dict):
             continue
 
         # Identify minimum class count for this split
-        unique_labels, label_counts = np.unique(
-            dataset[split]["labels"], return_counts=True
-        )
+        unique_labels, label_counts = np.unique(dataset[split]["labels"], return_counts=True)
         min_class_count = min(label_counts)
 
         # Prepare clipped data

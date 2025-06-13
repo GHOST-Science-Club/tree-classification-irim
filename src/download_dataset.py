@@ -27,8 +27,7 @@ def extract_files(file_path: str, extract_dir: Path, main_subfolders: Dict):
             # Extract file with modified path
             source = zip_ref.read(image_file)
 
-            target_path = extract_dir / \
-                Path(image_file).relative_to(main_subfolders["aerial_imagery"])
+            target_path = extract_dir / Path(image_file).relative_to(main_subfolders["aerial_imagery"])
 
             # Create directories if they don't exist
             target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -50,8 +49,7 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
         extract_dir = Path(dataset_folder) / filename
         # Check if directory already contains files (skip if so)
         if extract_dir.exists() and any(extract_dir.iterdir()):
-            print(
-                f"\nSkipping {species_folders[filename]}: already downloaded and extracted in {extract_dir}. Remove manually for re-download")
+            print(f"\nSkipping {species_folders[filename]}: already downloaded and extracted in {extract_dir}. Remove manually for re-download")
             continue
 
         # Download file only if not already downloaded (checks hash)
@@ -60,7 +58,7 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
             filename=species_folders[filename],
             repo_type="dataset",
             local_files_only=False,  # Will check cache and hash
-            force_download=False     # Only download if hash changed
+            force_download=False,  # Only download if hash changed
         )
 
         # Create a directory for the extracted files
@@ -75,5 +73,4 @@ def download_data(species_folders: Dict, main_subfolders: Dict, dataset_folder: 
 if __name__ == "__main__":
     config = OmegaConf.load("src/config.yaml")
 
-    download_data(config.dataset.species_folders,
-                  config.dataset.main_subfolders, config.dataset.folder)
+    download_data(config.dataset.species_folders, config.dataset.main_subfolders, config.dataset.folder)

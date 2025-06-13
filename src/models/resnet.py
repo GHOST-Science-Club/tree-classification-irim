@@ -13,7 +13,7 @@ class ResNetClassifier(pl.LightningModule):
         self.transform = transform
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
-        self.model = models.resnet18(weights='DEFAULT')
+        self.model = models.resnet18(weights="DEFAULT")
 
         # Freeze pre-trained layers
         if freeze:
@@ -55,8 +55,8 @@ class ResNetClassifier(pl.LightningModule):
         acc = self.accuracy(predicted_classes, labels)
         self.log("train_loss", loss, on_epoch=True, prog_bar=True)
         self.log("train_acc", acc, prog_bar=True)
-        current_lr = self.trainer.optimizers[0].param_groups[0]['lr']
-        self.log('learning_rate', current_lr, prog_bar=True)  # log learning rate for testing purposes
+        current_lr = self.trainer.optimizers[0].param_groups[0]["lr"]
+        self.log("learning_rate", current_lr, prog_bar=True)  # log learning rate for testing purposes
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -101,9 +101,4 @@ class ResNetClassifier(pl.LightningModule):
         # Decay LR by a factor of 0.1 every 1 epoch
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.4)  # TODO: tune parameters
 
-        return {
-            'optimizer': optimizer,
-            'lr_scheduler': {
-                'scheduler': scheduler
-            }
-        }
+        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler}}

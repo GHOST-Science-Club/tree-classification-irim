@@ -15,11 +15,7 @@ def sample_data(tmp_path):
     for i in range(num_images):
         img_path = tmp_path / f"sample_image{i}.jpg"
 
-        img = Image.new(
-            "RGB",
-            (224, 224),
-            color=tuple(random.randint(0, 255) for _ in range(3))
-        )
+        img = Image.new("RGB", (224, 224), color=tuple(random.randint(0, 255) for _ in range(3)))
         img.save(img_path)
 
         # Assign predefined labels for the first two images,

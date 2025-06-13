@@ -59,7 +59,7 @@ class ClassifierModule(pl.LightningModule):
     def step(self, batch, stage):
         images, labels = batch
         labels = labels.long()
-        is_training = (stage == "train")
+        is_training = stage == "train"
 
         if is_training and self.name.startswith("inception"):
             outputs, aux_outputs = self.model(images)
@@ -105,9 +105,4 @@ class ClassifierModule(pl.LightningModule):
 
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
 
-        return {
-            'optimizer': optimizer,
-            'lr_scheduler': {
-                'scheduler': scheduler
-            }
-        }
+        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler}}

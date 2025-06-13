@@ -20,11 +20,11 @@ def calculate_metrics_per_class(y_true, y_pred):
         union = tp + fp + fn
 
         metrics[cls.item()] = {
-            'accuracy': accuracy_score(y_true_binary, y_pred_binary),
-            'precision': precision_score(y_true_binary, y_pred_binary),
-            'recall': recall_score(y_true_binary, y_pred_binary),
-            'f1': f1_score(y_true_binary, y_pred_binary),
-            'IoU': tp/union if union != 0 else 0
+            "accuracy": accuracy_score(y_true_binary, y_pred_binary),
+            "precision": precision_score(y_true_binary, y_pred_binary),
+            "recall": recall_score(y_true_binary, y_pred_binary),
+            "f1": f1_score(y_true_binary, y_pred_binary),
+            "IoU": tp / union if union != 0 else 0,
         }
 
     return metrics
@@ -35,9 +35,9 @@ def count_metrics(y_true, y_pred):
     y_true = y_true.cpu().detach().numpy()
 
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    f1 = f1_score(y_true, y_pred, average='weighted')
+    precision = precision_score(y_true, y_pred, average="weighted")
+    recall = recall_score(y_true, y_pred, average="weighted")
+    f1 = f1_score(y_true, y_pred, average="weighted")
 
     # Count mIoU
     classes = np.unique(y_true)
@@ -48,14 +48,8 @@ def count_metrics(y_true, y_pred):
         fp = np.sum((y_true != cls) & (y_pred == cls))
         fn = np.sum((y_true == cls) & (y_pred != cls))
         union = tp + fp + fn
-        iou.append(tp/union if union != 0 else 0)
+        iou.append(tp / union if union != 0 else 0)
 
     mIoU = np.mean(iou)
 
-    return {
-        'accuracy': accuracy,
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'mIoU': mIoU
-    }
+    return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1, "mIoU": mIoU}

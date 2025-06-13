@@ -34,10 +34,7 @@ def create_model(model_name, num_classes, freeze=False):
         model.fc = nn.Linear(in_features, num_classes)
 
     elif model_name == "vit":
-        model = ViTForImageClassification.from_pretrained(
-            "google/vit-base-patch16-224-in21k",
-            num_labels=num_classes
-        )
+        model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224-in21k", num_labels=num_classes)
         if freeze:
             for param in model.vit.parameters():
                 param.requires_grad = False

@@ -1,3 +1,45 @@
+[tool.ruff]
+line-length = 200
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E", "W",
+  # flake8-2020
+  "YTT",
+  # flake8-bugbear
+  "B",
+  # flake8-quotes
+#   "Q",
+  # flake8-debugger
+  "T10",
+  # flake8-gettext
+  "INT",
+  # flake8-pytest-style
+  "PT",
+  # flake8-pyi
+  "PYI",
+  # flake8-type-checking
+  "TC",
+  # Ruff-specific rules
+  "RUF",
+  # flake8-bandit: exec-builtin
+  "S102",
+  # flake8-logging-format
+  "G",
+  # flake8-future-annotations
+  "FA",
+  # flake8-slots
+  "SLOT",
+  # flake8-raise
+  "RSE"
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
 [tool.coverage.run]
 omit = [
     "src/__init__.py",

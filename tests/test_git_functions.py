@@ -26,11 +26,8 @@ def test_get_git_branch_git_command_failure(monkeypatch):
 
     def raise_(ex):
         raise ex
-    monkeypatch.setattr(
-        subprocess,
-        "check_output",
-        lambda e: raise_(subprocess.CalledProcessError(1, "git"))
-    )
+
+    monkeypatch.setattr(subprocess, "check_output", lambda e: raise_(subprocess.CalledProcessError(1, "git")))
 
     assert get_git_branch() == "unknown-branch", "Invalid branch name"
 
@@ -41,11 +38,7 @@ def test_generate_short_hash():
 
     allow_char = string.ascii_lowercase + string.digits
 
-    error_msg = {
-        "not-str": "Run hash is not a string",
-        "bad-length": "Run hash has incorrect length",
-        "bad-elm": "Run hash has incorrect elements"
-    }
+    error_msg = {"not-str": "Run hash is not a string", "bad-length": "Run hash has incorrect length", "bad-elm": "Run hash has incorrect elements"}
 
     assert isinstance(hash_value, str), error_msg["not-str"]
     assert len(hash_value) == 6, error_msg["bad-length"]

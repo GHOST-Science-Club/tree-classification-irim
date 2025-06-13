@@ -48,9 +48,9 @@ class DiversificationBlock(nn.Module):
                         if r_patch:
                             x_start = i * self.grid_size
                             y_start = j * self.grid_size
-                            patch = map_[x_start:x_start+self.grid_size, y_start:y_start+self.grid_size]
+                            patch = map_[x_start : x_start + self.grid_size, y_start : y_start + self.grid_size]
                             if not (patch == max_val).any():
-                                patch_mask[x_start:x_start+self.grid_size, y_start:y_start+self.grid_size] = 1
+                                patch_mask[x_start : x_start + self.grid_size, y_start : y_start + self.grid_size] = 1
 
                 B = B_prime + patch_mask
                 masks[b, c] = B
