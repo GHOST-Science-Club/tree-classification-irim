@@ -10,24 +10,22 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_c
 
 
 def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int = 5):
-    titles = [f'Channel [{i}]' for i in range(4)]
-    titles.extend(['Whole 4 channels', 'Channel [0,1,2]', 'Channel [1,2,3]', 'PIL conversion'])
+    titles = [f"Channel [{i}]" for i in range(4)]
+    titles.extend(["Whole 4 channels", "Channel [0,1,2]", "Channel [1,2,3]", "PIL conversion"])
     channels = [[0], [1], [2], [3], [0, 1, 2, 3], [0, 1, 2], [1, 2, 3], None]
 
-    unique_classes = np.unique(dataset['train']['labels'])
+    unique_classes = np.unique(dataset["train"]["labels"])
     class_names = list(species_folders.keys())
 
     for label in unique_classes:
-
         already_displayed = []  # This object contains already picked samples' indices
-        indices = np.where(dataset['train']['labels'] == label)[0]
+        indices = np.where(dataset["train"]["labels"] == label)[0]
 
         n_rows = n_of_images
         n_cols = 8
         fig, axs = plt.subplots(n_rows, n_cols, figsize=(30, 30))
 
         for i, ax_row in enumerate(axs):
-
             # To avoid displaying repetitive images
             unique = False
             while not unique:
@@ -41,14 +39,14 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int = 5):
             img = np.array(Image.open(img_path))
             label = class_names[dataset["train"]["labels"][idx]]
 
-            fig.suptitle(f'Class name: {label}', fontsize=36)
+            fig.suptitle(f"Class name: {label}", fontsize=36)
             fig.tight_layout()
 
             for j, ax in enumerate(ax_row):
-                ax.imshow(img[..., channels[j]] if channels[j] else Image.fromarray(img).convert('RGB'))
+                ax.imshow(img[..., channels[j]] if channels[j] else Image.fromarray(img).convert("RGB"))
                 if i == 0:
                     ax.set_title(titles[j], fontsize=20)
-                ax.axis('off')
+                ax.axis("off")
 
         plt.tight_layout()
 
@@ -85,8 +83,7 @@ def plot_metrics(train_metrics: dict, val_metrics: dict):
     plt.close()
 
 
-def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_names=None,
-                         title="Confusion Matrix", show=False):
+def get_confusion_matrix(model_output, targets, filepath=None, class_names=None, title="Confusion Matrix", show=False):
     """
     Generates a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix) for the given model output and targets and saves it in filepath.
 
@@ -124,6 +121,9 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
     # >>> get_confusion_matrix(output, targets, "plot.png", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], show=True)
     """
 
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
+
     assert model_output.shape[0] == targets.shape[0], "model_output and targets must have the same number of examples."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
     assert len(model_output.shape) == 2, "model_output must be a 2D tensor with shape (N, C)."
@@ -148,10 +148,10 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
     fig.colorbar(cax)
 
     for (i, j), val in np.ndenumerate(matrix):
-        ax.text(j, i, f'{val}', ha='center', va='center', color='black')
+        ax.text(j, i, f"{val}", ha="center", va="center", color="black")
 
-    ax.set_ylabel('Actual', size=12, labelpad=10)
-    ax.set_xlabel('Predicted', size=12, labelpad=10)
+    ax.set_ylabel("Actual", size=12, labelpad=10)
+    ax.set_xlabel("Predicted", size=12, labelpad=10)
 
     if title is not None:
         ax.set_title(title, pad=30)
@@ -166,14 +166,14 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
         # Make sure that long label names are also visible
         for label in ax.get_xticklabels():
             label.set_rotation(45)
-            label.set_horizontalalignment('left')
+            label.set_horizontalalignment("left")
     else:
         ax.set_xticks(np.arange(num_classes))
         ax.set_yticks(np.arange(num_classes))
         ax.set_xticklabels(np.arange(num_classes))
         ax.set_yticklabels(np.arange(num_classes))
 
-    ax.xaxis.set_ticks_position('top')
+    ax.xaxis.set_ticks_position("top")
 
     fig.tight_layout()
 
@@ -187,8 +187,7 @@ def get_confusion_matrix(model_output, targets, filepath=Path.cwd() / "src" / "p
         plt.close()
 
 
-def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
-                      class_names=None, title="ROC Curves", show=False):
+def get_roc_auc_curve(model_output, targets, filepath=None, class_of_interest=None, class_names=None, title="ROC Curves", show=False):
     """
     Generates [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc)
     curves for a multi-class classification task and saves them to filepath.
@@ -242,6 +241,9 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
     # >>> get_roc_auc_curve(output, targets, "plot.png", show=True, class_of_interest="b", class_names=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
     """
 
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
+
     assert len(model_output.shape) == 2, "model_output must be a 2D tensor with shape (N, C)."
     assert len(targets.shape) == 1, "targets must be a 1D tensor."
     assert model_output.shape[0] == targets.shape[0], "model_output and targets must have the same number of samples."
@@ -260,7 +262,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
 
     # One-vs-Rest approach
     if class_of_interest is None:
-        n_of_rows = math.ceil(num_classes ** 0.5)
+        n_of_rows = math.ceil(num_classes**0.5)
         n_of_cols = math.ceil(num_classes / n_of_rows)
 
         fig, ax = plt.subplots(n_of_rows, n_of_cols, figsize=(3 * n_of_cols, 3 * n_of_rows))
@@ -270,7 +272,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
             fpr, tpr, _ = roc_curve((targets == idx).numpy(), model_output[:, idx].numpy())
             roc_auc = auc(fpr, tpr)
 
-            ax[idx].plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
+            ax[idx].plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
 
             if class_names is not None:
                 subplot_title = class_names[idx]
@@ -278,8 +280,8 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
                 subplot_title = f"Class {idx}"
 
             ax[idx].set_title(subplot_title)
-            ax[idx].set_ylabel('True Positive Rate')
-            ax[idx].set_xlabel('False Positive Rate')
+            ax[idx].set_ylabel("True Positive Rate")
+            ax[idx].set_xlabel("False Positive Rate")
             ax[idx].legend(loc="lower right")
 
         # Hide unused subplots
@@ -294,11 +296,11 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
         fpr, tpr, _ = roc_curve((targets == class_num).numpy(), model_output[:, class_num].numpy())
         roc_auc = auc(fpr, tpr)
 
-        ax.plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
+        ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
 
         ax.set_title(class_of_interest)
-        ax.set_ylabel('True Positive Rate')
-        ax.set_xlabel('False Positive Rate')
+        ax.set_ylabel("True Positive Rate")
+        ax.set_xlabel("False Positive Rate")
         ax.legend(loc="lower right")
 
     if title is not None:
@@ -315,8 +317,7 @@ def get_roc_auc_curve(model_output, targets, filepath=Path.cwd() / "src" / "plot
         plt.close()
 
 
-def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src" / "plots", class_of_interest=None,
-                               class_names=None, title="Precision Recall Curves", show=False):
+def get_precision_recall_curve(model_output, targets, filepath=None, class_of_interest=None, class_names=None, title="Precision Recall Curves", show=False):
     """
     Generates precision-recall curves for a multi-class classification task and saves them to filepath.
 
@@ -357,6 +358,9 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
         If class_of_interest is provided and class_names is None.
     """
 
+    if filepath is None:
+        filepath = Path.cwd() / "src" / "plots"
+
     assert model_output.ndim == 2, "model_output must be a 2D tensor with shape (N, C)."
     assert targets.ndim == 1, "targets must be a 1D tensor with shape (N,)."
     assert model_output.size(0) == targets.size(0), "model_output and targets must have the same number of samples."
@@ -376,7 +380,7 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
 
     # One-vs-Rest approach
     if class_of_interest is None:
-        n_of_rows = math.ceil(num_classes ** 0.5)
+        n_of_rows = math.ceil(num_classes**0.5)
         n_of_cols = math.ceil(num_classes / n_of_rows)
 
         fig, ax = plt.subplots(n_of_rows, n_of_cols, figsize=(3 * n_of_cols, 3 * n_of_rows))
@@ -393,8 +397,8 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
                 subplot_title = f"Class {idx}"
 
             ax[idx].set_title(subplot_title)
-            ax[idx].set_ylabel('Precision')
-            ax[idx].set_xlabel('Recall')
+            ax[idx].set_ylabel("Precision")
+            ax[idx].set_xlabel("Recall")
 
         # Hide unused subplots
         for i in range(num_classes, len(ax)):
@@ -410,8 +414,8 @@ def get_precision_recall_curve(model_output, targets, filepath=Path.cwd() / "src
         ax.plot(recall, precision)
 
         ax.set_title(class_of_interest)
-        ax.set_ylabel('Precision')
-        ax.set_xlabel('Recall')
+        ax.set_ylabel("Precision")
+        ax.set_xlabel("Recall")
 
     if title is not None:
         fig.suptitle(title, fontsize=16)

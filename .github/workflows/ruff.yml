@@ -1,0 +1,26 @@
+name: Linting & Formatting Check
+
+on:
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    ruff-linting:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: astral-sh/ruff-action@v3
+                with:
+                    version-file: "./unix-requirements.txt"
+    ruff-formatting:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: astral-sh/ruff-action@v3
+                with:
+                    version-file: "./unix-requirements.txt"
+                    args: "format --check --diff"
+
+

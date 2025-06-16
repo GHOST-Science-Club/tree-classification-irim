@@ -127,7 +127,55 @@ Tox tests in *multiple environments* (e.g., different Python versions), ensuring
 ```bash
 tox
 ```  
-Like `pytest`, it prints results to the terminal and saves coverage data in `htmlcov/`. ⚠ *First run may take longer* as environments are set up (subsequent runs are faster due to caching).  
+Like `pytest`, it prints results to the terminal and saves coverage data in `htmlcov/`. ⚠ *First run may take longer* as environments are set up (subsequent runs are faster due to caching).
+
+### Additional Checks 📋
+
+**Type Checking with `mypy`**
+
+Run static type checks to catch typing errors:
+
+```bash
+mypy
+```
+
+**Linting with `ruff`**
+
+Check for code quality issues:
+
+```bash
+ruff check
+```
+
+To auto-fix simple issues:
+
+```bash
+ruff format --fix
+```
+
+For more complex issues, manual refactoring may be required.
+
+**Formatting with `ruff format`**
+
+Check formatting only:
+
+```bash
+ruff format --check
+```
+
+See suggested changes:
+
+```bash
+ruff format --check --diff
+```
+
+Auto-format code:
+
+```bash
+ruff format
+```
+
+💡 You can also install the [Ruff VS Code extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) to auto-format on save.
 
 ### Objectives:
 
