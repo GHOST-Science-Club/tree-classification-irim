@@ -1,14 +1,12 @@
+from typing import ClassVar
+
 import pytest
 import torch
 from PIL import Image
+
 # from torchvision.transforms.functional import pil_to_tensor
 from torch.utils.data import DataLoader
-from src.dataset import (
-    ForestDataset,
-    OversampledDataset,
-    UndersampledDataset,
-    ForestDataModule
-)
+from src.dataset import ForestDataset, OversampledDataset, UndersampledDataset, ForestDataModule
 
 
 @pytest.fixture
@@ -39,26 +37,17 @@ def undersampled_dataset(sample_data):
 @pytest.fixture
 def data_module(sample_data):
     """Create a data module instance with two sample images."""
-    return ForestDataModule(
-        sample_data, sample_data, sample_data, ForestDataset, batch_size=2
-    )
+    return ForestDataModule(sample_data, sample_data, sample_data, ForestDataset, batch_size=2)
 
 
 @pytest.mark.dataset
-@pytest.mark.parametrize(
-    "dataset",
-    [
-        ForestDataset,
-        OversampledDataset,
-        UndersampledDataset
-    ]
-)
+@pytest.mark.parametrize("dataset", [ForestDataset, OversampledDataset, UndersampledDataset])
 class TestDatasetsDataModule:
     """
     Create the same test setup for multiple classes handling dataset
     """
 
-    error_msg = {
+    error_msg: ClassVar[dict[str, str]] = {
         "not-tensor": "Image is not a Tensor",
         "not-rgb": "Color channels are not RGB",
         "label-str": "Incorrect label type",
@@ -75,7 +64,7 @@ class TestDatasetsDataModule:
         "test-loader": "Test data loader is not DataLoader",
         "size-img": "Incorrect image batch size",
         "size-lbl": "Incorrect label batch size",
-        "shuffled": "Data in train data loader in not shuffled"
+        "shuffled": "Data in train data loader in not shuffled",
     }
 
     @pytest.fixture(autouse=True)
@@ -86,22 +75,10 @@ class TestDatasetsDataModule:
 
         # missing files setup
         self.dataset_missing_files = dataset(*missing_data.values())
-        self.data_module_missing_data = ForestDataModule(
-            missing_data,
-            missing_data,
-            missing_data,
-            dataset,
-            batch_size=2
-        )
+        self.data_module_missing_data = ForestDataModule(missing_data, missing_data, missing_data, dataset, batch_size=2)
 
         # data module setup
-        self.data_module = ForestDataModule(
-            sample_data,
-            sample_data,
-            sample_data,
-            dataset,
-            batch_size=2
-        )
+        self.data_module = ForestDataModule(sample_data, sample_data, sample_data, dataset, batch_size=2)
 
     def test_dataset_getitem(self):
         image, label = self.dataset[0]
@@ -123,9 +100,10 @@ class TestDatasetsDataModule:
         with pytest.raises(FileNotFoundError):
             _ = self.dataset_missing_files[0]
 
+        self.data_module_missing_data.setup()
+        train_loader = self.data_module_missing_data.train_dataloader()
+
         with pytest.raises(FileNotFoundError):
-            self.data_module_missing_data.setup()
-            train_loader = self.data_module_missing_data.train_dataloader()
             _ = next(iter(train_loader))
 
     def test_setup_creates_datasets(self, dataset):
@@ -151,15 +129,9 @@ class TestDatasetsDataModule:
 
         images, labels = next(iter(train_loader))
 
-        assert isinstance(
-            train_loader, DataLoader
-            ), self.error_msg["train-loader"]
-        assert isinstance(
-            val_loader, DataLoader
-            ), self.error_msg["val-loader"]
-        assert isinstance(
-            test_loader, DataLoader
-            ), self.error_msg["test-loader"]
+        assert isinstance(train_loader, DataLoader), self.error_msg["train-loader"]
+        assert isinstance(val_loader, DataLoader), self.error_msg["val-loader"]
+        assert isinstance(test_loader, DataLoader), self.error_msg["test-loader"]
         # Batch size
         assert images.shape[0] == 2, self.error_msg["size-img"]
         assert labels.shape[0] == 2, self.error_msg["size-lbl"]
@@ -183,8 +155,8 @@ def test_multiple_samples(forest_dataset, sample_data):
     image1, label1 = forest_dataset[0]
     image2, label2 = forest_dataset[1]
 
-    exp_label1 = sample_data['labels'][0]
-    exp_label2 = sample_data['labels'][1]
+    exp_label1 = sample_data["labels"][0]
+    exp_label2 = sample_data["labels"][1]
 
     length = len(forest_dataset)
 
@@ -221,12 +193,7 @@ def test_no_oversampling_needed():
     image_paths = [f"img_{i}.jpg" for i in range(10)]
     labels = [0] * 5 + [1] * 5  # All classes have more samples than threshold
 
-    dataset = OversampledDataset(
-        image_paths,
-        labels,
-        transform=mock_transform,
-        oversample_threshold=2
-    )
+    dataset = OversampledDataset(image_paths, labels, transform=mock_transform, oversample_threshold=2)
 
     assert len(dataset) == 10, "Dataset size changed."
 
@@ -237,14 +204,7 @@ def test_all_classes_are_minority():
     # All classes have only 2 samples (below threshold)
     labels = [0, 1, 2, 0, 1, 2]
 
-    dataset = OversampledDataset(
-        image_paths,
-        labels,
-        transform=mock_transform,
-        minority_transform=mock_minority_transform,
-        oversample_threshold=3,
-        oversample_factor=2
-    )
+    dataset = OversampledDataset(image_paths, labels, transform=mock_transform, minority_transform=mock_minority_transform, oversample_threshold=3, oversample_factor=2)
 
     assert len(dataset) > 6, "Dataset size didn't change."
 
@@ -255,23 +215,14 @@ def test_no_minority_transform(tmp_path):
     image_paths = []
     for i in range(7):
         img_path = tmp_path / f"img_{i}.jpg"
-        Image.new(
-            "RGB",
-            (224, 224),
-            color=(255, 0, 0)
-        ).save(img_path)
+        Image.new("RGB", (224, 224), color=(255, 0, 0)).save(img_path)
 
         image_paths.append(img_path)
 
     print(image_paths)
     labels = [0, 1, 0, 1, 2, 2, 3]  # Class 3 is a minority
 
-    dataset = OversampledDataset(
-        image_paths,
-        labels,
-        oversample_threshold=3,
-        oversample_factor=2
-    )
+    dataset = OversampledDataset(image_paths, labels, oversample_threshold=3, oversample_factor=2)
 
     image, label = dataset[0]
     print("lol", image)
@@ -284,22 +235,12 @@ def test_single_class_dataset(tmp_path):
     image_paths = []
     for i in range(5):
         img_path = tmp_path / f"img_{i}.jpg"
-        Image.new(
-            "RGB",
-            (224, 224),
-            color=(255, 0, 0)
-        ).save(img_path)
+        Image.new("RGB", (224, 224), color=(255, 0, 0)).save(img_path)
 
         image_paths.append(img_path)
     labels = [0] * 5  # Only one class
 
-    dataset = OversampledDataset(
-        image_paths,
-        labels,
-        transform=mock_transform,
-        oversample_threshold=3,
-        oversample_factor=2
-    )
+    dataset = OversampledDataset(image_paths, labels, transform=mock_transform, oversample_threshold=3, oversample_factor=2)
 
     assert len(dataset) == 5, "Dataset size didn't change"
     assert all(label == 0 for _, label in dataset), "Labels are different"
@@ -310,14 +251,7 @@ def test_exact_threshold_behavior():
     image_paths = [f"img_{i}.jpg" for i in range(6)]
     labels = [0, 0, 0, 1, 1, 1]  # Both classes exactly at threshold
 
-    dataset = OversampledDataset(
-        image_paths,
-        labels,
-        transform=mock_transform,
-        minority_transform=mock_minority_transform,
-        oversample_threshold=3,
-        oversample_factor=2
-    )
+    dataset = OversampledDataset(image_paths, labels, transform=mock_transform, minority_transform=mock_minority_transform, oversample_threshold=3, oversample_factor=2)
 
     assert len(dataset) == 12, "Dataset size changed"
 
