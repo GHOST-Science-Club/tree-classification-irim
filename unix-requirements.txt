@@ -73,7 +73,7 @@ pyproject-api==1.9.1
 pytest==8.4.0
 pytest-cov==6.1.1
 python-dateutil==2.9.0.post0
-pytorch-lightning==2.4.0
+pytorch-lightning==2.5.1.post0
 PyYAML==6.0.2
 pyzmq==26.4.0
 requests==2.32.4
