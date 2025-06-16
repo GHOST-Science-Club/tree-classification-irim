@@ -8,21 +8,20 @@ class PrintMetricsCallback(Callback):
         self.val_metrics = {"loss": [], "acc": []}
 
     def on_train_epoch_end(self, trainer, pl_module):
-        train_loss = trainer.callback_metrics['train_loss'].item()
-        train_acc = trainer.callback_metrics['train_acc'].item()
+        train_loss = trainer.callback_metrics["train_loss"].item()
+        train_acc = trainer.callback_metrics["train_acc"].item()
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
 
-        self.train_metrics['loss'].append(train_loss)
-        self.train_metrics['acc'].append(train_acc)
+        self.train_metrics["loss"].append(train_loss)
+        self.train_metrics["acc"].append(train_acc)
 
     def on_validation_epoch_end(self, trainer, pl_module):
-        val_loss = trainer.callback_metrics['val_loss'].item()
-        val_acc = trainer.callback_metrics['val_acc'].item()
-        print(f"Epoch: {trainer.current_epoch}, "
-              f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}", end=' || ')
+        val_loss = trainer.callback_metrics["val_loss"].item()
+        val_acc = trainer.callback_metrics["val_acc"].item()
+        print(f"Epoch: {trainer.current_epoch}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}", end=" || ")
 
-        self.val_metrics['loss'].append(val_loss)
-        self.val_metrics['acc'].append(val_acc)
+        self.val_metrics["loss"].append(val_loss)
+        self.val_metrics["acc"].append(val_acc)
 
 
 class CurriculumLearningCallback(Callback):
@@ -42,7 +41,7 @@ class CurriculumLearningCallback(Callback):
         current_step = int(current_epoch / self.step_size)
 
         indices = []
-        labels = self.class_order[:(current_step + 1) * self.initial_ratio]
+        labels = self.class_order[: (current_step + 1) * self.initial_ratio]
         for label in labels:
             indices.extend(self.class_indices[label])
 
