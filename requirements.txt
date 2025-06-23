@@ -2,7 +2,7 @@ GitPython==3.1.44
 Jinja2==3.1.6
 MarkupSafe==3.0.2
 PyYAML==6.0.2
-Pygments==2.19.1
+Pygments==2.19.2
 aiohappyeyeballs==2.6.1
 aiohttp==3.12.13
 aiosignal==1.3.2
@@ -11,7 +11,7 @@ appnope==0.1.4
 asttokens==3.0.0
 async-timeout==5.0.1
 attrs==25.3.0
-cachetools==6.0.0
+cachetools==6.1.0
 certifi==2025.6.15
 chardet==5.2.0
 charset-normalizer==3.4.2
@@ -50,7 +50,7 @@ matplotlib-inline==0.1.7
 matplotlib==3.10.1
 mpmath==1.3.0
 multidict==6.4.4
-mypy==1.16.0
+mypy==1.16.1
 nest-asyncio==1.6.0
 networkx==3.2.1
 numpy==2.2.4
@@ -73,9 +73,9 @@ pydantic_core==2.33.2
 pyparsing==3.2.3
 pyproject-api==1.9.1
 pytest-cov==6.2.1
-pytest==8.4.0
+pytest==8.4.1
 python-dateutil==2.9.0.post0
-pytorch-lightning==2.5.1.post0
+pytorch-lightning==2.5.2
 pywin32==310
 pyzmq==27.0.0
 requests==2.32.4
@@ -96,12 +96,12 @@ torchmetrics==1.7.3
 torchvision==0.22.1
 tornado==6.5.1
 tox-gh-actions==3.3.0
-tox==4.26.0
+tox==4.27.0
 tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.14.0
 types-PyYAML==6.0.12.20250516
-urllib3==2.4.0
+urllib3==2.5.0
 virtualenv==20.31.2
 wandb==0.20.1
 wcwidth==0.2.13
