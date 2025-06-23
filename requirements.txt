@@ -73,7 +73,7 @@ pydantic_core==2.33.2
 pyparsing==3.2.3
 pyproject-api==1.9.1
 pytest-cov==6.2.1
-pytest==8.4.0
+pytest==8.4.1
 python-dateutil==2.9.0.post0
 pytorch-lightning==2.5.1.post0
 pywin32==310
