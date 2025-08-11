@@ -88,7 +88,7 @@ smmap==5.0.2
 stack-data==0.6.3
 sympy==1.14.0
 threadpoolctl==3.6.0
-torch==2.7.1
+torch==2.8.0
 torchaudio==2.7.1
 torchmetrics==1.8.0
 torchvision==0.22.1
