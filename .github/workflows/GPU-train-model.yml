@@ -41,9 +41,11 @@ jobs:
                     user = os.environ.get("LIGHTNING_AI_USERNAME")
                     branch = os.environ.get("GITHUB_REF_NAME", "main")
                     branch_studio_name = re.sub("[^a-zA-Z0-9-]", "-", branch)[:30]
-studio.run(f"echo 'Branch: {branch}'")
+
                     studio = Studio(name=branch_studio_name, teamspace="Vision-model", user=user, create_ok=True)
                     studio.start(Machine.T4)
+
+                    studio.run(f"echo 'Branch: {branch}'")
 
                     try:
                         studio.run("rm -rf tree-classification-irim")
