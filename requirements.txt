@@ -94,7 +94,7 @@ torch==2.7.1
 torchaudio==2.7.1
 torchmetrics==1.8.1
 torchvision==0.22.1
-tornado==6.5.1
+tornado==6.5.2
 tox-gh-actions==3.3.0
 tox==4.27.0
 tqdm==4.67.1
