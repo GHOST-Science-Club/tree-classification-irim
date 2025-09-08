@@ -96,7 +96,7 @@ tornado==6.5.2
 tox==4.28.4
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.55.0
+transformers==4.56.1
 typing_extensions==4.14.1
 types-PyYAML==6.0.12.20250822
 urllib3==2.5.0
