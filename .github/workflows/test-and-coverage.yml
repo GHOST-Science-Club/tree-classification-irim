@@ -52,7 +52,7 @@ jobs:
             -   name: Generate test coverage
                 run: pytest --cov=src --cov-report=html
             -   name: Upload artifacts
-                uses: actions/upload-pages-artifact@v3
+                uses: actions/upload-pages-artifact@v4
                 with:
                     path: htmlcov
             -   name: Deploy to GitHub Pages
