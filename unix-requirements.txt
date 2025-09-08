@@ -90,7 +90,7 @@ sympy==1.14.0
 threadpoolctl==3.6.0
 torch==2.8.0
 torchaudio==2.8.0
-torchmetrics==1.8.1
+torchmetrics==1.8.2
 torchvision==0.23.0
 tornado==6.5.2
 tox==4.28.4
