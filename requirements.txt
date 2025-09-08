@@ -102,7 +102,7 @@ traitlets==5.14.3
 typing_extensions==4.14.1
 types-PyYAML==6.0.12.20250822
 urllib3==2.5.0
-virtualenv==20.32.0
+virtualenv==20.34.0
 wandb==0.21.1
 wcwidth==0.2.13
 yarl==1.20.1
