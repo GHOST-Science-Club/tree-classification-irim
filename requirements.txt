@@ -92,7 +92,7 @@ threadpoolctl==3.6.0
 tomli==2.2.1
 torch==2.8.0
 torchaudio==2.8.0
-torchmetrics==1.8.1
+torchmetrics==1.8.2
 torchvision==0.23.0
 tornado==6.5.2
 tox-gh-actions==3.3.0
