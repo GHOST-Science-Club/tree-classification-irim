@@ -77,7 +77,7 @@ python-dateutil==2.9.0.post0
 pytorch-lightning==2.5.5
 PyYAML==6.0.2
 pyzmq==27.1.0
-requests==2.32.4
+requests==2.32.5
 ruff==0.12.5
 scikit-learn==1.6.1
 scipy==1.15.2
