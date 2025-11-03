@@ -49,7 +49,7 @@ jobs:
                         studio.run("rm -rf tree-classification-irim")
                         studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
                         studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
-                        studio.run("cd tree-classification-irim && dvc repro")
+                        studio.run("cd tree-classification-irim && ./main.py")
                     finally:
                         studio.stop()
                         studio.delete()'
