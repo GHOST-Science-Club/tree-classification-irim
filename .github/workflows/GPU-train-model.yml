@@ -46,10 +46,10 @@ jobs:
                     studio.start(Machine.T4)
 
                     try:
-                        studio.run("rm -rf tree-classification-irim")
-                        studio.run(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-                        studio.run("pip install -r ./tree-classification-irim/unix-requirements.txt")
-                        studio.run("cd tree-classification-irim && dvc repro")
+                        studio.run_with_exit_code("rm -rf tree-classification-irim")
+                        studio.run_with_exit_code(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
+                        studio.run_with_exit_code("pip install -r ./tree-classification-irim/unix-requirements.txt")
+                        studio.run_with_exit_code("cd tree-classification-irim && dvc repro")
                     finally:
                         studio.stop()
                         studio.delete()'
