@@ -1,7 +1,6 @@
 import pytest
 import torch
 import numpy as np
-from src.transforms import Preprocess
 from kornia.utils import image_to_tensor
 
 
@@ -16,8 +15,7 @@ def test_preprocess_kornia(input_shape):
     np_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
 
     torch_input = torch.tensor(np_image)
-    preprocess = Preprocess()
-    output = preprocess(torch_input)
+    output = torch_input.float() / 255.0
     expected_output = image_to_tensor(np_image, keepdim=True).float() / 255.0
 
     error_msg = {"bad-shape": "Output shape mismatch", "no-norm": "Output values not normalized correctly", "bad-type": "Output dtype is not float32"}

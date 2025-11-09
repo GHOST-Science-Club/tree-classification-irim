@@ -5,7 +5,6 @@ import numpy as np
 from PIL import Image
 from math import floor
 import pytorch_lightning as pl
-from transforms import Preprocess
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -63,14 +62,19 @@ class ForestDataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
         self.image_paths = image_paths
         self.labels = labels
-        # Define a default transform if none is provided
-        # TODO: Use transforms suitable for the model
-        self.transform = transform or transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),  # Adjust as needed for RGB channels
-            ]
-        )
+
+        if transform is None:
+            self.transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Resize((224, 224)),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                    ),
+                ]
+            )
+        else:
+            self.transform = transform
 
     def __len__(self):
         return len(self.image_paths)
@@ -179,9 +183,9 @@ class ForestDataModule(pl.LightningDataModule):
         self.params = calculate_dataloader_params(batch_size)
 
     def setup(self, stage=None):
-        self.train_dataset = self.dataset(image_paths=self.train_data["paths"], labels=self.train_data["labels"], transform=Preprocess(), **self.dataset_args)
-        self.val_dataset = ForestDataset(image_paths=self.val_data["paths"], labels=self.val_data["labels"], transform=Preprocess())
-        self.test_dataset = ForestDataset(image_paths=self.test_data["paths"], labels=self.test_data["labels"], transform=Preprocess())
+        self.train_dataset = self.dataset(image_paths=self.train_data["paths"], labels=self.train_data["labels"], **self.dataset_args)
+        self.val_dataset = ForestDataset(image_paths=self.val_data["paths"], labels=self.val_data["labels"])
+        self.test_dataset = ForestDataset(image_paths=self.test_data["paths"], labels=self.test_data["labels"])
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, **self.params)
