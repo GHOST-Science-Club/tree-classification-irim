@@ -108,6 +108,7 @@ def main():
             output_names=["mask"],
             opset_version=17,
             dynamic_axes={"input": {0: "batch_size"}, "mask": {0: "batch_size"}},
+            dynamo=True
         )
         print(f"Exported model to {onnx_path.resolve()}")
         

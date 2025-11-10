@@ -10,7 +10,12 @@ class SegmentationWrapper(nn.Module):
     @torch.no_grad()
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         logits = self.classifier(x)
+        
+        # Ensure logits is 2D [batch, num_classes]
+        if logits.dim() == 1:
+            logits = logits.unsqueeze(0)
+        
         preds = torch.argmax(logits, dim=1)
 
-        mask = preds.expand(-1, 1, self.mask_size, self.mask_size)  # (B, 1, H, W)
+        mask = preds.view(-1, 1, 1, 1).expand(-1, 1, self.mask_size, self.mask_size)  # (B, 1, H, W)
         return mask
