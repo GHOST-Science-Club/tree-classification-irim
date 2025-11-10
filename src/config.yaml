@@ -27,7 +27,7 @@ model:
   name: "fine_grained" # currently supporting resnet18, vit and inception_v3
 
 training:
-  batch_size: 32
+  batch_size: 1
   learning_rate: 0.0001
   max_epochs: 100
   freeze: true
@@ -73,5 +73,10 @@ training:
     monitor: "val_loss"
     patience: 3
     mode: "min"
+
+inference:
+  export_onnx: true
+  wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
+  wandb_project: "ghost-irim"
 
 device: "gpu"
