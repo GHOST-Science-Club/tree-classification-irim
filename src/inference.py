@@ -42,7 +42,13 @@ def main():
     # =========================== CONFIG & SETUP ================================== #
     config = OmegaConf.load("src/config.yaml")
 
-    device = config.device if torch.cuda.is_available() else "cpu"
+    config_device = config.device
+    if config_device in ["gpu", "cuda"]:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    else:
+        device = "cpu"
+    print(f"Using device: {device}")
+    
     model_name = config.model.name
     image_size = 299 if model_name == "inception_v3" else 224
     transforms = Transforms(image_size=(image_size, image_size))
