@@ -79,4 +79,4 @@ inference:
   wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
   wandb_project: "ghost-irim"
 
-device: "gpu"
+device: "cuda"
