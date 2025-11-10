@@ -104,6 +104,25 @@ def main():
             dynamic_axes={"input": {0: "batch_size"}, "mask": {0: "batch_size"}},
         )
         print(f"Exported model to {onnx_path.resolve()}")
+        
+        if wandb.run is not None:
+            onnx_artifact = wandb.Artifact(
+                name=f"segmentation-model-{model_name}",
+                type="model",
+                description=f"ONNX segmentation model ({model_name}, {num_classes} classes)",
+                metadata={
+                    "model_name": model_name,
+                    "num_classes": num_classes,
+                    "image_size": image_size,
+                    "format": "onnx",
+                    "opset_version": 17,
+                }
+            )
+            onnx_artifact.add_file(str(onnx_path))
+            wandb.log_artifact(onnx_artifact)
+            print(f"ONNX model uploaded to W&B artifacts as 'segmentation-model-{model_name}'")
+        else:
+            print("Warning: W&B run not initialized. ONNX model not uploaded to artifacts.")
     
     # =========================== INFERENCE LOOP =================================== #
     print(f"Running inference on {len(test_loader)} samples...")
