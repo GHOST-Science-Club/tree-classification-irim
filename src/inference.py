@@ -162,7 +162,6 @@ def main():
             imgs = imgs.to(device)
 
             masks = seg_model(imgs)
-            save_image(masks.float() / num_classes, output_dir / f"mask_{i:04d}.png")
 
 if __name__ == "__main__":
     main()
