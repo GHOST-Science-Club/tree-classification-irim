@@ -78,18 +78,19 @@ class ForestDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        # TODO: Load an image from path here
         image_path = self.image_paths[idx]
         label = self.labels[idx]
 
         with Image.open(image_path) as img:
-            # Convert to numpy array
-            image = np.array(img)
-            image = image[:, :, 1:] if image.shape[-1] == 4 else image  # Removing "near-inferred" channel
-        # We found out that PIL conversion to RGB
-        # keeps the "near-inferred" channel which was not desired
+            # Remove "near-infrared" channel if present (4-channel RGBA)
+            if img.mode == "RGBA":
+                # Convert RGBA to RGB (drops alpha/near-infrared channel)
+                image = img.convert("RGB")
+            else:
+                # Keep as PIL Image for transforms
+                image = img.copy()
 
-        # Apply transformations
+        # Apply transformations (expects PIL Image)
         if self.transform:
             image = self.transform(image)
 
