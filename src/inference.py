@@ -12,6 +12,8 @@ from models.segmentation_wrapper import SegmentationWrapper
 from dataset_functions import load_dataset
 from dataset import ForestDataset
 from transforms import Transforms
+import onnx
+import json
 
 
 def download_checkpoint_from_wandb(artifact_path, project_name="ghost-irim"):
@@ -50,6 +52,7 @@ def main():
     print(f"Using device: {device}")
     
     model_name = config.model.name
+    mask_size = config.inference.get("mask_size", 224)
     image_size = 299 if model_name == "inception_v3" else 224
     transforms = Transforms(image_size=(image_size, image_size))
 
@@ -90,7 +93,7 @@ def main():
     )
     classifier = classifier.to(device).eval()
 
-    seg_model = SegmentationWrapper(classifier, mask_size=image_size).to(device)
+    seg_model = SegmentationWrapper(classifier, mask_size=mask_size).to(device)
     seg_model.eval()
 
     output_dir = Path("segmentation_outputs")
@@ -111,6 +114,26 @@ def main():
             do_constant_folding=True,
         )
         print(f"Exported model to {onnx_path.resolve()}")
+        
+        # Add metadata
+        model_onnx = onnx.load(onnx_path)
+        
+        class_names = {v: k for k, v in label_map.items()}
+        
+        def add_meta(key, value):
+                meta = model_onnx.metadata_props.add()
+                meta.key = key
+                meta.value = json.dumps(value)
+
+        add_meta('model_type', 'Segmentor')
+        add_meta('class_names', class_names)
+        add_meta('resolution', 20)
+        add_meta('tiles_size', image_size)
+        add_meta('tiles_overlap', 0)
+        add_meta('standardization_mean', [0.5, 0.5, 0.5]) 
+        add_meta('standardization_std', [0.5, 0.5, 0.5]) # TODO: make sure these two are correct
+
+        onnx.save(model_onnx, onnx_path)
         
         if wandb.run is not None:
             onnx_artifact = wandb.Artifact(
