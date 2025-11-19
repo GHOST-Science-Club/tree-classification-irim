@@ -4,7 +4,6 @@ from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from src.models.resnet import ResNetClassifier
 from src.dataset import ForestDataset
-from src.transforms import Preprocess
 
 
 @pytest.fixture
@@ -43,7 +42,7 @@ def sample_batch():
 def data_loader(sample_data):
     """Fixture to create a DataLoader for
     testing training and validation steps."""
-    dataset = ForestDataset(sample_data["paths"], sample_data["labels"], transform=Preprocess())
+    dataset = ForestDataset(sample_data["paths"], sample_data["labels"])
     return DataLoader(dataset, batch_size=2)
 
 

@@ -3,8 +3,8 @@ from typing import ClassVar
 import pytest
 import torch
 from PIL import Image
+from torchvision import transforms
 
-# from torchvision.transforms.functional import pil_to_tensor
 from torch.utils.data import DataLoader
 from src.dataset import ForestDataset, OversampledDataset, UndersampledDataset, ForestDataModule
 
@@ -92,9 +92,10 @@ class TestDatasetsDataModule:
         image, _ = self.dataset[0]
 
         assert isinstance(image, torch.Tensor), self.error_msg["not-tensor"]
-        # Normalize check
-        assert torch.min(image) >= -1.0, self.error_msg["invalid-min"]
-        assert torch.max(image) <= 1.0, self.error_msg["invalid-max"]
+        # Check that image is normalized (values should be centered around 0 after ImageNet normalization)
+        # ImageNet normalization doesn't guarantee [-1, 1] range, so we check for reasonable normalized values
+        assert torch.min(image) >= -3.0, self.error_msg["invalid-min"]
+        assert torch.max(image) <= 3.0, self.error_msg["invalid-max"]
 
     def test_missing_file_handling(self):
         with pytest.raises(FileNotFoundError):
@@ -176,15 +177,20 @@ def test_multiple_samples(forest_dataset, sample_data):
 
 
 def mock_transform(x):
-    """Create simple tranformation for testing."""
+    """Create simple transformation for testing that converts PIL Image to tensor."""
+    if isinstance(x, Image.Image):
+        return transforms.ToTensor()(x)
     return x * 2
 
 
 def mock_minority_transform(x):
     """
-    Create simple minority transform that increments
-    the input for test verification.
+    Create simple minority transform that converts PIL Image to tensor
+    and increments for test verification.
     """
+    if isinstance(x, Image.Image):
+        tensor = transforms.ToTensor()(x)
+        return tensor + 0.1  # Small increment for verification
     return x + 1
 
 
