@@ -15,7 +15,6 @@ class SegmentationWrapper(nn.Module):
         if logits.dim() == 1:
             logits = logits.unsqueeze(0)
         
-        preds = torch.argmax(logits, dim=1)
-
-        mask = preds.view(-1, 1, 1, 1).expand(-1, 1, self.mask_size, self.mask_size)  # (B, 1, H, W)
+        probs = torch.softmax(logits, dim=1)
+        mask = probs[:, :, None, None].expand(-1, -1, self.mask_size, self.mask_size) # (B, C, H, W)
         return mask
