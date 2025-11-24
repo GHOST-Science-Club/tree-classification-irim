@@ -12,6 +12,8 @@ from models.segmentation_wrapper import SegmentationWrapper
 from dataset_functions import load_dataset
 from dataset import ForestDataset
 from transforms import Transforms
+from counting_functions import calculate_metrics_per_class, count_metrics
+from visualization_functions import get_confusion_matrix, get_precision_recall_curve, get_roc_auc_curve
 import onnx
 import json
 
@@ -161,12 +163,59 @@ def main():
     
     # =========================== INFERENCE LOOP =================================== #
     print(f"Running inference on {len(test_loader)} samples...")
+    all_preds = []
+    all_targets = []
+
     with torch.no_grad():
         for i, batch in enumerate(tqdm(test_loader)):
-            imgs, _ = batch
+            imgs, labels = batch
             imgs = imgs.to(device)
+            labels = labels.to(device)
 
             masks = seg_model(imgs)
+            
+            probs = masks[:, :, 0, 0]
+            
+            all_preds.append(probs)
+            all_targets.append(labels)
+
+    all_preds = torch.cat(all_preds, dim=0)
+    all_targets = torch.cat(all_targets, dim=0)
+
+    # =========================== METRICS & LOGGING ================================ #
+    if wandb.run is not None:
+        print("Calculating and logging metrics...")
+        
+        metrics_per_experiment = count_metrics(all_targets, all_preds)
+        print(f"Test Metrics: {metrics_per_experiment}")
+        for key, value in metrics_per_experiment.items():
+            wandb.log({key: value})
+
+        metrics_per_class = calculate_metrics_per_class(all_targets, all_preds)
+        accs = [metrics_per_class[key]["accuracy"] for key in metrics_per_class.keys()]
+        precs = [metrics_per_class[key]["precision"] for key in metrics_per_class.keys()]
+        recs = [metrics_per_class[key]["recall"] for key in metrics_per_class.keys()]
+        f1s = [metrics_per_class[key]["f1"] for key in metrics_per_class.keys()]
+        ious = [metrics_per_class[key]["IoU"] for key in metrics_per_class.keys()]
+        names_and_labels = [[key, value] for key, value in label_map.items()]
+        logged_metrics = [[name, label, acc, prec, rec, f1, iou] for [name, label], acc, prec, rec, f1, iou in zip(names_and_labels, accs, precs, recs, f1s, ious, strict=False)]
+
+        training_table = wandb.Table(columns=["Class name", "Label", "Accuracy", "Precision", "Recall", "F1-score", "IoU"], data=logged_metrics)
+        wandb.log({"Classes": training_table})
+
+        plots_dir = Path("src/plots")
+        plots_dir.mkdir(exist_ok=True, parents=True)
+        
+        get_confusion_matrix(all_preds, all_targets, class_names=list(label_map.keys()))
+        get_roc_auc_curve(all_preds, all_targets, class_names=list(label_map.keys()))
+        get_precision_recall_curve(all_preds, all_targets, class_names=list(label_map.keys()))
+
+        filenames = ["confusion_matrix.png", "precision_recall_curve.png", "roc_auc_curve.png"]
+        titles = ["Confusion Matrix", "Precision-Recall Curve", "ROC AUC Curve"]
+        for filename, title in zip(filenames, titles, strict=False):
+            wandb.log({title: wandb.Image(f"src/plots/{filename}")})
+    else:
+        print("W&B run not active. Skipping metrics logging.")
 
 if __name__ == "__main__":
     main()
