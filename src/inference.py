@@ -93,11 +93,18 @@ def main():
     )
     classifier = classifier.to(device).eval()
 
-    seg_model = SegmentationWrapper(classifier, mask_size=mask_size).to(device)
+    norm_mean = [0.5, 0.5, 0.5]
+    norm_std = [0.5, 0.5, 0.5]
+
+    seg_model = SegmentationWrapper(
+        classifier, 
+        mask_size=mask_size,
+        mean=norm_mean,
+        std=norm_std,
+        input_rescale=True  # Expects 0-255 input, scales to 0-1 internally
+    ).to(device)
     seg_model.eval()
 
-    output_dir = Path("segmentation_outputs")
-    output_dir.mkdir(exist_ok=True)
 
     # =========================== EXPORT TO ONNX =================================== #
     if config.inference.get("export_onnx", False):
@@ -130,8 +137,6 @@ def main():
         add_meta('resolution', 20)
         add_meta('tiles_size', image_size)
         add_meta('tiles_overlap', 0)
-        add_meta('standardization_mean', [0.5, 0.5, 0.5]) 
-        add_meta('standardization_std', [0.5, 0.5, 0.5]) # TODO: make sure these two are correct
 
         onnx.save(model_onnx, onnx_path)
         
