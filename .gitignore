@@ -12,3 +12,7 @@ wandb
 /data
 .idea
 .editorconfig
+checkpoints/
+segmentation_outputs/
+*.ckpt
+*.onnx

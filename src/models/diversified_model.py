@@ -100,5 +100,6 @@ class FineGrainedModel(nn.Module):
         if is_train:
             activation_maps = self.diversification(activation_maps)
 
-        pooled = self.pool(activation_maps).squeeze()  # [batch, C]
+        pooled = self.pool(activation_maps)  # [batch, C, 1, 1]
+        pooled = pooled.squeeze(-1).squeeze(-1)  # [batch, C]
         return pooled
