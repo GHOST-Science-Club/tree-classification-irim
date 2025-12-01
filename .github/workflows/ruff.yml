@@ -10,14 +10,14 @@ jobs:
     ruff-linting:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v5
+            -   uses: actions/checkout@v6
             -   uses: astral-sh/ruff-action@v3
                 with:
                     version-file: "./unix-requirements.txt"
     ruff-formatting:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v5
+            -   uses: actions/checkout@v6
             -   uses: astral-sh/ruff-action@v3
                 with:
                     version-file: "./unix-requirements.txt"
