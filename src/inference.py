@@ -16,6 +16,23 @@ from counting_functions import calculate_metrics_per_class, count_metrics
 from visualization_functions import get_confusion_matrix, get_precision_recall_curve, get_roc_auc_curve
 import onnx
 import json
+import kornia.augmentation as kaug
+from kornia import image_to_tensor
+import torch.nn as nn
+
+
+class InferenceTransform(nn.Module):
+    def __init__(self, size):
+        super().__init__()
+        self.resize = kaug.Resize(size=size, keepdim=True)
+
+    @torch.no_grad()
+    def forward(self, x):
+        # x is numpy array (H, W, C)
+        x_t = image_to_tensor(x, keepdim=True).float()
+        x_res = self.resize(x_t)
+        return x_res.squeeze(0)
+
 
 
 def download_checkpoint_from_wandb(artifact_path, project_name="ghost-irim"):
@@ -56,7 +73,7 @@ def main():
     model_name = config.model.name
     mask_size = config.inference.get("mask_size", 224)
     image_size = 299 if model_name == "inception_v3" else 224
-    transforms = Transforms(image_size=(image_size, image_size))
+    transforms = InferenceTransform(size=(image_size, image_size))
 
     # =========================== DATA LOADING ===================================== #
     dataset_folder = Path.cwd() / config.dataset.folder
@@ -101,8 +118,8 @@ def main():
     seg_model = SegmentationWrapper(
         classifier, 
         mask_size=mask_size,
-        mean=norm_mean,
-        std=norm_std,
+        mean=None, # TODO: fix
+        std=None, # TODO: fix
         input_rescale=True  # Expects 0-255 input, scales to 0-1 internally
     ).to(device)
     seg_model.eval()
