@@ -75,6 +75,7 @@ training:
     mode: "min"
 
 inference:
+  mask_size: 224
   export_onnx: true
   wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
   wandb_project: "ghost-irim"

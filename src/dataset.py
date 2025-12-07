@@ -71,6 +71,7 @@ class ForestDataset(Dataset):
                 transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),  # Adjust as needed for RGB channels
             ]
         )
+        print(f"Transform used : {self.transform}")
 
     def __len__(self):
         return len(self.image_paths)
