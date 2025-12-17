@@ -7,12 +7,11 @@ from models.diversified_model import GradientBoostingLoss
 
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, transform=None, freeze=False, weight=None):
+    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, freeze=False, weight=None):
         super().__init__()
         self.save_hyperparameters()
 
         self.model = create_model(model_name, num_classes, freeze)
-        self.transform = transform
         self.learning_rate = learning_rate
         self.name = model_name
         self.weight_decay = weight_decay
@@ -49,12 +48,6 @@ class ClassifierModule(pl.LightningModule):
         if hasattr(out, "logits"):
             return out.logits
         return out
-
-    def on_after_batch_transfer(self, batch, dataloader_idx):
-        x, y = batch
-        if self.transform:
-            x = self.transform(x)
-        return x, y
 
     def step(self, batch, stage):
         images, labels = batch

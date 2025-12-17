@@ -42,8 +42,6 @@ def main():
 
     if config.training.get("class_weights", None) and (config.training.get("oversample", None) or config.training.get("undersample", None)):
         raise ValueError("Can't use class weights and resampling at the same time.")
-    image_size = 299 if config.model.name == "inception_v3" else 224
-    transforms = kaug.Resize(size=(image_size, image_size))
 
     dataset_module = ForestDataset
     dataset_args = {}
@@ -86,7 +84,6 @@ def main():
         step_size=config["training"]["step_size"],
         gamma=config["training"]["gamma"],
         freeze=config.training.freeze,
-        transform=transforms,
         weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=config.training.learning_rate,
         weight_decay=config.training.weight_decay,
