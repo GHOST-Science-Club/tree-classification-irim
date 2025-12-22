@@ -79,7 +79,7 @@ pytorch-lightning==2.5.5
 pywin32==311
 pyzmq==27.1.0
 requests==2.32.5
-ruff==0.12.5
+ruff==0.14.10
 scikit-learn==1.6.1
 scipy==1.15.2
 sentry-sdk==2.38.0
