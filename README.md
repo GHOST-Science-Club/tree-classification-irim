@@ -68,7 +68,7 @@ an AI algorithm for identifying tree species from aerial photos, focusing on Pol
 
 ### How to run the project 💡
 
-! Python 3.10+ is required to run code from this repo.
+! Python 3.11+ is required to run code from this repo.
 If you run into any issues, please check your Python version.
 
 Clone the repo and cd into:
@@ -81,10 +81,10 @@ cd tree-classification-irim
 For Linux/MacOS/Unix:
 
 ```
-python3.10 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r unix-requirements.txt
-python3.10 src/main.py
+python3.11 src/main.py
 ```
 
 For CUDA PyTorch installation, please refer to this link: https://pytorch.org/get-started/locally/ and select your
@@ -92,10 +92,10 @@ platform and CUDA.
 For Windows with CUDA and win32 lib:
 
 ```
-python3.10 -m venv .venv
+python3.11 -m venv .venv
 .venv/Scripts/Activate.ps1
 pip install -r requirements.txt
-python3.10 src/main.py
+python3.11 src/main.py
 ```
 
 If you are a project maintainer you should have received Wandb api key.
