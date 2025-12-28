@@ -25,7 +25,7 @@ class DiversificationBlock(nn.Module):
         self.alpha = alpha
 
     def forward(self, activation_maps):
-        batch_size, num_classes, H, W = activation_maps.shape
+        batch_size, num_classes, _, _ = activation_maps.shape
         device = activation_maps.device
 
         masks = torch.zeros_like(activation_maps).to(device)
@@ -76,7 +76,7 @@ class GradientBoostingLoss(nn.Module):
             neg_logit = logit[torch.arange(num_classes, device=device) != label]
             neg_labels = torch.arange(num_classes, device=device)[torch.arange(num_classes, device=device) != label]
 
-            topk_values, topk_indices = torch.topk(neg_logit, self.k)
+            _, topk_indices = torch.topk(neg_logit, self.k)
             J_prime = neg_labels[topk_indices]
 
             numerator = torch.exp(logit[label])
