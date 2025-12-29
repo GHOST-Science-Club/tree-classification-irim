@@ -23,7 +23,9 @@ jobs:
             -   uses: iterative/setup-cml@v3
 
             -   name: Install lightning-sdk
-                run: sudo uv pip install lightning-sdk --system
+                run: |
+                    uv venv
+                    uv pip install lightning-sdk
 
             -   name: Post config.yaml in PR comment
                 continue-on-error: true
@@ -36,7 +38,7 @@ jobs:
 
             -   name: Start lightning.ai studio and train model there
                 run: |
-                    python -c 'import os, re
+                    uv run --no-sync python -c 'import os, re
                     from lightning_sdk import Studio, Machine
 
                     user = os.environ.get("LIGHTNING_AI_USERNAME")
@@ -49,8 +51,8 @@ jobs:
                     try:
                         studio.run_with_exit_code("rm -rf tree-classification-irim")
                         studio.run_with_exit_code(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-                        studio.run_with_exit_code("pip install uv && uv sync")
-                        studio.run_with_exit_code("cd tree-classification-irim && uv run dvc repro")
+                        studio.run_with_exit_code("pip install uv && uv python install 3.11 && uv python pin 3.11")
+                        studio.run_with_exit_code("cd tree-classification-irim && uv sync && uv run dvc repro")
                     finally:
                         studio.stop()
                         studio.delete()'
