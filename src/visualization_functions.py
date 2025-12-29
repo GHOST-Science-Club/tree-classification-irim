@@ -59,7 +59,7 @@ def show_n_samples(dataset: dict, species_folders: dict, n_of_images: int = 5):
 
 
 def plot_metrics(train_metrics: dict, val_metrics: dict):
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+    _, axs = plt.subplots(1, 2, figsize=(15, 5))
 
     axs[0].plot(train_metrics["loss"], label="Train loss")
     axs[0].plot(val_metrics["loss"][:-1], label="Val loss")
