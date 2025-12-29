@@ -68,42 +68,40 @@ an AI algorithm for identifying tree species from aerial photos, focusing on Pol
 
 ### How to run the project 💡
 
-! Python 3.11+ is required to run code from this repo.
-If you run into any issues, please check your Python version.
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management. Python 3.11+ is required.
 
 Clone the repo and cd into:
 
-```
+```bash
 git clone git@github.com:GHOST-Science-Club/tree-classification-irim.git
 cd tree-classification-irim
 ```
 
-For Linux/MacOS/Unix:
+Install uv (if not already installed):
 
+```bash
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Linux/MacOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r unix-requirements.txt
-python3.11 src/main.py
+
+Install dependencies and run:
+
+```bash
+uv sync
+uv run python src/main.py
 ```
 
 For CUDA PyTorch installation, please refer to this link: https://pytorch.org/get-started/locally/ and select your
 platform and CUDA.
-For Windows with CUDA and win32 lib:
-
-```
-python3.11 -m venv .venv
-.venv/Scripts/Activate.ps1
-pip install -r requirements.txt
-python3.11 src/main.py
-```
 
 If you are a project maintainer you should have received Wandb api key.
 To send logs from local builds to wandb use:
 
-```
-pip install wandb
-wandb login
+```bash
+uv run wandb login
 ```
 
 Provide your API key when prompted.
@@ -111,23 +109,15 @@ Provide your API key when prompted.
 
 ### How to test the project 💡
 
-Before running tests, ensure your setup follows the [How to run the project](#how-to-run-the-project-) section. You can test locally using **`pytest`** (faster) or **`tox`** (more comprehensive). See [`tests/README.md`](https://github.com/GHOST-Science-Club/tree-classification-irim/tree/main/tests) for details.
+Before running tests, ensure your setup follows the [How to run the project](#how-to-run-the-project-) section. See [`tests/README.md`](https://github.com/GHOST-Science-Club/tree-classification-irim/tree/main/tests) for details.
 
-**1. Pytest (Recommended for Quick Testing)**  
-Pytest runs tests *quickly* without creating isolated environments. Use it for *as-you-go* testing:  
-
-```bash
-pytest
-```  
-This prints test results to the terminal and generates coverage reports in `htmlcov/`.  
-
-**2. Tox (Recommended Before Pushing)**  
-Tox tests in *multiple environments* (e.g., different Python versions), ensuring system-independent compatibility.  
+Run tests with pytest:
 
 ```bash
-tox
-```  
-Like `pytest`, it prints results to the terminal and saves coverage data in `htmlcov/`. ⚠ *First run may take longer* as environments are set up (subsequent runs are faster due to caching).
+uv run pytest
+```
+
+This prints test results to the terminal and generates coverage reports in `htmlcov/`.
 
 ### Additional Checks 📋
 
@@ -136,7 +126,7 @@ Like `pytest`, it prints results to the terminal and saves coverage data in `htm
 Run static type checks to catch typing errors:
 
 ```bash
-mypy
+uv run mypy
 ```
 
 **Linting with `ruff`**
@@ -144,13 +134,13 @@ mypy
 Check for code quality issues:
 
 ```bash
-ruff check
+uv run ruff check
 ```
 
 To auto-fix simple issues:
 
 ```bash
-ruff format --fix
+uv run ruff check --fix
 ```
 
 For more complex issues, manual refactoring may be required.
@@ -160,19 +150,19 @@ For more complex issues, manual refactoring may be required.
 Check formatting only:
 
 ```bash
-ruff format --check
+uv run ruff format --check
 ```
 
 See suggested changes:
 
 ```bash
-ruff format --check --diff
+uv run ruff format --check --diff
 ```
 
 Auto-format code:
 
 ```bash
-ruff format
+uv run ruff format
 ```
 
 💡 You can also install the [Ruff VS Code extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) to auto-format on save.
