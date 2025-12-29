@@ -12,17 +12,18 @@ jobs:
         steps:
             -   uses: actions/checkout@v6
 
-            -   uses: actions/setup-python@v6
+            -   name: Install uv
+                uses: astral-sh/setup-uv@v5
                 with:
-                    python-version: '3.10.10'
+                    enable-cache: true
+
+            -   name: Set up Python
+                run: uv python install 3.10
 
             -   uses: iterative/setup-cml@v3
 
-            -   name: Install dependencies
-                run: |
-                    pip install lightning-sdk
-                    pip list
-                shell: bash
+            -   name: Install lightning-sdk
+                run: uv pip install lightning-sdk --system
 
             -   name: Post config.yaml in PR comment
                 continue-on-error: true
@@ -48,8 +49,8 @@ jobs:
                     try:
                         studio.run_with_exit_code("rm -rf tree-classification-irim")
                         studio.run_with_exit_code(f"git clone --single-branch --branch {branch} https://github.com/GHOST-Science-Club/tree-classification-irim.git")
-                        studio.run_with_exit_code("pip install -r ./tree-classification-irim/unix-requirements.txt")
-                        studio.run_with_exit_code("cd tree-classification-irim && dvc repro")
+                        studio.run_with_exit_code("pip install uv && uv sync")
+                        studio.run_with_exit_code("cd tree-classification-irim && uv run dvc repro")
                     finally:
                         studio.stop()
                         studio.delete()'
@@ -59,4 +60,3 @@ jobs:
                     LIGHTNING_USER_ID: ${{ secrets.LIGHTNING_USER_ID }}
                     LIGHTNING_API_KEY: ${{ secrets.LIGHTNING_API_KEY }}
                     WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
-
