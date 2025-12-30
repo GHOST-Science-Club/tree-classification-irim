@@ -87,6 +87,11 @@ def main():
         weight=torch.tensor(class_weights, dtype=torch.float) if class_weights is not None else None,
         learning_rate=config.training.learning_rate,
         weight_decay=config.training.weight_decay,
+        optimizer=config.training.get("optimizer", "adam"),
+        momentum=config.training.get("momentum", 0.9),
+        scheduler=config.training.get("scheduler", "step"),
+        warmup_epochs=config.training.get("warmup_epochs", 0),
+        max_epochs=config.training.max_epochs,
     )
 
     # ====================================== TRAINING ========================================== #

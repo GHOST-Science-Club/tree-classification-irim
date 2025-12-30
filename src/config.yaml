@@ -27,14 +27,23 @@ model:
   name: "sim_trans" # currently supporting resnet18, vit and inception_v3
 
 training:
-  batch_size: 4
-  learning_rate: 0.0001
-  max_epochs: 100
-  freeze: true
-  weight_decay: 0.0001
+  batch_size: 8  # SIM-Trans paper uses 8 for ViT-B/16
+  learning_rate: 0.03  # SIM-Trans paper uses 0.03 with SGD
+  max_epochs: 60  # SIM-Trans paper trains for 60 epochs
+  freeze: false  # Fine-tune all parameters
+  weight_decay: 0.00001  # SIM-Trans paper uses 1e-5
 
+  # Scheduler settings for cosine annealing with warmup
+  scheduler: "cosine"  # Options: "step", "cosine"
+  warmup_epochs: 10  # Linear warmup for first 10 epochs
+  
+  # Legacy step scheduler settings (used if scheduler: "step")
   step_size: 4
-  gamma: 0.1 
+  gamma: 0.1
+  
+  # Optimizer settings
+  optimizer: "sgd"  # SIM-Trans uses SGD; options: "sgd", "adam"
+  momentum: 0.9  # SGD momentum 
 
   #oversample:
   #  oversample_factor: 4
@@ -71,7 +80,7 @@ training:
   early_stopping:
     apply: true
     monitor: "val_loss"
-    patience: 3
+    patience: 10  # Increased for cosine annealing (learning rate decreases gradually)
     mode: "min"
 
 device: "gpu"

@@ -7,7 +7,8 @@ from models.diversified_model import GradientBoostingLoss
 
 
 class ClassifierModule(pl.LightningModule):
-    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, freeze=False, weight=None):
+    def __init__(self, model_name, num_classes, step_size, gamma, learning_rate=1e-3, weight_decay=0, freeze=False, weight=None,
+                 optimizer="adam", momentum=0.9, scheduler="step", warmup_epochs=0, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
 
@@ -17,6 +18,11 @@ class ClassifierModule(pl.LightningModule):
         self.weight_decay = weight_decay
         self.step_size = step_size
         self.gamma = gamma
+        self.optimizer_name = optimizer
+        self.momentum = momentum
+        self.scheduler_name = scheduler
+        self.warmup_epochs = warmup_epochs
+        self.max_epochs = max_epochs
 
         # Define a loss function and metric
 
@@ -92,13 +98,57 @@ class ClassifierModule(pl.LightningModule):
         return self.step(batch, "test")
 
     def configure_optimizers(self):
+        # Select parameters to optimize
         if self.name.startswith("efficientnet"):
-            optimizer = torch.optim.Adam(self.model.classifier.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+            params = self.model.classifier.parameters()
         elif self.name in ("fine_grained", "sim_trans"):
-            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+            params = self.model.parameters()
         else:
-            optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
+            params = self.model.fc.parameters()
+        
+        # Create optimizer based on config
+        if self.optimizer_name == "sgd":
+            optimizer = torch.optim.SGD(
+                params, 
+                lr=self.hparams.learning_rate, 
+                momentum=self.momentum,
+                weight_decay=self.hparams.weight_decay
+            )
+        else:  # adam
+            optimizer = torch.optim.Adam(
+                params, 
+                lr=self.hparams.learning_rate, 
+                weight_decay=self.hparams.weight_decay
+            )
 
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=self.step_size, gamma=self.gamma)
+        # Create scheduler based on config
+        if self.scheduler_name == "cosine":
+            # Cosine annealing with warmup (SIM-Trans paper approach)
+            from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
+            
+            if self.warmup_epochs > 0:
+                warmup_scheduler = LinearLR(
+                    optimizer, 
+                    start_factor=0.01, 
+                    end_factor=1.0, 
+                    total_iters=self.warmup_epochs
+                )
+                cosine_scheduler = CosineAnnealingLR(
+                    optimizer, 
+                    T_max=self.max_epochs - self.warmup_epochs
+                )
+                scheduler = SequentialLR(
+                    optimizer, 
+                    schedulers=[warmup_scheduler, cosine_scheduler], 
+                    milestones=[self.warmup_epochs]
+                )
+            else:
+                scheduler = CosineAnnealingLR(optimizer, T_max=self.max_epochs)
+        else:  # step
+            scheduler = torch.optim.lr_scheduler.StepLR(
+                optimizer, 
+                step_size=self.step_size, 
+                gamma=self.gamma
+            )
 
         return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler}}
