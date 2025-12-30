@@ -68,7 +68,7 @@ an AI algorithm for identifying tree species from aerial photos, focusing on Pol
 
 ### How to run the project 💡
 
-This project uses [uv](https://docs.astral.sh/uv/) for dependency management. Python 3.10+ is required.
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management. Python 3.11+ is required.
 
 Clone the repo and cd into:
 
