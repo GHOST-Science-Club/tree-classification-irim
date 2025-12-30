@@ -43,7 +43,7 @@ class ClassifierModule(pl.LightningModule):
 
         # If it's a tuple (Inception), return it directly
         if isinstance(out, tuple):
-            return out
+            return out[0]
         # If it has logits, return logits
         if hasattr(out, "logits"):
             return out.logits
@@ -61,6 +61,9 @@ class ClassifierModule(pl.LightningModule):
             loss = loss1 + 0.4 * loss2
         elif self.name == "fine_grained":
             outputs = self.model(images, is_train=is_training)
+            loss = self.criterion(outputs, labels)
+        elif self.name == "sim_trans":
+            outputs, mfb_features = self.model(images)
             loss = self.criterion(outputs, labels)
         else:
             outputs = self.model(images)
@@ -91,7 +94,7 @@ class ClassifierModule(pl.LightningModule):
     def configure_optimizers(self):
         if self.name.startswith("efficientnet"):
             optimizer = torch.optim.Adam(self.model.classifier.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
-        elif self.name == "fine_grained":
+        elif self.name in ("fine_grained", "sim_trans"):
             optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)
         else:
             optimizer = torch.optim.Adam(self.model.fc.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay)

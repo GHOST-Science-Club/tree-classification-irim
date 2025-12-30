@@ -1,156 +1,235 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers import ViTModel
 import math
-from transformers import ViTModel, ViTConfig
-from transformers.models.vit.modeling_vit import ViTLayer
-
 
 class GraphConvolution(nn.Module):
-    def __init__(self, in_features, out_features, act=True):
+    """
+    Standardowa warstwa GCN: X' = ReLU(Adj * X * W + b)
+    """
+    def __init__(self, in_features, out_features):
         super().__init__()
-        self.linear = nn.Linear(in_features, out_features, bias=False)
-        self.act = nn.ReLU() if act else nn.Identity()
+        self.weight = nn.Parameter(torch.FloatTensor(in_features, out_features))
+        self.bias = nn.Parameter(torch.FloatTensor(out_features))
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.xavier_uniform_(self.weight)
+        nn.init.zeros_(self.bias)
 
     def forward(self, x, adj):
-        support = self.linear(x)
-        output = torch.bmm(adj, support)
-        return self.act(output)
+        # x: (Batch, Nodes, Features)
+        # adj: (Batch, Nodes, Nodes)
+        support = torch.matmul(x, self.weight)
+        output = torch.matmul(adj, support) + self.bias
+        return output
 
-
-class SILModule(nn.Module):
-    def __init__(self, dim, num_patches, h, w):
+class StructureInformationLearning(nn.Module):
+    def __init__(self, hidden_dim, num_patches=196, grid_size=14):
         super().__init__()
-        self.dim = dim
-        self.h = h
-        self.w = w
+        self.grid_size = grid_size
         self.num_patches = num_patches
-
-        self.gcn1 = GraphConvolution(dim, dim)
-        self.gcn2 = GraphConvolution(dim, dim, act=False)
-
-        self.pos_embed_mlp = nn.Sequential(
-            nn.Linear(2, dim // 4),
+        
+        # Projekcja cech wizualnych przed GCN
+        self.vis_proj = nn.Linear(hidden_dim, hidden_dim)
+        
+        # Kodowanie informacji przestrzennej (Polar Coordinates)
+        # Wejście: 2 (rho, theta), Wyjście: hidden_dim
+        self.spatial_embed = nn.Sequential(
+            nn.Linear(2, hidden_dim // 2),
             nn.ReLU(),
-            nn.Linear(dim // 4, dim)
+            nn.Linear(hidden_dim // 2, hidden_dim)
         )
 
-    def get_polar_coordinates(self, ref_idx, batch_size, device):
-        y_coords = torch.arange(self.h, device=device).repeat_interleave(self.w).float()
-        x_coords = torch.arange(self.w, device=device).repeat(self.h).float()
+        # Fuzja cech wizualnych i przestrzennych
+        self.fusion_proj = nn.Linear(hidden_dim * 2, hidden_dim)
 
-        ref_y = (ref_idx // self.w).float().unsqueeze(1)
-        ref_x = (ref_idx % self.w).float().unsqueeze(1)
+        # Warstwy GCN
+        self.gcn1 = GraphConvolution(hidden_dim, hidden_dim)
+        self.gcn2 = GraphConvolution(hidden_dim, hidden_dim)
+        self.act = nn.ReLU()
 
-        y_grid = y_coords.unsqueeze(0).expand(batch_size, -1)
-        x_grid = x_coords.unsqueeze(0).expand(batch_size, -1)
+    def get_polar_coordinates(self, max_attn_indices, batch_size, device):
+        """
+        Implementacja Równań 9 i 10 z artykułu.
+        Oblicza współrzędne biegunowe względem patcha o maksymalnej uwadze.
+        """
+        # Generowanie siatki współrzędnych (y, x)
+        y_coords = torch.arange(self.grid_size, device=device).repeat_interleave(self.grid_size)
+        x_coords = torch.arange(self.grid_size, device=device).repeat(self.grid_size)
+        
+        # Współrzędne wszystkich patchy: (1, 196, 2)
+        all_coords = torch.stack([y_coords, x_coords], dim=-1).unsqueeze(0).float()
+        
+        # Współrzędne patcha referencyjnego (max attention) dla każdego obrazu w batchu
+        # max_attn_indices: (Batch,)
+        ref_y = max_attn_indices // self.grid_size
+        ref_x = max_attn_indices % self.grid_size
+        ref_coords = torch.stack([ref_y, ref_x], dim=-1).unsqueeze(1).float() # (Batch, 1, 2)
+        
+        # Obliczanie różnic
+        delta = all_coords - ref_coords # (Batch, 196, 2)
+        dy = delta[:, :, 0]
+        dx = delta[:, :, 1]
+        
+        # Równanie 9: Rho (odległość)
+        rho = torch.sqrt(dy**2 + dx**2)
+        # Normalizacja rho do zakresu [0, 1] dla stabilności
+        rho = rho / (math.sqrt(self.grid_size**2 + self.grid_size**2))
+        
+        # Równanie 10: Theta (kąt)
+        theta = torch.atan2(dy, dx)
+        # Normalizacja theta do zakresu [0, 1]
+        theta = (theta + math.pi) / (2 * math.pi)
+        
+        # Złączenie: (Batch, 196, 2)
+        polar_coords = torch.stack([rho, theta], dim=-1)
+        return polar_coords
 
-        rho = torch.sqrt(((x_grid - ref_x) / self.w)**2 + ((y_grid - ref_y) / self.h)**2)
-        theta = (torch.atan2(y_grid - ref_y, x_grid - ref_x) + math.pi) / (2 * math.pi)
+    def forward(self, hidden_states, attentions):
+        """
+        hidden_states: (Batch, 197, Hidden_Dim) - ostatnia warstwa ViT
+        attentions: List of tensors, bierzemy ostatnią warstwę
+        """
+        batch_size = hidden_states.shape[0]
+        device = hidden_states.device
 
-        return torch.stack([rho, theta], dim=-1)
+        # 1. Przygotowanie danych
+        # Usuwamy CLS token z cech wizualnych -> (Batch, 196, Dim)
+        patch_features = hidden_states[:, 1:, :]
+        
+        # Pobieramy mapę uwagi z ostatniej warstwy dla tokenu CLS
+        # attentions[-1] shape: (Batch, Num_Heads, 197, 197)
+        # Uśredniamy po głowicach -> (Batch, 197, 197)
+        last_attn = attentions[-1].mean(dim=1)
+        # Bierzemy uwagę CLS do patchy (wiersz 0, kolumny 1:) -> (Batch, 196)
+        cls_attn = last_attn[:, 0, 1:]
 
-    def forward(self, x, attn_weights):
-        B, _N, C = x.shape
+        # 2. Maskowanie (Równanie 8)
+        # Wybieramy patche, których uwaga jest większa niż średnia
+        mean_attn = cls_attn.mean(dim=1, keepdim=True)
+        mask = (cls_attn > mean_attn).float() # (Batch, 196)
+        
+        # Zerujemy uwagę dla nieistotnych patchy
+        masked_attn = cls_attn * mask
+        
+        # Normalizacja uwagi (żeby sumowała się do 1 lub była w rozsądnym zakresie)
+        masked_attn = masked_attn / (masked_attn.sum(dim=1, keepdim=True) + 1e-8)
 
-        cls_attn = attn_weights[:, :, 0, 1:].mean(dim=1) # [B, N]
-        _max_vals, max_indices = torch.max(cls_attn, dim=1)
+        # 3. Budowa Macierzy Sąsiedztwa (Równanie 11)
+        # Adj = A_new * (A_new)^T
+        # (Batch, 196, 1) @ (Batch, 1, 196) -> (Batch, 196, 196)
+        adj = torch.bmm(masked_attn.unsqueeze(2), masked_attn.unsqueeze(1))
+        
+        # Dodajemy pętle własne (self-loops) i normalizujemy wierszami (standard GCN)
+        eye = torch.eye(self.num_patches, device=device).unsqueeze(0)
+        adj = adj + eye
+        adj = adj / (adj.sum(dim=-1, keepdim=True) + 1e-8)
 
-        polar_coords = self.get_polar_coordinates(max_indices, B, x.device)
-        struct_pos_embed = self.pos_embed_mlp(polar_coords)
-        x_struct = x + struct_pos_embed
+        # 4. Informacja Przestrzenna (Polar Coordinates)
+        # Znajdujemy indeks patcha z maksymalną uwagą
+        max_indices = torch.argmax(cls_attn, dim=1) # (Batch,)
+        polar_coords = self.get_polar_coordinates(max_indices, batch_size, device)
+        
+        # Embedding współrzędnych
+        spatial_features = self.spatial_embed(polar_coords) # (Batch, 196, Hidden_Dim)
 
-        threshold = cls_attn.mean(dim=1, keepdim=True)
-        mask = (cls_attn > threshold).float().unsqueeze(2)
-        adj = torch.bmm(mask, mask.transpose(1, 2))
-        adj = adj / (adj.sum(dim=-1, keepdim=True) + 1e-6)
+        # 5. Fuzja cech (Concatenation -> Projection)
+        # Artykuł mówi o konkatenacji cech węzłów z informacją pozycyjną
+        combined_features = torch.cat([patch_features, spatial_features], dim=-1)
+        node_features = self.fusion_proj(combined_features)
+        
+        # Aplikujemy maskę również na cechy (zerujemy cechy odrzuconych patchy)
+        node_features = node_features * mask.unsqueeze(-1)
 
-        s_feat = self.gcn1(x_struct, adj)
-        s_feat = self.gcn2(s_feat, adj)
+        # 6. Przetwarzanie GCN
+        x = self.gcn1(node_features, adj)
+        x = self.act(x)
+        x = self.gcn2(x, adj) # (Batch, 196, Hidden_Dim)
 
-        ref_idx_expanded = max_indices.view(B, 1, 1).expand(-1, -1, C)
-        object_structure_feature = torch.gather(s_feat, 1, ref_idx_expanded).squeeze(1)
+        # 7. Agregacja (Global Average Pooling ważony maską)
+        # Sumujemy cechy aktywnych węzłów i dzielimy przez liczbę aktywnych węzłów
+        num_active = mask.sum(dim=1, keepdim=True).clamp(min=1.0)
+        structure_feature = x.sum(dim=1) / num_active # (Batch, Hidden_Dim)
 
-        return object_structure_feature
+        return structure_feature
 
-
-class ViTLayerWithSIL(nn.Module):
-    def __init__(self, config: ViTConfig, use_sil=False):
+class MultiLevelFeatureBoosting(nn.Module):
+    def __init__(self, hidden_dim, num_levels=3):
         super().__init__()
-        self.hf_layer = ViTLayer(config)
-        self.use_sil = use_sil
+        # Fuzja cech z różnych poziomów ViT
+        self.fusion = nn.Linear(hidden_dim * num_levels, hidden_dim)
+        self.norm = nn.LayerNorm(hidden_dim)
 
-        if self.use_sil:
-            num_patches = (config.image_size // config.patch_size) ** 2
-            h = config.image_size // config.patch_size
-            w = config.image_size // config.patch_size
-
-            self.sil_module = SILModule(config.hidden_size, num_patches, h, w)
-
-    def forward(self, hidden_states, head_mask=None, output_attentions=False):
-        need_attn = output_attentions or self.use_sil
-
-        attention_outputs = self.hf_layer.attention(
-            hidden_states, head_mask, output_attentions=need_attn
-        )
-        attention_output = attention_outputs[0]
-        attn_weights = attention_outputs[1] if need_attn else None
-
-        if self.use_sil:
-            patches = attention_output[:, 1:, :]
-            struct_feat = self.sil_module(patches, attn_weights)
-            attention_output[:, 0, :] = attention_output[:, 0, :] + struct_feat
-
-        layer_output = self.hf_layer.intermediate(attention_output)
-        layer_output = self.hf_layer.output(layer_output, attention_output)
-
-        outputs = (layer_output,)
-        if output_attentions:
-            outputs = (*outputs, attn_weights)
-
-        return outputs
+    def forward(self, multi_level_features):
+        # multi_level_features: lista tensorów [CLS_L-2, CLS_L-1, CLS_L]
+        concatenated = torch.cat(multi_level_features, dim=-1)
+        fused = self.fusion(concatenated)
+        fused = self.norm(fused)
+        return fused
 
 class SIMTransHF(nn.Module):
-    def __init__(self, model_name='google/vit-base-patch16-224', num_classes=200):
+    def __init__(
+        self,
+        num_classes,
+        pretrained_model="google/vit-base-patch16-224",
+        hidden_dim=768,
+        num_patches=196,
+        drop_rate=0.1
+    ):
         super().__init__()
 
-        print(f"Loading pretrained ViT: {model_name}...")
-        self.vit = ViTModel.from_pretrained(model_name, add_pooling_layer=False)
-        config = self.vit.config
+        # Backbone
+        self.vit = ViTModel.from_pretrained(
+            pretrained_model,
+            output_attentions=True,
+            output_hidden_states=True
+        )
+        self.hidden_dim = hidden_dim
 
-        total_layers = len(self.vit.encoder.layer)
-        sil_start_layer = total_layers - 3
+        # Moduł SIL (Structure Information Learning)
+        self.sil = StructureInformationLearning(
+            hidden_dim=hidden_dim,
+            num_patches=num_patches,
+            grid_size=int(math.sqrt(num_patches)) # Zakładamy kwadratowy grid (14x14)
+        )
 
-        for i in range(total_layers):
-            original_layer = self.vit.encoder.layer[i]
-            use_sil = i >= sil_start_layer
+        # Moduł MFB (Multi-Level Feature Boosting)
+        self.mfb = MultiLevelFeatureBoosting(hidden_dim=hidden_dim, num_levels=3)
 
-            new_layer = ViTLayerWithSIL(config, use_sil=use_sil)
+        # Klasyfikator
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(drop_rate),
+            nn.Linear(hidden_dim, num_classes)
+        )
 
-            new_layer.hf_layer.load_state_dict(original_layer.state_dict())
+    def forward(self, x):
+        outputs = self.vit(pixel_values=x)
 
-            self.vit.encoder.layer[i] = new_layer
+        hidden_states = outputs.hidden_states
+        attentions = outputs.attentions
 
-        self.norm = nn.LayerNorm(config.hidden_size)
-        self.head = nn.Linear(config.hidden_size * 3, num_classes)
+        # --- Multi-Level Feature Boosting (MFB) ---
+        # Pobieramy tokeny CLS z ostatnich 3 warstw
+        multi_level_cls = [
+            hidden_states[-3][:, 0],
+            hidden_states[-2][:, 0],
+            hidden_states[-1][:, 0]
+        ]
+        mfb_feature = self.mfb(multi_level_cls)
 
-        nn.init.xavier_uniform_(self.head.weight)
-        nn.init.zeros_(self.head.bias)
+        # --- Structure Information Learning (SIL) ---
+        # Używamy ostatniej warstwy ukrytej i map uwagi
+        last_hidden = hidden_states[-1]
+        structure_feature = self.sil(last_hidden, attentions)
 
-    def forward(self, pixel_values):
-        outputs = self.vit(pixel_values, output_hidden_states=True)
+        # --- Fuzja i Klasyfikacja ---
+        combined = torch.cat([mfb_feature, structure_feature], dim=-1)
+        logits = self.classifier(combined)
 
-        all_hidden_states = outputs.hidden_states
-
-        cls_features = []
-
-        for i in range(3, 0, -1):
-            layer_out = all_hidden_states[-i]
-            cls_token = layer_out[:, 0, :]
-            cls_features.append(self.norm(cls_token))
-
-        final_feature = torch.cat(cls_features, dim=-1)
-
-        logits = self.head(final_feature)
-
-        return logits
+        # Zwracamy logits ORAZ mfb_feature.
+        # mfb_feature jest potrzebne do obliczenia Contrastive Loss podczas treningu.
+        return logits, mfb_feature

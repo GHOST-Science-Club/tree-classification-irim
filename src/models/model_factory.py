@@ -3,6 +3,7 @@ from transformers import ViTForImageClassification
 import torch.nn as nn
 
 from models.diversified_model import FineGrainedModel
+from models.sim_trans import SIMTransHF
 
 
 def create_model(model_name, num_classes, freeze=False):
@@ -68,6 +69,12 @@ def create_model(model_name, num_classes, freeze=False):
 
     elif model_name == "fine_grained":
         model = FineGrainedModel(num_classes)
+
+    elif model_name == "sim_trans":
+        model = SIMTransHF(num_classes=num_classes)
+        if freeze:
+            for param in model.vit.parameters():
+                param.requires_grad = False
 
     else:
         raise ValueError(f"Model '{model_name}' not supported.")
