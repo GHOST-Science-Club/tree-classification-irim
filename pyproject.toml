@@ -55,7 +55,7 @@ dependencies = [
     "multidict==6.7.0",
     "mypy==1.18.2",
     "nest-asyncio==1.6.0",
-    "networkx==3.2.1",
+    "networkx==3.4.2",
     "numpy==2.2.4",
     "omegaconf==2.3.0",
     "packaging==25.0",
