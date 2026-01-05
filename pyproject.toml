@@ -95,7 +95,7 @@ dependencies = [
     "sympy==1.14.0",
     "threadpoolctl==3.6.0",
     "tomli==2.2.1",
-    "torch==2.8.0",
+    "torch==2.9.1",
     "torchaudio==2.8.0",
     "torchmetrics==1.8.2",
     "torchvision==0.23.0",
