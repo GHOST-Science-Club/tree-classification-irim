@@ -34,28 +34,27 @@ class InferenceTransform(nn.Module):
         return x_res.squeeze(0)
 
 
-
 def download_checkpoint_from_wandb(artifact_path, project_name="ghost-irim"):
     print(f"Downloading checkpoint from W&B: {artifact_path}")
-    
+
     wandb_api_key = os.environ.get("WANDB_API_KEY")
     if wandb_api_key:
         wandb.login(key=wandb_api_key)
-    
+
     run = wandb.init(project=project_name, job_type="inference")
-    
+
     artifact = run.use_artifact(artifact_path, type="model")
     artifact_dir = artifact.download()
-    
+
     artifact_path_obj = Path(artifact_dir)
     checkpoint_files = list(artifact_path_obj.glob("*.ckpt"))
-    
+
     if not checkpoint_files:
         raise FileNotFoundError(f"No .ckpt file found in artifact directory: {artifact_dir}")
-    
+
     checkpoint_path = checkpoint_files[0]
     print(f"Checkpoint downloaded to: {checkpoint_path}")
-    
+
     return checkpoint_path
 
 
@@ -69,7 +68,7 @@ def main():
     else:
         device = "cpu"
     print(f"Using device: {device}")
-    
+
     model_name = config.model.name
     mask_size = config.inference.get("mask_size", 224)
     image_size = 299 if model_name == "inception_v3" else 224
@@ -84,25 +83,19 @@ def main():
     test_data = dataset["test"]
     test_dataset = ForestDataset(test_data["paths"], test_data["labels"], transform=transforms)
 
-    test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=1, shuffle=False, num_workers=2
-    )
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=2)
 
     num_classes = len(label_map)
 
     # =========================== MODEL LOADING ==================================== #
     wandb_artifact = config.inference.get("wandb_artifact", None)
-    
+
     if wandb_artifact:
         wandb_project = config.inference.get("wandb_project", "ghost-irim")
         checkpoint_path = download_checkpoint_from_wandb(wandb_artifact, wandb_project)
     else:
-        raise FileNotFoundError(
-            f"Checkpoint not found at {checkpoint_path}. "
-            "Please set 'wandb_artifact' in config.yaml to download from W&B, "
-            "or ensure the local checkpoint exists."
-        )
-    
+        raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}. Please set 'wandb_artifact' in config.yaml to download from W&B, or ensure the local checkpoint exists.")
+
     print(f"Loading model from: {checkpoint_path}")
 
     classifier = ClassifierModule.load_from_checkpoint(
@@ -116,14 +109,13 @@ def main():
     norm_std = [0.5, 0.5, 0.5]
 
     seg_model = SegmentationWrapper(
-        classifier, 
+        classifier,
         mask_size=mask_size,
-        mean=None, # TODO: fix
-        std=None, # TODO: fix
-        input_rescale=True  # Expects 0-255 input, scales to 0-1 internally
+        mean=None,  # TODO: fix
+        std=None,  # TODO: fix
+        input_rescale=True,  # Expects 0-255 input, scales to 0-1 internally
     ).to(device)
     seg_model.eval()
-
 
     # =========================== EXPORT TO ONNX =================================== #
     if config.inference.get("export_onnx", False):
@@ -140,25 +132,25 @@ def main():
             do_constant_folding=True,
         )
         print(f"Exported model to {onnx_path.resolve()}")
-        
+
         # Add metadata
         model_onnx = onnx.load(onnx_path)
-        
-        class_names = {v: k for k, v in label_map.items()}
-        
-        def add_meta(key, value):
-                meta = model_onnx.metadata_props.add()
-                meta.key = key
-                meta.value = json.dumps(value)
 
-        add_meta('model_type', 'Segmentor')
-        add_meta('class_names', class_names)
-        add_meta('resolution', 20)
-        add_meta('tiles_size', image_size)
-        add_meta('tiles_overlap', 0)
+        class_names = {v: k for k, v in label_map.items()}
+
+        def add_meta(key, value):
+            meta = model_onnx.metadata_props.add()
+            meta.key = key
+            meta.value = json.dumps(value)
+
+        add_meta("model_type", "Segmentor")
+        add_meta("class_names", class_names)
+        add_meta("resolution", 20)
+        add_meta("tiles_size", image_size)
+        add_meta("tiles_overlap", 0)
 
         onnx.save(model_onnx, onnx_path)
-        
+
         if wandb.run is not None:
             onnx_artifact = wandb.Artifact(
                 name=f"segmentation-model-{model_name}",
@@ -170,29 +162,29 @@ def main():
                     "image_size": image_size,
                     "format": "onnx",
                     "opset_version": 17,
-                }
+                },
             )
             onnx_artifact.add_file(str(onnx_path))
             wandb.log_artifact(onnx_artifact)
             print(f"ONNX model uploaded to W&B artifacts as 'segmentation-model-{model_name}'")
         else:
             print("Warning: W&B run not initialized. ONNX model not uploaded to artifacts.")
-    
+
     # =========================== INFERENCE LOOP =================================== #
     print(f"Running inference on {len(test_loader)} samples...")
     all_preds = []
     all_targets = []
 
     with torch.no_grad():
-        for i, batch in enumerate(tqdm(test_loader)):
+        for batch in tqdm(test_loader):
             imgs, labels = batch
             imgs = imgs.to(device)
             labels = labels.to(device)
 
             masks = seg_model(imgs)
-            
+
             probs = masks[:, :, 0, 0]
-            
+
             all_preds.append(probs)
             all_targets.append(labels)
 
@@ -202,7 +194,7 @@ def main():
     # =========================== METRICS & LOGGING ================================ #
     if wandb.run is not None:
         print("Calculating and logging metrics...")
-        
+
         metrics_per_experiment = count_metrics(all_targets, all_preds)
         print(f"Test Metrics: {metrics_per_experiment}")
         for key, value in metrics_per_experiment.items():
@@ -222,7 +214,7 @@ def main():
 
         plots_dir = Path("src/plots")
         plots_dir.mkdir(exist_ok=True, parents=True)
-        
+
         get_confusion_matrix(all_preds, all_targets, class_names=list(label_map.keys()))
         get_roc_auc_curve(all_preds, all_targets, class_names=list(label_map.keys()))
         get_precision_recall_curve(all_preds, all_targets, class_names=list(label_map.keys()))
@@ -233,6 +225,7 @@ def main():
             wandb.log({title: wandb.Image(f"src/plots/{filename}")})
     else:
         print("W&B run not active. Skipping metrics logging.")
+
 
 if __name__ == "__main__":
     main()
