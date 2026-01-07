@@ -58,6 +58,7 @@ dependencies = [
     "networkx==3.2.1",
     "numpy==2.2.4",
     "omegaconf==2.3.0",
+    "onnx>=1.20.0",
     "packaging==25.0",
     "pandas==2.3.3",
     "parso==0.8.5",
