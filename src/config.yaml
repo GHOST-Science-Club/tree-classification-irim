@@ -79,5 +79,10 @@ inference:
   export_onnx: true
   wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
   wandb_project: "ghost-irim"
+  # Set to true to run inference on raw images (ONNX-style testing)
+  # Set to false to run inference on test dataset split
+  use_raw_images: true
+  # Path to directory containing raw images (relative to project root)
+  raw_images_path: "test_images_qgis/10122025_193353"
 
 device: "cuda"
