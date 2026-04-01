@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 
 import kornia.augmentation as kaug
@@ -93,9 +94,21 @@ def main():
     device = config.device if torch.cuda.is_available() else "cpu"
     callbacks = [PrintMetricsCallback()]
 
+    checkpoint_monitor = config.training.early_stopping.get("monitor", "val_loss")
+    checkpoint_mode = config.training.early_stopping.get("mode", "min")
+
     if config.training.early_stopping.apply:
-        callbacks.append(EarlyStopping(monitor=config.training.early_stopping.monitor, patience=config.training.early_stopping.patience, mode=config.training.early_stopping.mode))
-        callbacks.append(ModelCheckpoint(monitor="val_loss", mode="min", save_top_k=1, save_last=False, dirpath=config.training.get("checkpoint_dir", "checkpoints/")))
+        callbacks.append(EarlyStopping(monitor=checkpoint_monitor, patience=config.training.early_stopping.patience, mode=checkpoint_mode))
+
+    callbacks.append(
+        ModelCheckpoint(
+            monitor=checkpoint_monitor,
+            mode=checkpoint_mode,
+            save_top_k=1,
+            save_last=False,
+            dirpath=config.training.get("checkpoint_dir", "checkpoints/"),
+        )
+    )
 
     if config.training.get("curriculum_learning", None):
         callbacks.append(
@@ -117,12 +130,9 @@ def main():
 
     wandb_api_key = os.environ.get("WANDB_API_KEY")
     wandb.login(key=wandb_api_key)
-    wandb.init(project="ghost-irim", name=run_name)
-
-    # Log config.yaml to wandb
-    wandb.save("src/config.yaml")
 
     wandb_logger = WandbLogger(name=run_name, project="ghost-irim", log_model=True)
+    wandb_logger.experiment.save("src/config.yaml")
 
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.enabled = True
@@ -143,6 +153,38 @@ def main():
 
     if not best_ckpt_path:
         raise ValueError("No ModelCheckpoint callback found or no best checkpoint available.")
+
+    best_ckpt_score = None
+    for callback in callbacks:
+        if isinstance(callback, ModelCheckpoint):
+            best_ckpt_score = callback.best_model_score
+            break
+
+    print(f"Best checkpoint selected: {best_ckpt_path}")
+    print(f"Best checkpoint score ({checkpoint_monitor}, {checkpoint_mode}): {best_ckpt_score}")
+
+    # Persist label map next to checkpoint so inference can reuse exact class indices.
+    label_map_path = Path(best_ckpt_path).with_suffix(".label_map.json")
+    with open(label_map_path, "w") as f:
+        json.dump(label_map, f, indent=2)
+
+    # Log explicit artifact for the selected best checkpoint.
+    best_model_artifact = wandb.Artifact(
+        name=f"best-model-{run_name}",
+        type="model",
+        description=f"Best checkpoint from run {run_name}",
+        metadata={
+            "best_ckpt_path": str(best_ckpt_path),
+            "monitor": checkpoint_monitor,
+            "mode": checkpoint_mode,
+            "best_model_score": float(best_ckpt_score) if best_ckpt_score is not None else None,
+            "num_classes": num_classes,
+            "model_name": config.model.name,
+        },
+    )
+    best_model_artifact.add_file(str(best_ckpt_path))
+    best_model_artifact.add_file(str(label_map_path))
+    wandb_logger.experiment.log_artifact(best_model_artifact, aliases=["best", "latest"])
 
     trainer.test(model, datamodule=datamodule, ckpt_path=best_ckpt_path)
     # Callbacks' service

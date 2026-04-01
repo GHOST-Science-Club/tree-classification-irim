@@ -77,12 +77,14 @@ training:
 inference:
   mask_size: 224
   export_onnx: true
+  checkpoint_path: "checkpoints/model.ckpt"
   wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
   wandb_project: "ghost-irim"
   # Set to true to run inference on raw images (ONNX-style testing)
   # Set to false to run inference on test dataset split
-  use_raw_images: true
+  use_raw_images: false
   # Path to directory containing raw images (relative to project root)
-  raw_images_path: "test_images_qgis/10122025_193353"
+  # raw_images_path: "test_images_qgis/10122025_193353"
+  raw_images_path: "/home/adam/Documents/programming/tree-classification-irim/src/data/Abies_alba/train"
 
 device: "cuda"

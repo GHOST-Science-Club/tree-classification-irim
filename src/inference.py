@@ -96,6 +96,8 @@ def download_checkpoint_from_wandb(artifact_path, project_name="ghost-irim"):
     checkpoint_path = checkpoint_files[0]
     print(f"Checkpoint downloaded to: {checkpoint_path}")
 
+    run.finish()
+
     return checkpoint_path
 
 
@@ -117,6 +119,7 @@ def main():
 
     # =========================== DATA LOADING ===================================== #
     use_raw_images = config.inference.get("use_raw_images", False)
+    print(f"Use raw images for inference: {use_raw_images}")
     
     if use_raw_images:
         # Load raw images from specified directory
@@ -156,15 +159,29 @@ def main():
         has_labels = True
 
     # =========================== MODEL LOADING ==================================== #
+    local_checkpoint_path = Path(config.inference.get("checkpoint_path", "checkpoints/model.ckpt"))
     wandb_artifact = config.inference.get("wandb_artifact", None)
 
-    if wandb_artifact:
+    if local_checkpoint_path.exists():
+        checkpoint_path = local_checkpoint_path
+    elif wandb_artifact:
         wandb_project = config.inference.get("wandb_project", "ghost-irim")
         checkpoint_path = download_checkpoint_from_wandb(wandb_artifact, wandb_project)
     else:
-        raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}. Please set 'wandb_artifact' in config.yaml to download from W&B, or ensure the local checkpoint exists.")
+        raise FileNotFoundError(
+            f"Checkpoint not found at {local_checkpoint_path}. "
+            "Set inference.checkpoint_path to a local .ckpt path or set inference.wandb_artifact in config.yaml."
+        )
 
     print(f"Loading model from: {checkpoint_path}")
+
+    # Reuse training-time class-index mapping if it exists next to the checkpoint.
+    label_map_path = checkpoint_path.with_suffix(".label_map.json")
+    if label_map_path.exists():
+        with open(label_map_path, "r") as f:
+            label_map = json.load(f)
+        num_classes = len(label_map)
+        print(f"Loaded label map from: {label_map_path}")
 
     classifier = ClassifierModule.load_from_checkpoint(
         checkpoint_path,
