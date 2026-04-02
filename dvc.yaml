@@ -14,8 +14,8 @@ stages:
     #         - src/config.yaml:
     # === TRAINING === #
     train_model:
-        cmd: python src/inference.py
+        cmd: python src/main.py
         params:
             - src/config.yaml:
         deps:
-            - src/inference.py
+            - src/main.py
