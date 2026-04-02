@@ -76,12 +76,12 @@ class GradientBoostingLoss(nn.Module):
             neg_logit = logit[torch.arange(num_classes, device=device) != label]
             neg_labels = torch.arange(num_classes, device=device)[torch.arange(num_classes, device=device) != label]
 
-            _, topk_indices = torch.topk(neg_logit, self.k)
+            topk = min(self.k, neg_logit.numel())
+            _, topk_indices = torch.topk(neg_logit, topk)
             J_prime = neg_labels[topk_indices]
 
-            numerator = torch.exp(logit[label])
-            denominator = numerator + torch.sum(torch.exp(logit[J_prime]))
-            loss_b = -torch.log(numerator / denominator)
+            selected_logits = torch.cat((logit[label].unsqueeze(0), logit[J_prime]))
+            loss_b = torch.logsumexp(selected_logits, dim=0) - logit[label]
             loss += loss_b
 
         return loss / batch_size

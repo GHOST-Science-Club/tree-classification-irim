@@ -23,6 +23,17 @@ import math
 CONFIG_PATH = "src/config.yaml"
 
 
+def _wandb_safe_metadata_value(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, torch.Tensor):
+        if value.numel() == 1:
+            scalar = value.item()
+            return None if isinstance(scalar, float) and not math.isfinite(scalar) else scalar
+        return value.tolist()
+    return value
+
+
 def main():
     # Load configuration file
     config = OmegaConf.load(CONFIG_PATH)
@@ -131,7 +142,7 @@ def main():
     wandb_api_key = os.environ.get("WANDB_API_KEY")
     wandb.login(key=wandb_api_key)
 
-    wandb_logger = WandbLogger(name=run_name, project="ghost-irim", log_model=True)
+    wandb_logger = WandbLogger(name=run_name, project="ghost-irim", log_model=False)
     wandb_logger.experiment.save("src/config.yaml")
 
     torch.backends.cudnn.benchmark = True
@@ -177,7 +188,7 @@ def main():
             "best_ckpt_path": str(best_ckpt_path),
             "monitor": checkpoint_monitor,
             "mode": checkpoint_mode,
-            "best_model_score": float(best_ckpt_score) if best_ckpt_score is not None else None,
+            "best_model_score": _wandb_safe_metadata_value(float(best_ckpt_score) if best_ckpt_score is not None else None),
             "num_classes": num_classes,
             "model_name": config.model.name,
         },
