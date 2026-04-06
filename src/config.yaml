@@ -36,6 +36,16 @@ training:
   step_size: 4
   gamma: 0.1 
 
+  augmentation:
+    enabled: true
+    horizontal_flip_p: 0.5
+    vertical_flip_p: 0.2
+    rotation_deg: 15
+    brightness: 0.15
+    contrast: 0.15
+    saturation: 0.1
+    hue: 0.02
+
   oversample:
     oversample_factor: 4
     oversample_threshold: 1000

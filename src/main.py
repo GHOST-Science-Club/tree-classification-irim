@@ -1,10 +1,12 @@
 import os
 import json
 from pathlib import Path
+from collections import Counter
 
 import kornia.augmentation as kaug
 import torch
 import wandb
+import numpy as np
 from omegaconf import OmegaConf
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -34,6 +36,25 @@ def _wandb_safe_metadata_value(value):
     return value
 
 
+def print_split_summary(dataset, label_map):
+    inverse_label_map = {idx: name for name, idx in label_map.items()}
+    all_class_ids = set(label_map.values())
+
+    print("\n=== Dataset split summary ===")
+    for split in ["train", "val", "test"]:
+        labels = dataset[split]["labels"]
+        counts = Counter(labels)
+        print(f"{split}: {len(labels)} samples")
+        for class_id in sorted(counts):
+            class_name = inverse_label_map.get(class_id, str(class_id))
+            print(f"  - {class_name}: {counts[class_id]}")
+
+        missing = sorted(all_class_ids - set(counts.keys()))
+        if missing:
+            missing_names = [inverse_label_map.get(class_id, str(class_id)) for class_id in missing]
+            print(f"  WARNING: missing classes in {split}: {missing_names}")
+
+
 def main():
     # Load configuration file
     config = OmegaConf.load(CONFIG_PATH)
@@ -46,6 +67,7 @@ def main():
     # =========================== DATA LOADING AND PREPROCESSING ================================== #
 
     dataset, label_map = load_dataset(dataset_folder, config.dataset.species_folders)
+    print_split_summary(dataset, label_map)
     show_n_samples(dataset, config.dataset.species_folders)
 
     # =========================== INITIALIZING DATA AND MODEL ================================== #

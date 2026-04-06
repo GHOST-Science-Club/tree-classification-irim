@@ -88,11 +88,15 @@ class GradientBoostingLoss(nn.Module):
 
 
 class FineGrainedModel(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, freeze=False):
         super().__init__()
         self.feature_extractor = ModifiedResNet50(num_classes)
         self.diversification = DiversificationBlock()
         self.pool = nn.AdaptiveAvgPool2d(1)
+
+        if freeze:
+            for param in self.feature_extractor.backbone.parameters():
+                param.requires_grad = False
 
     def forward(self, x, is_train=True):
         activation_maps = self.feature_extractor(x)  # [batch, C, H, W]

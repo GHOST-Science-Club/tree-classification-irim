@@ -26,9 +26,13 @@ class ClassifierModule(pl.LightningModule):
             self.criterion = nn.CrossEntropyLoss()
 
         if num_classes == 2:
-            self.accuracy = Accuracy(task="binary")
+            self.train_accuracy = Accuracy(task="binary")
+            self.val_accuracy = Accuracy(task="binary")
+            self.test_accuracy = Accuracy(task="binary")
         else:
-            self.accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+            self.train_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+            self.val_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+            self.test_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
 
         # Container for predictions
         self.predictions = None
@@ -67,10 +71,18 @@ class ClassifierModule(pl.LightningModule):
             loss = self.criterion(outputs, labels)
 
         preds = torch.argmax(outputs, dim=1)
-        acc = self.accuracy(preds, labels)
-
-        self.log(f"{stage}_loss", loss, on_epoch=True, prog_bar=True)
-        self.log(f"{stage}_acc", acc, prog_bar=True)
+        if stage == "train":
+            acc = self.train_accuracy(preds, labels)
+            self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
+            self.log("train_acc", acc, on_step=False, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
+        elif stage == "val":
+            acc = self.val_accuracy(preds, labels)
+            self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
+            self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
+        else:
+            acc = self.test_accuracy(preds, labels)
+            self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
+            self.log("test_acc", acc, on_step=False, on_epoch=True, prog_bar=True, batch_size=labels.size(0))
 
         if stage == "test":
             probs = torch.softmax(outputs, dim=1)
