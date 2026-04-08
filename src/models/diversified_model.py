@@ -76,23 +76,27 @@ class GradientBoostingLoss(nn.Module):
             neg_logit = logit[torch.arange(num_classes, device=device) != label]
             neg_labels = torch.arange(num_classes, device=device)[torch.arange(num_classes, device=device) != label]
 
-            _, topk_indices = torch.topk(neg_logit, self.k)
+            topk = min(self.k, neg_logit.numel())
+            _, topk_indices = torch.topk(neg_logit, topk)
             J_prime = neg_labels[topk_indices]
 
-            numerator = torch.exp(logit[label])
-            denominator = numerator + torch.sum(torch.exp(logit[J_prime]))
-            loss_b = -torch.log(numerator / denominator)
+            selected_logits = torch.cat((logit[label].unsqueeze(0), logit[J_prime]))
+            loss_b = torch.logsumexp(selected_logits, dim=0) - logit[label]
             loss += loss_b
 
         return loss / batch_size
 
 
 class FineGrainedModel(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, freeze=False):
         super().__init__()
         self.feature_extractor = ModifiedResNet50(num_classes)
         self.diversification = DiversificationBlock()
         self.pool = nn.AdaptiveAvgPool2d(1)
+
+        if freeze:
+            for param in self.feature_extractor.backbone.parameters():
+                param.requires_grad = False
 
     def forward(self, x, is_train=True):
         activation_maps = self.feature_extractor(x)  # [batch, C, H, W]
@@ -100,5 +104,6 @@ class FineGrainedModel(nn.Module):
         if is_train:
             activation_maps = self.diversification(activation_maps)
 
-        pooled = self.pool(activation_maps).squeeze()  # [batch, C]
+        pooled = self.pool(activation_maps)  # [batch, C, 1, 1]
+        pooled = pooled.squeeze(-1).squeeze(-1)  # [batch, C]
         return pooled

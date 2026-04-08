@@ -14,6 +14,29 @@ with open("src/config.yaml", "r") as c:
     config = yaml.safe_load(c)
 
 
+def get_train_transform():
+    augmentation_cfg = config["training"].get("augmentation", {})
+    if not augmentation_cfg.get("enabled", True):
+        return None
+
+    return transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
+            transforms.RandomHorizontalFlip(p=augmentation_cfg.get("horizontal_flip_p", 0.5)),
+            transforms.RandomVerticalFlip(p=augmentation_cfg.get("vertical_flip_p", 0.2)),
+            transforms.RandomRotation(degrees=augmentation_cfg.get("rotation_deg", 15)),
+            transforms.ColorJitter(
+                brightness=augmentation_cfg.get("brightness", 0.15),
+                contrast=augmentation_cfg.get("contrast", 0.15),
+                saturation=augmentation_cfg.get("saturation", 0.1),
+                hue=augmentation_cfg.get("hue", 0.02),
+            ),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
+
+
 def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=3, precision=32, ram_fraction=0.8):
     """
     Function calculates the number of workers and prefetch factor
@@ -45,7 +68,12 @@ def calculate_dataloader_params(batch_size, img_size=(224, 224), image_channels=
         prefetch_factor = min(max_batches_in_ram, 16)
         num_workers = min(floor(prefetch_factor / 2), os.cpu_count())
 
-        params = {"num_workers": num_workers, "prefetch_factor": prefetch_factor, "pin_memory": config["device"] == "gpu", "persistent_workers": True}
+        params = {
+            "num_workers": num_workers,
+            "prefetch_factor": prefetch_factor,
+            "pin_memory": str(config.get("device", "")).startswith("cuda") or config.get("device") == "gpu",
+            "persistent_workers": True,
+        }
 
     else:
         params = {
@@ -182,7 +210,8 @@ class ForestDataModule(pl.LightningDataModule):
         self.params = calculate_dataloader_params(batch_size)
 
     def setup(self, stage=None):
-        self.train_dataset = self.dataset(image_paths=self.train_data["paths"], labels=self.train_data["labels"], **self.dataset_args)
+        train_transform = get_train_transform()
+        self.train_dataset = self.dataset(image_paths=self.train_data["paths"], labels=self.train_data["labels"], transform=train_transform, **self.dataset_args)
         self.val_dataset = ForestDataset(image_paths=self.val_data["paths"], labels=self.val_data["labels"])
         self.test_dataset = ForestDataset(image_paths=self.test_data["paths"], labels=self.test_data["labels"])
 

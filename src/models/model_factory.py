@@ -67,7 +67,7 @@ def create_model(model_name, num_classes, freeze=False):
         model.classifier[1] = nn.Linear(in_features, num_classes)
 
     elif model_name == "fine_grained":
-        model = FineGrainedModel(num_classes)
+        model = FineGrainedModel(num_classes, freeze=freeze)
 
     else:
         raise ValueError(f"Model '{model_name}' not supported.")

@@ -27,7 +27,7 @@ model:
   name: "fine_grained" # currently supporting resnet18, vit and inception_v3
 
 training:
-  batch_size: 32
+  batch_size: 1
   learning_rate: 0.0001
   max_epochs: 100
   freeze: true
@@ -35,6 +35,16 @@ training:
 
   step_size: 4
   gamma: 0.1 
+
+  augmentation:
+    enabled: true
+    horizontal_flip_p: 0.5
+    vertical_flip_p: 0.2
+    rotation_deg: 15
+    brightness: 0.15
+    contrast: 0.15
+    saturation: 0.1
+    hue: 0.02
 
   oversample:
     oversample_factor: 4
@@ -74,4 +84,18 @@ training:
     patience: 3
     mode: "min"
 
-device: "gpu"
+inference:
+  mask_size: 224
+  export_onnx: true
+  checkpoint_path: "checkpoints/model.ckpt"
+  # wandb_artifact: "ghost-irim/ghost-irim/model-kx2co2o3:v0"
+  wandb_artifact: "ghost-irim/ghost-irim/best-model-inference-artifact-saving-vft1nd:v0"
+  wandb_project: "ghost-irim"
+  # Set to true to run inference on raw images (ONNX-style testing)
+  # Set to false to run inference on test dataset split
+  use_raw_images: false
+  # Path to directory containing raw images (relative to project root)
+  # raw_images_path: "test_images_qgis/10122025_193353"
+  # raw_images_path: "/home/adam/Documents/programming/tree-classification-irim/src/data/Abies_alba/train"
+  raw_images_path: "/home/adam/Documents/programming/tree-classification-irim/src/data/Robinia_pseudoacacia/train"
+device: "cuda"
